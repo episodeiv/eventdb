@@ -1,0 +1,34 @@
+#!/bin/sh
+# Start/stop the syslog2mysql daemon.
+
+
+# Source function library.
+. /etc/init.d/functions
+
+DAEMON=/usr/lib/nagios/contrib/syslog2mysql.pl
+PIPE=/var/run/syslog.pipe
+
+test -f $DAEMON || exit 0
+test -p $PIPE || mkfifo $PIPE
+
+case "$1" in
+start)	echo -n "Starting syslog2mysql daemon"
+        nohup $DAEMON 2>&1 /dev/null &
+        echo "." 
+	;;
+stop)   echo -n "Starting syslog2mysql daemon"
+		killall syslog2mysql.pl     
+        echo "."
+        ;;
+status) STATUS=`ps ax | grep -v grep | grep syslog2mysql.pl -c`
+  		if [ $STATUS -gt 0 ]; then
+			echo "syslog2mysql is running."
+		else
+			echo "syslog2mysql not found."
+		fi
+		;;
+*)	echo "Usage: /etc/init.d/syslog2mysql start|stop"
+        exit 1 
+        ;;
+esac
+exit 0
