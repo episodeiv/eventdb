@@ -678,6 +678,7 @@ function db_query($sql) {
     return $num;
   }
 
+  mkerror('Database is empty (please feed it via printf "$HOSTNAME\tuser\terr\tlevel\ttag\t%s\t%s\tPROGRAM\ttest message $$\n" `date "+%Y-%m-%d"` `date "+%H:%M:%S"` >> /usr/local/nagios/var/rw/syslog-ng.pipe)', 0, 'DB');
   return false;
 }
 
