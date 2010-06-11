@@ -274,9 +274,9 @@ sub myexit {
 	} else {	
 		$out .= sprintf('%1$s: %2$s %3$s', $status, $opt_label, $text);
 	}	
+	$out .= sprintf('|%1$s', $perfdata) if ($perfdata);
 	$out .= "\nmessage filter: $opt_msg";
 	$out .= "\nreset regexp: $opt_resetregexp";
-	$out .= sprintf('|%1$s', $perfdata) if ($perfdata);
 	$out .= chr(10);
 
 	print $out;
