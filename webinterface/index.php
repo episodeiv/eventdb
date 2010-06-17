@@ -678,8 +678,12 @@ function db_query($sql) {
     return $num;
   }
 
-  mkerror('Database is empty (please feed it via printf "$HOSTNAME\tuser\terr\tlevel\ttag\t%s\t%s\tPROGRAM\ttest message $$\n" `date "+%Y-%m-%d"` `date "+%H:%M:%S"` >> /usr/local/nagios/var/rw/syslog-ng.pipe)', 0, 'DB');
-  return false;
+  $res = @mysql_query('select count(uid) as zeilen from events', db_conn());
+  $zeilen = mysql_fetch_assoc($res);
+  if ( $zeilen["zeilen"] == 1) {
+    mkerror('Database is empty (please feed it via printf "$HOSTNAME\tuser\terr\tlevel\ttag\t%s\t%s\tPROGRAM\ttest message $$\n" `date "+%Y-%m-%d"` `date "+%H:%M:%S"` >> /usr/local/nagios/var/rw/syslog-ng.pipe)' . "  \n\n$sql", 0, 'DB');
+    return false;
+  }
 }
 
 function db_res2array($res) {
