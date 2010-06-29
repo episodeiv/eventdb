@@ -2,16 +2,21 @@
 
 ###### config begin
 
+# backupdir
 #BACKUPDIR=/var/backups/eventdb/
 BACKUPDIR=/drbd/backups/eventdb/
 
 # mysql connection as someone
-MYSQL="mysql --user=eventdb --passwordmypassword eventdb"
+#MYSQL="mysql --user=eventdb --passwordmypassword eventdb"
 # or run as root
 MYSQL="mysql eventdb"
 
 # calculate threshold for purge
-OLDDATE=‘date --date ’-2 weeks’ "+%Y-%m-%d %H:%M:%S"‘
+OLDDATE=`date --date '-2 weeks' "+%Y-%m-%d %H:%M:%S"`
+
+# clean all (leave empty) or only acknowledged items
+#ACKNOWLEDGED="AND acknowledged"
+ACKNOWLEDGED=""
 
 ###### config end
 
@@ -23,9 +28,8 @@ OLDDATE=‘date --date ’-2 weeks’ "+%Y-%m-%d %H:%M:%S"‘
 [[ -d $BACKUPDIR ]] || mkdir -p $BACKUPDIR
 
 # backup
-$MYSQL --execute="SELECT * INTO OUTFILE ’$BACKUPDIR/$OLDDATE.txt’ FIELDS TERMINATED BY ’\t’ FROM events WHERE datetime < ’$OLDDATE’ AND acknowledged;"
+$MYSQL --execute="SELECT * INTO OUTFILE '$BACKUPDIR/$OLDDATE.txt' FIELDS TERMINATED BY '\t' FROM events WHERE datetime < '$OLDDATE' $ACKNOWLEDGED;"
 
 # clean
-#$MYSQL --execute="DELETE FROM events WHERE datetime < ’$OLDDATE’ AND acknowledged;"
-$MYSQL --execute="DELETE FROM events WHERE datetime < ’$OLDDATE’;"
+$MYSQL --execute="DELETE FROM events WHERE datetime < '$OLDDATE' $ACKNOWLEDGED;"
 $MYSQL --execute="optimize table events;"
