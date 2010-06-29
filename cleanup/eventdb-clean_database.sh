@@ -1,17 +1,31 @@
 #!/bin/bash
 
+###### config begin
+
+#BACKUPDIR=/var/backups/eventdb/
+BACKUPDIR=/drbd/backups/eventdb/
+
+# mysql connection as someone
+MYSQL="mysql --user=eventdb --passwordmypassword eventdb"
+# or run as root
+MYSQL="mysql eventdb"
+
 # calculate threshold for purge
 OLDDATE=‘date --date ’-2 weeks’ "+%Y-%m-%d %H:%M:%S"‘
 
-# create backup dir
-[[ -d /var/backups/eventdb/ ]] || mkdir -p /var/backups/eventdb/
+###### config end
 
-# mysql connection
-MYSQL="mysql --user=eventdb --passwordmypassword eventdb"
+
+
+###### main
+
+# create backup dir
+[[ -d $BACKUPDIR ]] || mkdir -p $BACKUPDIR
 
 # backup
-$MYSQL --execute="SELECT * INTO OUTFILE ’/var/backups/eventdb/$OLDDATE.txt’ FIELDS TERMINATED BY ’\t’ FROM events WHERE datetime < ’$OLDDATE’ AND acknowledged;"
+$MYSQL --execute="SELECT * INTO OUTFILE ’$BACKUPDIR/$OLDDATE.txt’ FIELDS TERMINATED BY ’\t’ FROM events WHERE datetime < ’$OLDDATE’ AND acknowledged;"
 
 # clean
-$MYSQL --execute="DELETE FROM events WHERE datetime < ’$OLDDATE’ AND acknowledged;"
+#$MYSQL --execute="DELETE FROM events WHERE datetime < ’$OLDDATE’ AND acknowledged;"
+$MYSQL --execute="DELETE FROM events WHERE datetime < ’$OLDDATE’;"
 $MYSQL --execute="optimize table events;"
