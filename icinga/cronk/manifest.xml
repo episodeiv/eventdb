@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IcingaPlugin>
+	
+	<!--  Meta information about the module-->
+	<Meta>
+		<Name>EventDB Cronk</Name>
+		<Version>0.9</Version>
+		<Description><![CDATA[EventDB Integration]]></Description>
+		<Author>Eric Lippmann</Author>
+		<Company>NETWAYS GmbH</Company>	
+	</Meta>
+	
+	<Dependencies>
+		<Icinga-Web>
+			<Version>1.0.3</Version>
+		</Icinga-Web>
+		<PHP>
+			<Version>5.2</Version>
+			<Extensions>
+			</Extensions>
+		</PHP>
+		
+	</Dependencies>
+	
+	<!-- Filesystem information -->
+	<Files>		
+
+		<Paths>
+			<AppKit>/app/modules/AppKit/lib/</AppKit>
+	
+			<Icinga>/usr/local/icinga-web/</Icinga>
+			<Doctrine>lib/doctrine/lib/</Doctrine>
+			<Api>lib/icinga-api/</Api>
+
+		</Paths>
+		
+		<Additional>
+		</Additional>
+		
+		<Excludes>
+			<file>**/cache/**/*.xml</file>
+			<file>**/cache/*.xml</file>
+			<folder>**/.git/</folder>
+			<folder>**/output/room*/**</folder>
+
+		</Excludes>
+	
+		<Extractor>
+		</Extractor>
+	</Files>
+	
+	<Config>
+	</Config>
+	
+	<!--  Database information -->
+	<Database>
+		<Doctrine>
+			<Models>
+				<Prefix>EventDB</Prefix>
+			</Models>
+		</Doctrine>
+		
+	</Database>
+	
+	
+</IcingaPlugin>

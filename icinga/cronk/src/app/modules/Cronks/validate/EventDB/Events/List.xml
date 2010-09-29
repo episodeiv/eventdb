@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ae:configurations
+	xmlns="http://agavi.org/agavi/config/parts/validators/1.0"
+	xmlns:ae="http://agavi.org/agavi/config/global/envelope/1.0"
+	parent="%core.module_dir%/Cronks/config/validators.xml"
+>
+	<ae:configuration>
+		
+		<validators>
+		    <validator class="number" required="false" name="offset">
+		        <argument>offset</argument>
+		        <ae:parameters>
+		            <ae:parameter name="min">0</ae:parameter>
+		        </ae:parameters>
+		    </validator>
+
+            <validator class="number" required="false" name="limit">
+                <argument>limit</argument>
+                <ae:parameters>
+                    <ae:parameter name="min">0</ae:parameter>
+                </ae:parameters>
+            </validator>
+            
+            <validator class="string" required="false" name="target">
+                <argument>target</argument>
+            </validator>
+            
+            <validator class="string" required="false" name="column">
+                <argument>column</argument>
+            </validator>
+            
+            <validator class="string" required="false" name="group_by">
+                <argument>group_by</argument>
+            </validator>
+            
+            <validator class="string" required="false" name="filter_target">
+                <arguments base="filter[]">
+                    <argument>target</argument>
+                </arguments>
+            </validator>
+            
+            <validator class="string" required="false" name="filter_operator">
+                <arguments base="filter[]">
+                    <argument>operator</argument>
+                </arguments>
+            </validator>
+           
+            <validator class="string" required="false" name="filter_value">
+                <arguments base="filter[]">
+                    <argument>value</argument>
+                </arguments>
+            </validator>
+		</validators>
+		
+	</ae:configuration>
+</ae:configurations>

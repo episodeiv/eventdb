@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ae:configurations
+	xmlns="http://agavi.org/agavi/config/parts/validators/1.0"
+	xmlns:ae="http://agavi.org/agavi/config/global/envelope/1.0"
+	parent="%core.module_dir%/Cronks/config/validators.xml"
+>
+	<ae:configuration>
+		
+		<validators>
+		    <validator class="EventValidator" name="events" required="true">
+		        <arguments base="events[]">
+		            <argument />
+		        </arguments>
+		        <ae:parameters>
+		            <ae:parameter name="export">events[%2$s]</ae:parameter>
+		        </ae:parameters>
+		    </validator>
+		    
+            <validator class="string" name="comment" required="false">
+                <argument>comment</argument>
+            </validator>
+            
+            <validator class="number" name="acknoledge" required="false">
+                <arguments base="event_ack[]">
+                    <argument />
+                </arguments>
+            </validator>
+		</validators>
+		
+	</ae:configuration>
+</ae:configurations>
