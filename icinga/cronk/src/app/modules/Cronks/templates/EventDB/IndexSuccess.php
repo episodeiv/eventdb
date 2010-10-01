@@ -203,7 +203,7 @@ Cronk.util.initEnvironment("<?php echo $rd->getParameter('parentid'); ?>", funct
 			                	name: 'comment',
 			                	width: 460,
 			                	height: 130,
-			                	allowBlank: false
+			                	allowBlank: true
 			                }],
 	                        buttons: [{
 	                            text: 'Submit',
@@ -233,7 +233,9 @@ Cronk.util.initEnvironment("<?php echo $rd->getParameter('parentid'); ?>", funct
 		                            			AppKit.notifyMessage(_('Request successful'), action.result.message);
 		                            			// TODO: Reload only if selected.
 		                            			eventStore.load();
-		                            			commentStore.load();
+								if ('event' in commentStore.baseParams) {
+			                            			commentStore.load();
+								}
 		                            		}
 		                            	});
 		                            	oWin.hide();
