@@ -258,11 +258,11 @@ Cronk.util.initEnvironment("<?php echo $rd->getParameter('parentid'); ?>", funct
     var eventTypeColorMap = {
     	syslog: 'style="color:#00ff00"',
     	snmptrap: 'style="color:#66bbff;"',
-    	default: 'style="color:#000000;"'
+    	default_: 'style="color:#000000;"'
     };
     
     var eventTypeColorRenderer = function(v, m, r) {
-    	m.attr = eventTypeColorMap[v] || eventTypeColorMap.default;
+    	m.attr = eventTypeColorMap[v] || eventTypeColorMap.default_;
     	return v;
     };
     
@@ -274,7 +274,7 @@ Cronk.util.initEnvironment("<?php echo $rd->getParameter('parentid'); ?>", funct
     };
     
     var eventPriorityColorRenderer = function(v, m, r) {
-        m.attr = eventPriorityColorMap[v] || eventPriorityColorMap.default;
+        m.attr = eventPriorityColorMap[v] || eventPriorityColorMap.default_;
         return v;
     };
     
