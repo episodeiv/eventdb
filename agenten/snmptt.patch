@@ -1,0 +1,51 @@
+--- /usr/local/src/snmptt_1.2/snmptt    2007-06-16 16:23:54.000000000 +0200
++++ snmptt      2009-07-24 11:58:16.000000000 +0200
+@@ -1799,18 +1799,13 @@
+           }
+
+           if (&mysql_insert($mysql_dbi_table,
+-            "eventname", $event2[0],                # $N
+-            "eventid", $receivedtrap_entry,         # $i
+-            "trapoid", $receivedtrap_trans,         # $O
+-            "enterprise", $db_enterprise,           # $E or $e depending on $db_translate_enterprise
+-            "community", $community,                # $C
+-            "hostname", $agent_dns_name,            # $A
+-            "agentip", $var[4],                     # $aA
+-            "category", $event2[1],                 # $c
+-            "severity", $event2[2],                 # $s
+-            "uptime", $var[2],                      # $T
+-            "traptime", $trap_date_time_sql,
+-            "formatline", $message_short2,
++            "type", "1",
++            "host_name", $var[4],
++            "facility", $event2[1],
++            "priority", $event2[2],
++            "program", "snmptrap",
++            "created", $trap_date_time_sql,
++            "modified", $trap_date_time_sql,
++            "message", $message_short2,
+             @t_sql_custom_columns) == 1 ) { #
+             $trap_successfully_logged++;
+           }
+@@ -3679,14 +3674,13 @@
+         }
+
+         &mysql_insert($mysql_dbi_table_unknown,
+-          "trapoid", $receivedtrap_trans,
+-          "enterprise", $db_enterprise,
+-          "community", $community,
+-          "hostname", $agent_dns_name,
+-          "agentip", $var[4],
+-          "uptime", $var[2],
+-          "traptime", $trap_date_time_sql,
+-          "formatline", $message_short2,
++          "type", "0",
++          "host_name", $var[4],
++          "facility", "Unknown",
++          "priority", "Normal",
++          "program", "snmptrap",
++          "created", $trap_date_time_sql,
++          "modified", $trap_date_time_sql,
++          "message", $message_short2,
+           @t_sql_custom_columns_unknown);
+       }
