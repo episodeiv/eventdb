@@ -4,15 +4,15 @@
 	<!--  Meta information about the module-->
 	<Meta>
 		<Name>EventDB Cronk</Name>
-		<Version>0.9</Version>
+		<Version>1.0</Version>
 		<Description><![CDATA[EventDB Integration]]></Description>
-		<Author>Eric Lippmann</Author>
+		<Author>Jannis Moßhammer,Eric Lippmann</Author>
 		<Company>NETWAYS GmbH</Company>	
 	</Meta>
 	
 	<Dependencies>
 		<Icinga-Web>
-			<Version>1.0.3</Version>
+			<Version>1.3</Version>
 		</Icinga-Web>
 		<PHP>
 			<Version>5.2</Version>
