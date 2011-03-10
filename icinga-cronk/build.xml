@@ -67,7 +67,14 @@ Available targets:
 		
 		<echo>Setting up db</echo>
 		<taskdef name="sqlRunner" classname="bin.sqlRunnerTask" />
-		<sqlRunner files="etc/sql" ini="db.ini"/>
+		
+		<input propertyname="confirm" promptChar="?" defaultValue="y" validArgs="y,n">Setup tables?</input>
+		<if>
+			<equals arg1="${confirm}" arg2="y" />
+			<then>
+				<sqlRunner files="etc/sql" ini="db.ini"/>
+ 			</then>
+		</if>
 		
 		<echo>Inserting snippets</echo>
 	

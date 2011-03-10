@@ -35,7 +35,7 @@ Common for Icinga-Cronk and Classic Webinterface:
 1.) in your mysql console (change user or pass if you want to):
 	"CREATE USER 'eventdb' IDENTIFIED BY 'eventdb';"
 	"CREATE DATABASE 'eventdb'";
-	"GRANT SELECT, INSERT, CREATE TABLE, DELETE, UPDATE ON eventdb.* to eventdb"
+	"GRANT SELECT, INSERT, CREATE, DELETE, UPDATE ON eventdb.* to eventdb"
 
 
 Classic interface:
@@ -53,7 +53,7 @@ Icinga-Cronk:
 
 3.) run ./install.sh
 
-4.) in your /usr/local/icinga-web/app/config/database.xml:
+4.) in your /usr/local/icinga-web/app/config/databases.xml:
 	Add the following snippet BEFORE our icinga_web config (otherwise the config will crash)
 
 
