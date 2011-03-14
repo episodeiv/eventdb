@@ -18,15 +18,8 @@ my $dbuser  = "eventdb";
 my $dbpass  = "eventdb";
 my $dbtable = "event";
 
-my $dbh = DBI->connect("DBI:mysql:$db:$dbhost", $dbuser, $dbpass)
-    or die('Unable to connect to icinga-web\'s database.');
-
-my $db_insert = $dbh->prepare("insert into $dbtable set " .
-                              'type=?, host_name=?, ' .
-							  'host_address=?, '.
-                              'facility=?, priority=?, ' . 
-                              'created=?, modified=?, ' .
-                              'program=?, message=?');
+my $dbh;
+my $db_insert;
 
 while (1) {
     open( FIFO, $fifo );
@@ -46,7 +39,7 @@ while (1) {
 			}
 			
 			$host_address = ipv6_aton($host_address);
-			print Dumper($host_address);
+			
 		} else { 
 			$host_address = inet_aton($host_address);
         }
@@ -59,14 +52,25 @@ while (1) {
                 $type = 1;
             }
         }
-		
-
-        my $datetime = $date . " " . $time ;
-
-        $db_insert->execute($type, $host,$host_address, $facility, $priority,
+		if($host ne "") {
+            if($dbh = DBI->connect_cached("DBI:mysql:$db:$dbhost", $dbuser, $dbpass)) {
+               $db_insert = $dbh->prepare("insert into $dbtable set " .
+                              'type=?, host_name=?, ' .
+							  'host_address=?, '.
+                              'facility=?, priority=?, ' . 
+                              'created=?, modified=?, ' .
+                              'program=?, message=?');
+ 
+               my $datetime = $date . " " . $time ;
+            
+                $db_insert->execute($type, $host,$host_address, $facility, $priority,
                             $datetime, $datetime, $prg, $msg
-                           ) if ($host ne "");
-
+                           ) or warn $DBI::errstr;
+		    } else {
+                warn("Could not establish db connection");
+                sleep(5);
+            }
+        }
     }
     close(FIFO);
 }

@@ -44,7 +44,7 @@ longOptDef = [
     'db=',
     'dbtable=',
     'dbuser=',
-    'dbpassword)',
+    'dbpassword=',
     'dbhost=',
     'critical=',
     'warning=',
