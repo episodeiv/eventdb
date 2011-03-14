@@ -116,7 +116,8 @@ Cronk.EventDB.MainView = function(cfg) {
     		count: 'id',	
 			limit:25
     	},
-    	paramNames: {
+    	remoteSort: true,
+		paramNames: {
     		start: 'offset'
     	},
     	url: url,
@@ -247,6 +248,7 @@ Cronk.EventDB.MainView = function(cfg) {
     	store: commentStore,
         stateId: 'db-commentGrid-' + this.id,
         stateful: true,
+		stateEvents: ['sortchange','columnresize','columnmove'],
         colModel: new Ext.grid.ColumnModel({
             defaults: {
                 width: 80,
@@ -421,7 +423,22 @@ Cronk.EventDB.MainView = function(cfg) {
 	            'hostFilterChanged': true
 	        });
 	       	Ext.grid.GridPanel.prototype.constructor.call(this);
-	    	this.store.on("load", function() {
+	    	this.store.on("beforeload",function() {
+				
+				var sortState = this.getSortState();
+				if(!Ext.isObject(sortState))
+					return true;
+				
+				var f = fm.getFilterDescriptor();
+				f.display.order =  
+				{
+					dir: sortState.direction.toLowerCase(),
+					field: sortState.field
+				}
+			
+				this.setBaseParam('jsonFilter',Ext.encode(f));
+			},this.store);
+			this.store.on("load", function() {
 				this.buildInterGridLink();
 				this.updateSelected();	
 			},this)
@@ -510,7 +527,8 @@ Cronk.EventDB.MainView = function(cfg) {
 		store: eventStore,
         stateId: 'db-eventGrid-' + this.id,
         stateful: true,
-        stateEvents: ['statechange'],
+		stateEvents: ['statechange','sortchange','columnresize','columnmove'],
+       
         tbar: [{
             iconCls: 'icinga-icon-arrow-refresh',
             text: _('Refresh'),
@@ -658,7 +676,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 dataIndex: 'type',
                 header: _('Type'),
                 sortable: true,
-                width: 50,
+                width: 100,
                 renderer: function(v) {
 					var typename = eventGrid.resolveType(v);
 					
@@ -669,7 +687,7 @@ Cronk.EventDB.MainView = function(cfg) {
             	dataIndex: 'host_name',
             	header: _('Host'),
             	sortable: true,
-            	width: 50,
+            	width: 100,
 				renderer: function(v,meta,rec) {
 					var host_name = "";
 					var style = "";
@@ -684,12 +702,12 @@ Cronk.EventDB.MainView = function(cfg) {
 				dataIndex: 'address',
 				header: _('Address'),
 				hidden: true,
-				width: 75
+				width: 100
 			},{
             	dataIndex: 'priority',
             	header: _('Priority'),
             	sortable: true,
-            	width: 75,
+            	width: 100,
             	renderer: function(v) {
 					return '<div class="tag '+v.toLowerCase()+'">'+v+'</div>'	
 				}
@@ -697,7 +715,7 @@ Cronk.EventDB.MainView = function(cfg) {
             	dataIndex: 'message',
             	header: _('Message'),
             	sortable: true,
-        		width: 30,
+        		width: 200,
 				renderer: function(v) {
 					return '<div qtip="'+v+'">'+v+'</div>';	
 				}
@@ -709,7 +727,7 @@ Cronk.EventDB.MainView = function(cfg) {
 					return '<span class="eventdb-program '+v.toLowerCase()+'">'+ 
 						'<div style="float:left" class="icon-16"></div>'+v+'</span>';
 				},
-            	width: 50
+            	width: 100
             },{
             	dataIndex: 'facility',
             	header: _('Facility'),
@@ -720,12 +738,12 @@ Cronk.EventDB.MainView = function(cfg) {
 					return '<span class="eventdb-facility '+v.toLowerCase()+'">'+ 
 						'<div style="float:left" class="icon-16"></div>'+v+'</span>';
 				},
-            	width: 50
+            	width: 100
             },{
             	dataIndex: 'created',
             	header: _('Created'),
             	sortable: true,
-            	width: 100
+            	width: 200
             }
 		],
         sm: false,        
@@ -791,15 +809,25 @@ Cronk.EventDB.MainView = function(cfg) {
         },
         border: false,
         getState: function() {
+		
         	var state = {
-        		height: this.getHeight(),
+       
+				height: this.getHeight(),
         		width: this.getWidth(),
         		storeParams: this.store.baseParams,
         		filters: fm.getFilterDescriptor()
         	};
+
+
+
+
         	return state;
         },
         applyState: function(state) {
+	
+			AppKit.log(state);
+			if(state.colModel)
+				this.getColumnModel().setConfig(Ext.decode(state.colModel))
         	this.setHeight(state.height);
         	this.setWidth(state.width);
         	this.store.baseParams = state.storeParams;
@@ -808,7 +836,7 @@ Cronk.EventDB.MainView = function(cfg) {
         	eventGridPager.pageSize = (fm.defaultValues.display || {limit:25}).limit;
 		},
 		viewConfig: {
-			forceFit:true,
+			
 			getRowClass: function(record,index) {
 				return 'tag '+record.get('priority').toLowerCase();	
 			}
