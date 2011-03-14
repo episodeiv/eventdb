@@ -265,7 +265,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				}},
                 {header: _('Author'), dataIndex: 'user'},
                 {header: _('Created'), dataIndex: 'created', width: 150},
-                {header: _('Message'), dataIndex: 'message', width: 200},
+                {header: _('Message'), dataIndex: 'message', width: 200}
             ]           
         }),
         bbar: new Ext.PagingToolbar({

@@ -349,7 +349,7 @@ Cronk.EventDB.FilterManagerViews.Advanced = function(url) {
 								xtype: 'textfield',		
 								fieldLabel: _(includeOrExclude),
 								id: 'form_txt_'+includeOrExclude+'_'+this.name+'_'+this.evId,
-								name: name+"_"+includeOrExclude+'_pattern',
+								name: name+"_"+includeOrExclude+'_pattern'
 							}] 
 						},{
 							width:100,
@@ -603,7 +603,7 @@ Cronk.EventDB.FilterManagerViews.General = function() {
 		},
 		defaults: {
 			bodyStyle: {
-				padding :2,
+				padding :2
 			}
 		},	
 		autoScroll: true,
@@ -1055,11 +1055,11 @@ Cronk.EventDB.FilterManagerViews.General = function() {
 					value: 'host_name'
 				},{
 					text: _('Event priority'),
-					value: 'prioNr'
-				},/*{
+					value: 'priority'
+				},{
 					text: _('Event facility'),
 					value: 'facility'
-				},*/{
+				},{
 					text: _('Acknowledged'),
 					value: 'ack'
 				}]
@@ -1158,7 +1158,7 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 				items: []
 			},
 			misc: {
-				hideAck: false,	
+				hideAck: false	
 			},
 			sourceExclusion: [],
 			priorityExclusion: [],
