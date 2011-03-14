@@ -995,7 +995,7 @@ function html_data_table($arr, $count) {
         }
 
 		EncodeString($value);
-
+		
         printf('<td%2$s>%1$s</td>', $value ? $value : '&nbsp;', $class ? sprintf(' class="%s"', $class) : false);
       }
       printf('</tr>');
@@ -1261,18 +1261,20 @@ END;
   return false;
 }
 
-function html_select_options($array, $selected=false, $add_blank = false) {
+function html_select_options($array, $selected=false, $add_blank = false, $cb = false) {
   $out = array ();
   if ($add_blank) $out[] = '<option value=""></option>';
   foreach ($array as $key=>$val) {
-    $stag = false;
+	if($cb !== false)
+		$val = call_user_func($cb,$val);
+
+	$stag = false;
     if (is_array($selected)) {
       foreach ($selected as $sval) {
         if ($sval == $key) $stag = true;
       }
     }
     elseif ($selected == $key) $stag = true;
-
     $out[] = sprintf('<option value="%1$s"%3$s>%2$s</option>', $key, $val, $stag ? ' selected="selected"' : false);
   }
 
@@ -1447,8 +1449,8 @@ END;
   $content = sprintf(
     $content,
     html_widget_select('host', html_select_options(db_get_hosts(), $GLOBALS['a']['host']), true),
-    html_widget_select('facility', html_select_options(db_get_facilities(), $GLOBALS['a']['facility']), true),
-    html_widget_select('priority', html_select_options(db_get_priorities(), $GLOBALS['a']['priority']), true),
+    html_widget_select('facility', html_select_options(db_get_facilities(), $GLOBALS['a']['facility'],false,"get_facility_class"), true),
+    html_widget_select('priority', html_select_options(db_get_priorities(), $GLOBALS['a']['priority'],false,"get_priority_class"), true),
     html_widget_select('orderby', html_select_options(get_orderby_fields(), cget('db.orderby'), false)),
     html_widget_select('order', html_select_options(get_order_fields(), cget('db.order'), false)),
     html_widget_input('message', $GLOBALS['a']['message'], array('style' => 'width: 250px;')),
