@@ -6,7 +6,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	 * 
 	 * @author jmosshammer<jannis.mosshammer@netways.de>
 	 */
-	var edbColumnSelector = new Ext.util.DelayedTask(function(cfg) {
+	var edbColumnSelector = new Ext.util.DelayedTask(function(cfg,record) {
 		var objsToCheck = (Ext.DomQuery.jsSelect("div.edb_cronk_sel"));
 		var idsToCheck = [];
 		cfg.elems = {};
@@ -98,6 +98,16 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 			map[elem[cfg.type+'_ID']].host = elem.HOST_NAME;
 			map[elem[cfg.type+'_ID']].service = elem[cfg.type+'_NAME'];
 		});
+		// Add host/service as a filter per default
+		Ext.iterate(objects,function(DOMNode) {
+			var id = DOMNode.getAttribute('edb_val');
+			var elem = Ext.get(DOMNode);
+			if(map[id])
+				return true;
+
+			map[id] = {host: DOMNode.getAttribute('host'), service: DOMNode.getAttribute('service')}
+		});
+		
 		Ext.iterate(objects,function(DOMNode) {
 			var id = DOMNode.getAttribute('edb_val');
 			var elem = Ext.get(DOMNode);
@@ -148,16 +158,16 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 						"exclude_set":[]
 					},
 					"messageFilter":{
-						"items": data.msg != "" ? data.msg : []
+						"items": data.msg || []
 					},
 					"misc":{
 						"hideAck":false
 					},
-					"sourceExclusion":data.sourceExclusion,
-					"priorityExclusion":data.priorityExclusion,
-					"facilityExclusion":data.facilityExclusion,
+					"sourceExclusion":data.sourceExclusion || [],
+					"priorityExclusion":data.priorityExclusion || [],
+					"facilityExclusion":data.facilityExclusion || [],
 					"timespan":{
-						"from": data.startTime,
+						"from": data.startTime || -1,
 						"to":-1
 					},
 					"display":{
@@ -181,8 +191,10 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	Cronk.grid.ColumnRenderer.edbColumn = function(cfg) {
 
 		return function(value, garbage, record, rowIndex, colIndex, store) {
-			edbColumnSelector.delay(500,null,null,[cfg]);
-			return '<div class="edb_cronk_sel unfinished" edb_val="'+value+'" style="width:25px;height:24px;display:block"></div>'
+			
+			edbColumnSelector.delay(500,null,null,[cfg,record]);
+			AppKit.log(record)
+			return '<div class="edb_cronk_sel unfinished" edb_val="'+value+'" host="'+record.data.host_name+'" service="'+record.data.service_name+'" style="width:25px;height:24px;display:block"></div>'
 		}
 	}
 		
