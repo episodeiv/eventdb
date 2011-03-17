@@ -41,19 +41,23 @@ Cronk.EventDB.MainView = function(cfg) {
 		},
 
 		syncWithFilter: function() {
+			
 			var filter = fm.getFilterDescriptor().priorityExclusion;
-			if(!filter) 
+			AppKit.log(fm.getFilterDescriptor());
+			if(!filter)
 				return true;
-			this.suspendEvents();
+
+	
 			Ext.iterate(this.items.items,function(i) {		
-				
+				i.suspendEvents();		
 				if(filter.indexOf(i.value.toString()) > -1) {
 					i.toggle(false);	
 				} else {	
 					i.toggle(true);	
 				}
+				i.resumeEvents();
 			});
-			this.resumeEvents();
+	
 		},
 		items: [
 		{
@@ -170,8 +174,8 @@ Cronk.EventDB.MainView = function(cfg) {
     	eventGridPager.pageSize = filters.display.limit;;	
     	eventStore.baseParams = {"jsonFilter": Ext.encode(filters)}
  		Cronk.Registry.get(CE.id).params["FilterJSON"] = Ext.encode(fm.getFilterDescriptor());   		
-    	quickFilterBar.syncWithFilter();
     	
+    	quickFilterBar.syncWithFilter();
 		eventGrid.refresh();
     },this,{buffer:true});
    
@@ -435,7 +439,7 @@ Cronk.EventDB.MainView = function(cfg) {
 					dir: sortState.direction.toLowerCase(),
 					field: sortState.field
 				}
-			
+				quickFilterBar.syncWithFilter();
 				this.setBaseParam('jsonFilter',Ext.encode(f));
 			},this.store);
 			this.store.on("load", function() {
@@ -627,7 +631,7 @@ Cronk.EventDB.MainView = function(cfg) {
 		refreshTask : new Ext.util.DelayedTask(function() {
 			eventStore.load();
 			quickFilterBar.active = true;
-			quickFilterBar.syncWithFilter();
+			
 		}),
 		refresh: function() {
 			this.refreshTask.delay(1000);
@@ -796,7 +800,7 @@ Cronk.EventDB.MainView = function(cfg) {
         		_this.fireEvent('hostFilterChanged', _this, true);
         	},
             hostFilterChanged: function(_this, fromrender) {	
-				quickFilterBar.syncWithFilter();
+		
 				fromrender = fromrender || false;
                 this.unselectAll();
 				if (parentCmp.hostFilter) {                    
@@ -834,6 +838,8 @@ Cronk.EventDB.MainView = function(cfg) {
        		if(!CE.params.FilterJSON)	
 				fm.defaultValues = state.filters || fm.getFilterDescriptor(); 
         	eventGridPager.pageSize = (fm.defaultValues.display || {limit:25}).limit;
+		
+    		quickFilterBar.syncWithFilter();
 		},
 		viewConfig: {
 			
