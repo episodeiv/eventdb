@@ -100,7 +100,7 @@ Cell color and style of priority field
 	background-color: #00ff00;
 }
 .x-grid3-cell-inner .tag.information {
-	background-color: #0000aa;
+	background-color: #aaaaff;
 }
 .x-grid3-cell-inner .tag.debug  {
 	background-color: #bbbbbb;
@@ -137,7 +137,7 @@ Cell color and style of priority field
 	background-color: #00ff00;
 }
 .x-grid3-row.tag.information .x-grid3-cell-first {
-	background-color: #0000aa;
+	background-color: #aaaaff;
 }
 .x-grid3-row.tag.debug .x-grid3-cell-first {
 	background-color: #bbbbbb;
@@ -165,7 +165,7 @@ Cell color and style of priority field
 	background-color: #bbbbbb;
 }
 .tag.info .x-btn-pressed .x-btn-text {
-	background-color: #0000aa;
+	background-color: #aaaaff;
 }
 
 .edb_cronk_sel.unfinished{

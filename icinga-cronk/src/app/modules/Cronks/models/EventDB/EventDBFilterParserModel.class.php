@@ -27,7 +27,7 @@ class Cronks_EventDB_EventDBFilterParserModel extends CronksBaseModel {
 			$this->parseMessage($def,$msg);
 		}
 
-		$this->buildBitMask(&$def,$filter["facilityExclusion"],$filter["priorityExclusion"]);
+		$this->buildBitMask($def,$filter["facilityExclusion"],$filter["priorityExclusion"]);
 		$this->parseTimespan($def,$filter["timespan"]);
 		$this->parseMisc($def,$filter["misc"]);
 		$this->parseSourceExc($def,$filter["sourceExclusion"]);

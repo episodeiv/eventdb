@@ -189,8 +189,9 @@ class xmlMergerTask extends xmlHelperTask {
 		$tgt_index = $this->__targetIndex;
 
 		foreach($nodes as $path=>$node) {
+		
 			if($node["real"]) {//element has no children 
-				if($this->getOverwrite()) {
+				if($this->getOverwrite()) {	
 					$tgt_index[$index][0]["elem"]->nodeValue = $node["elem"]->nodeValue;
 					continue;
 				} else if (!$this->getAllowDuplicates()) {
@@ -204,8 +205,10 @@ class xmlMergerTask extends xmlHelperTask {
 					}
 					if($dups)
 						continue;
-				}
+				} 
+				
 				$tgt_index[$index][0]["elem"]->parentNode->appendChild($tgtDOM->importNode($node["elem"],true));
+			
 			}
 		}
 	}
@@ -220,6 +223,8 @@ class xmlMergerTask extends xmlHelperTask {
 		$path_splitted = explode("/",$index);
 		$target = $this->__targetIndex;
 		foreach($nodes as $path=>$node) {
+			
+			
 			if(!$node["real"]) // only process nodes without children
 				continue;
 			array_pop($path_splitted);
@@ -271,7 +276,8 @@ class xmlMergerTask extends xmlHelperTask {
 		if($newNode) {
 			$target = $this->getTargetDOM();
 			foreach($newNode->childNodes as $child) {
-				$result->appendChild($target->importNode($child,true));		
+				if($child->nodeType != XML_TEXT_NODE) 
+					$result->appendChild($target->importNode($child,true));		
 			}
 		}
 		return $result;

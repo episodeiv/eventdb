@@ -663,7 +663,7 @@ Cronk.EventDB.FilterManagerViews.General = function() {
 					id: 'chksrc_'+ev_id,
 					items: [
 						{boxLabel: 'Syslog',iconCls: 'eventdb_icon syslog', name: 'src_0'},	
-						{boxLabel: 'SMNP',iconCls: 'eventdb_icon smnp', name: 'src_1'},
+						{boxLabel: 'SNMP',iconCls: 'eventdb_icon smnp', name: 'src_1'},
 						{boxLabel: 'Mail',iconCls: 'eventdb_icon mail', name: 'src_2'}	
 					]
 				}

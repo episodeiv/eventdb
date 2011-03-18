@@ -3,7 +3,7 @@ CREATE TABLE `event` (
   `host_name` varchar(255) character set ascii collate ascii_bin NOT NULL,
   `host_address` binary(16) NOT NULL,
   `type` int(11) NOT NULL,
-  `facility` int(11) NOT NULL,
+  `facility` int(11) ,
   `priority` int(11) NOT NULL,
   `program` varchar(50) character set ascii NOT NULL,
   `message` varchar(4096) default NULL,

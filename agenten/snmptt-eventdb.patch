@@ -1,0 +1,86 @@
+--- snmptt	2009-11-15 14:31:40.000000000 +0100
++++ snmptt	2011-03-17 15:25:27.000000000 +0100
+@@ -1852,18 +1852,15 @@
+           }
+ 
+           if (&mysql_insert($mysql_dbi_table,
+-            "eventname", $event2[0],                # $N
+-            "eventid", $receivedtrap_entry,         # $i
+-            "trapoid", $receivedtrap_trans,         # $O
+-            "enterprise", $db_enterprise,           # $E or $e depending on $db_translate_enterprise
+-            "community", $community,                # $C
+-            "hostname", $agent_dns_name,            # $A
+-            "agentip", $var[4],                     # $aA
+-            "category", $event2[1],                 # $c
+-            "severity", $event2[2],                 # $s
+-            "uptime", $var[2],                      # $T
+-            "traptime", $trap_date_time_sql,
+-            "formatline", $message_short2,
++            "host_name",    $agent_dns_name,        # $A
++            "host_address", getBinaryIpV6($var[4]), # $aA
++            "type",         1, # SNMP Trap
++            "facility",     NULL, # EventDB shall allow NULL, as
++                               # there is no SNMP facility
++            "priority", getNumericPriority($event2[2]), # $s
++            "program", "snmptrap",
++            "message", $message_short2,
++            "created", $trap_date_time_sql,
+             @t_sql_custom_columns) == 1 ) { # 
+             $trap_successfully_logged++;
+           }
+@@ -3811,14 +3808,14 @@
+         }
+ 
+         &mysql_insert($mysql_dbi_table_unknown,
+-          "trapoid", $receivedtrap_trans,
+-          "enterprise", $db_enterprise,
+-          "community", $community,
+-          "hostname", $agent_dns_name, 
+-          "agentip", $var[4],
+-          "uptime", $var[2],
+-          "traptime", $trap_date_time_sql,
+-          "formatline", $message_short2,
++          "host_name",    $agent_dns_name,
++          "host_address", getBinaryIpV6($var[4]),
++          "type",         1,
++          "facility",     0,
++          "priority", getNumericPriority($event2[2]),
++          "program", "snmptrap",
++          "message", $message_short2,
++          "created", $trap_date_time_sql,
+           @t_sql_custom_columns_unknown);
+       }
+ 
+@@ -6031,6 +6028,32 @@
+   return 0;
+ }
+ 
++sub getBinaryIpV6 {
++    use NetAddr::IP::Util qw(ipv6_aton);
++    my $ip = shift;
++    $ip = '::ffff:' . $ip if $ip =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
++    return ipv6_aton($ip);
++}
++
++sub getNumericPriority {
++    my $pri = lc(substr(shift, 0, 4));
++    my %priomap = (
++        'emer' => 0,
++        'aler' => 1,
++        'crit' => 2,
++        'majo' => 2,
++        'erro' => 3,
++        'warn' => 4,
++        'noti' => 5,
++        'mino' => 5,
++        'ok'   => 5,
++        'info' => 6,
++        'norm' => 6,
++        'debu' => 7
++    );
++    return $priomap{$pri} if (defined $priomap{$pri});
++    return 5;
++}
+ 
+ 
+ 

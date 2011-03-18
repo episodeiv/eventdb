@@ -1,8 +1,8 @@
 #!/bin/sh
 # Start/stop the syslog2mysql daemon.
 
-DAEMON=/usr/local/icinga/contrib/syslog-ng2mysql.pl
-PID=/usr/local/icinga/var/syslog-ng2mysql.pid
+DAEMON=/home/jmosshammer/eventdb_v2/eventdb/agenten/syslog-ng/syslog-ng2mysql.pl
+PID=./syslog-ng2mysql.pid
 #FIFO="/var/run/syslog-ng.pipe"
 FIFO=$(cat $DAEMON |egrep -i '^my \$fifo' |cut -d"=" -f2 |sed 's/"//g; s/;//g')
 test -p $FIFO || mkfifo $FIFO
