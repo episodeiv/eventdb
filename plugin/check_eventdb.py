@@ -1,7 +1,7 @@
 #! /usr/bin/python 
 
 import getopt, time, pprint, sys, re, MySQLdb, urllib, _mysql_exceptions
-class DatabaseException(BaseException):
+class DatabaseException(Exception):
     def __init__(self,m):
         self.message = m
 
@@ -74,7 +74,7 @@ def main():
                 elif(a == "mail"):
                     a = 2
                 else:
-                    raise BaseException("Invalid type")
+                    raise Exception("Invalid type")
                 opts['type'] = a
             if o in ('--facility','-f'):
                 opts['facility'] = a.split(',')
@@ -110,7 +110,7 @@ def main():
                 updateStartIndex()
             if o == '--cventry':
                 showCV = 1       
-    except BaseException, e:
+    except Exception, e:
         usage()
 
     if(showCV == 1):
@@ -118,8 +118,8 @@ def main():
         return 
     try:
         if(opts["critical"] == -1  or  opts["warning"] == -1):
-            raise BaseException("Invalid arguments")    
-    except BaseException, e: 
+            raise Exception("Invalid arguments")    
+    except Exception, e: 
         usage() 
         pluginExit("UNKNOWN","Invalid Arguments",e) 
 
@@ -168,7 +168,7 @@ def convertMaxage():
     matches = re.match(r"(\d*?)(d|h|m)",opts["maxage"])
     matchGroups = matches.groups()
     if(len(matchGroups) != 2):  
-        raise BaseException("Invalid maxage format")
+        raise Exception("Invalid maxage format")
     
     timeOffset = int(matchGroups[0])
     # modify timestamp to represent the maximum age
