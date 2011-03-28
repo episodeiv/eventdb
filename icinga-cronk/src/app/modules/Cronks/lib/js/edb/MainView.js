@@ -9,7 +9,23 @@ Cronk.EventDB.MainView = function(cfg) {
 	var commentUrl = cfg.commentUrl;
 	var commentAddUrl = cfg.commentAddUrl;
 	var userName = cfg.userName
-	
+	var ackFilterBtn = new Ext.Button({
+		text: _('Ack'),
+		iconCls: 'icinga-icon-accept',
+		enableToggle: true,
+		listeners :  {
+			toggle: function(e,state) {
+				e.setIconClass('icinga-icon-'+(state ? 'cancel' : 'accept')); 
+				var desc = fm.getFilterDescriptor();
+				if(!desc.misc)
+					desc.misc = {}
+				desc.misc.hideAck = state;
+				
+				eventStore.baseParams = {jsonFilter: Ext.encode(desc)}; 
+				eventGrid.refreshTask.delay(1500);		
+			}	
+		}
+	});	
 	
 	var quickFilterBar = new Ext.ButtonGroup({
 		xtype: 'buttongroup',
@@ -40,22 +56,32 @@ Cronk.EventDB.MainView = function(cfg) {
 			scope:this
 		},
 
-		syncWithFilter: function() {
-			
-			var filter = fm.getFilterDescriptor().priorityExclusion;
-			AppKit.log(fm.getFilterDescriptor());
+		syncWithFilter: function(f) {
+			var filter = f || fm.getFilterDescriptor();
+			var filterBtn =  Ext.DomQuery.selectNode('.filterBtn');
+			if(fm.hasActiveFilter() && filterBtn)
+				Ext.get(filterBtn).addClass('activeFilter');
+			else if(filterBtn)
+				Ext.get(filterBtn).removeClass('activeFilter');
+			if((filter.misc || {}).hideAck) {
+				ackFilterBtn.toggle(true,true);
+				ackFilterBtn.setIconClass('icinga-icon-cancel');
+			} else {
+				ackFilterBtn.toggle(false,true);
+				ackFilterBtn.setIconClass('icinga-icon-accept');	
+			}
+			filter = filter.priorityExclusion;		
 			if(!filter)
 				return true;
-
-	
-			Ext.iterate(this.items.items,function(i) {		
-				i.suspendEvents();		
-				if(filter.indexOf(i.value.toString()) > -1) {
-					i.toggle(false);	
+			
+			Ext.iterate(this.items.items,function(i) {
+				if(filter.indexOf(i.value.toString()) > -1 || filter.indexOf(i.value) > -1) {
+					
+					i.toggle(false,true);	
 				} else {	
-					i.toggle(true);	
+					i.toggle(true,true);	
 				}
-				i.resumeEvents();
+			
 			});
 	
 		},
@@ -296,7 +322,7 @@ Cronk.EventDB.MainView = function(cfg) {
             this.setHeight(state.height);
             this.setWidth(state.width);
             this.store.baseParams = state.storeParams;
-        }
+		}
     });
     
     var commentGrid = new _commentGrid();
@@ -428,19 +454,28 @@ Cronk.EventDB.MainView = function(cfg) {
 	        });
 	       	Ext.grid.GridPanel.prototype.constructor.call(this);
 	    	this.store.on("beforeload",function() {
-				
+				var f = fm.getFilterDescriptor();			
 				var sortState = this.getSortState();
-				if(!Ext.isObject(sortState))
-					return true;
-				
-				var f = fm.getFilterDescriptor();
-				f.display.order =  
-				{
-					dir: sortState.direction.toLowerCase(),
-					field: sortState.field
+				if(Ext.isObject(sortState)) {
+					f.display.order =  
+					{
+						dir: sortState.direction.toLowerCase(),
+						field: sortState.field
+					}
 				}
+				try {
 				quickFilterBar.syncWithFilter();
+				var isEmpty = true;
+				for(var i in f) {
+					isEmpty = false;
+					break;
+				}
+				if(isEmpty)
+					f = fm.getFilterDescriptor(true);
 				this.setBaseParam('jsonFilter',Ext.encode(f));
+				} catch(e) {
+					AppKit.log(e);	
+				}
 			},this.store);
 			this.store.on("load", function() {
 				this.buildInterGridLink();
@@ -461,7 +496,7 @@ Cronk.EventDB.MainView = function(cfg) {
 						title: 'Services for '+host_name,
 						crname: 'gridProc',
 						closable: true,
-						params: {template: 'icinga-host-template'}
+						params: {template: 'icinga-service-template'}
 					};
 					var filter = {};
 				
@@ -580,8 +615,17 @@ Cronk.EventDB.MainView = function(cfg) {
 			scope: this
 		},'-',{
             text: _('Filter'),
+			cls: 'filterBtn', 
             iconCls: 'icinga-icon-pencil',
-            menu: {
+			listeners: {
+				render: function(e) {
+					if(fm.hasActiveFilter())
+						e.addClass('activeFilter');
+					else
+						e.removeClass('activeFilter');
+				}	
+			},
+			menu: {
                 items: [{
                     text: _('Edit '),
                     iconCls: 'icinga-icon-application-form',
@@ -601,10 +645,11 @@ Cronk.EventDB.MainView = function(cfg) {
                     scope: this
                 }]
             }
-        },'-',quickFilterBar,'-',new Ext.form.TextField({
+        },'-',ackFilterBtn,'-',quickFilterBar,'-',new Ext.form.TextField({
 			xtype: 'textfield',
 			emptyText: _('Host name'),
 			enableKeyEvents: true,
+			value: (CE.params || {}).hostQuickFilter, 
 			listeners:{ 
 				blur: function(el) {
 					var value = el.getValue();
@@ -827,18 +872,19 @@ Cronk.EventDB.MainView = function(cfg) {
 
         	return state;
         },
-        applyState: function(state) {
-	
-			AppKit.log(state);
+        applyState: function(state) {	
+			
 			if(state.colModel)
 				this.getColumnModel().setConfig(Ext.decode(state.colModel))
         	this.setHeight(state.height);
         	this.setWidth(state.width);
         	this.store.baseParams = state.storeParams;
-       		if(!CE.params.FilterJSON)	
-				fm.defaultValues = state.filters || fm.getFilterDescriptor(); 
-        	eventGridPager.pageSize = (fm.defaultValues.display || {limit:25}).limit;
+       	
+			fm.defaultValues = state.filters || fm.getFilterDescriptor(); 
+    		if(state.filters)
+				fm.stateApplied = true;  				
 		
+			eventGridPager.pageSize = (fm.defaultValues.display || {limit:25}).limit;	
     		quickFilterBar.syncWithFilter();
 		},
 		viewConfig: {
@@ -886,13 +932,19 @@ Cronk.EventDB.MainView = function(cfg) {
     });
     
     CE.add(IcingaEventDBCronk);
-    CE.doLayout();
+    CE.doLayout()
 	
+	
+	if(CE.params.hostQuickFilter) {
+		eventStore.baseParams = Ext.apply(eventStore.baseParams || {},{hostQuickFilter: CE.params.hostQuickFilter});
+	}
 	if(CE.params.FilterJSON) {	
 		var params = Ext.decode(CE.params.FilterJSON);
-		
+			
 		if(params.hostFilter) {
-			fm.defaultValues = params;	
+			if(!fm.stateApplied)
+				fm.defaultValues = params;	
+			
 		}	
 		for(var i=0;i<params.priorityExclusion.length;i++) {
 			params.priorityExclusion[i] = parseInt(params.priorityExclusion[i],10);
@@ -900,10 +952,13 @@ Cronk.EventDB.MainView = function(cfg) {
 		for(var i=0;i<params.facilityExclusion.length;i++) {
 			params.facilityExclusion[i] = parseInt(params.facilityExclusion[i],10);
 		}
-		eventStore.baseParams = {jsonFilter: CE.params.FilterJSON}; 
+	
+		quickFilterBar.syncWithFilter(params);
+	
+		eventStore.baseParams = Ext.apply(eventStore.baseParams || {},{jsonFilter: fm.getFilterDescriptor()}); 
 		eventGrid.fireEvent('hostFilterChanged', eventGrid);
 		
 	}
 	eventGrid.refreshTask.delay(1000);  
-	
+
 }

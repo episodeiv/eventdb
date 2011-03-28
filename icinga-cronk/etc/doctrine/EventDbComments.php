@@ -1,6 +1,10 @@
 <?php
-
-Doctrine_Manager::getInstance()->bindComponent('EventDbComments','eventdb_r');
+try {
+	
+	Doctrine_Manager::getInstance()->getConnection('eventdb_r');
+	Doctrine_Manager::getInstance()->bindComponent('EventDbComments','eventdb_r');
+} catch(Exception $e) {
+}
 /**
  * EventDbComments
  * 

@@ -508,9 +508,10 @@ Cronk.EventDB.FilterManagerViews.Advanced = function(url) {
 }
 
 Cronk.EventDB.FilterManagerViews.General = function() {
-	var ev_id=  Ext.id('panel_filter');
+	var ev_id =  Ext.id('panel_filter');
 	return new (Ext.extend(Ext.FormPanel,{
 		// extend
+		autoDestroy: false,
 		updateFields: function(vals) {
 			function cycleSearch(item) {			
 				return item.value == this.toSearch;
@@ -1045,11 +1046,11 @@ Cronk.EventDB.FilterManagerViews.General = function() {
 
 				fieldLabel: _('Order by'),
 				items: [{
+					text: _('Create time'),
+					value: 'created',	
+				},{
 					text: _('Last modified'),
 					value: 'modified'
-				},{
-					text: _('Create time'),
-					value: 'created'
 				},{
 					text: _('Host name'),
 					value: 'host_name'
@@ -1132,11 +1133,34 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 				btns[i].initialConfig.reset.call(btns[i]);	
 		}
 	},
-	
-	getFilterDescriptor: function() {	
-		if(!this.oWin) {
-			return this.defaultValues;
+	hasActiveFilter: function() {
+		var f = this.getFilterDescriptor();	
+		if(f.hostFilter) {
+			if(f.hostFilter.include_pattern_type != 'disabled')
+				return true;
+			if(f.hostFilter.exclude_pattern_type != 'disabled')
+				return true;
 		}
+		if(f.programFilter) {
+			if(f.programFilter.include_pattern_type != 'disabled')
+				return true;
+			if(f.programFilter.exclude_pattern_type != 'disabled')
+				return true;
+		}
+		if(f.messageFilter)
+			if(f.messageFilter.items.length)
+				return true;
+		if(f.sourceExclusion)
+			if(f.sourceExclusion.length)
+				return true;
+		if(f.timespan)
+			if(f.timespan.from > -1 || f.timespan.to < -1)
+				return true;
+		return false;
+	},
+	
+	getFilterDescriptor: function(blank) {	
+		
 		var descriptor = {
 			hostFilter: {
 				include_pattern: false,	
@@ -1169,7 +1193,7 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 			},
 			display: {
 				order: {
-					field: '',
+					field: 'created',
 					dir: 'desc'
 				},
 				group: {
@@ -1179,11 +1203,18 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 				limit: 25
 			}
 		}
+		if(blank === true)
+			return descriptor;
+		if(!this.oWin) {
+			return this.defaultValues;
+			
+		}
 		this.oWin.cascade(function(elem) {
-			if(elem.getValue)
+			if(elem.getValue)		
 				var val = elem.getValue();
 				if(!val)
 					return true;
+				
 				switch(elem.name) {
 					case 'misc':
 						for(var i=0;i<val.length;i++) {
@@ -1269,6 +1300,7 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 		this.defaultValues = descriptor;
 		return descriptor;	
 	},
+	
 	setFilterValues: function(descriptor) {
 		if(!Ext.isObject(descriptor)) {
 			AppKit.log("Invalid filter provided");
@@ -1278,9 +1310,11 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 		//this.fireEvent('applyFilter',descriptor);
 	},
 	defaultValues: {},
-	generalView: Cronk.EventDB.FilterManagerViews.General(),
+	generalView: null,
 	advancedView: null, 
     show: function(renderOnly) {
+		if(!this.generalView)
+			this.generalView =Cronk.EventDB.FilterManagerViews.General();
 		if(!this.advancedView)	
 			this.advancedView = Cronk.EventDB.FilterManagerViews.Advanced(this.url);
 		

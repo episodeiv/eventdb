@@ -1,6 +1,9 @@
 <?php
-Doctrine_Manager::getInstance()->bindComponent('EventDbEvent','eventdb_r');
-
+try {
+	Doctrine_Manager::getInstance()->getConnection('eventdb_r');
+	Doctrine_Manager::getInstance()->bindComponent('EventDbEvent','eventdb_r');
+} catch(Exception $e) {
+}
 /**
  * EventDbEvent
  * 
@@ -194,14 +197,15 @@ class EventDbEvent extends BaseEventDbEvent
 
 	public function setUp()	
     {
-		$this->helper = AgaviContext::getInstance()->getModel("EventDB.EventDBHelper","Cronks");
-		$this->prepareRead();	
-		parent::setUp();
-		$this->addListener(new EventDbEventListener());
-    	if(ini_get('apc.enabled') == 1) {
-			$this->setupCaching();	
+		if(class_exists('AgaviContext')) {
+			$this->helper = AgaviContext::getInstance()->getModel("EventDB.EventDBHelper","Cronks");
+			$this->prepareRead();	
+			parent::setUp();
+			$this->addListener(new EventDbEventListener());
+    		if(ini_get('apc.enabled') == 1) {
+				$this->setupCaching();	
+			}
 		}
-
 
 	}
 	protected static $__cached = false;
