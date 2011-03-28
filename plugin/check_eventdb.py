@@ -95,7 +95,7 @@ def main():
             if o == '--dbuser':
                 opts['dbuser'] = a
             if o == '--dbpassword':
-                opts['dbpassword'] = a
+                opts['dbpasswd'] = a
             if o in ('-c','--critical'): 
                 opts['critical'] = int(a)
             if o in ('-u','--url'): 
@@ -332,7 +332,7 @@ def usage():
     --db STRING
         Database (default: eventdb)
     --dbtable STRING
-        Tablename (default: events)
+        Tablename (default: event)
     --dbuser STRING
         Databaseuser (default: none)
     --dbpassword STRING
