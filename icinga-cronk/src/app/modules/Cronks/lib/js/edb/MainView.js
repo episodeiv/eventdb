@@ -455,6 +455,13 @@ Cronk.EventDB.MainView = function(cfg) {
 	       	Ext.grid.GridPanel.prototype.constructor.call(this);
 	    	this.store.on("beforeload",function() {
 				var f = fm.getFilterDescriptor();			
+				var isEmpty = true;
+				for(var i in f) {
+					isEmpty = false;
+					break;
+				}
+				if(isEmpty)
+					f = fm.getFilterDescriptor(true);
 				var sortState = this.getSortState();
 				if(Ext.isObject(sortState)) {
 					f.display.order =  
@@ -464,14 +471,7 @@ Cronk.EventDB.MainView = function(cfg) {
 					}
 				}
 				try {
-				quickFilterBar.syncWithFilter();
-				var isEmpty = true;
-				for(var i in f) {
-					isEmpty = false;
-					break;
-				}
-				if(isEmpty)
-					f = fm.getFilterDescriptor(true);
+					quickFilterBar.syncWithFilter();
 				this.setBaseParam('jsonFilter',Ext.encode(f));
 				} catch(e) {
 					AppKit.log(e);	
