@@ -27,7 +27,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	/**
 	 * Requests EventDB customvariables for the shown hosts/services in order to draw the links
 	 * into the grid
-	 * @param {Array}Êids  The ids for which to request eventdbs
+	 * @param {Array}ids  The ids for which to request eventdbs
 	 * @param {Array} cfg  Object containing 
 	 * 						  - base: The basename of the icinga url, most likely icinga-web
 	 * 						  - target: The target column, service/hostname
@@ -57,12 +57,12 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 				filters_json : Ext.encode({
 					"type": "AND",
 					"field": [
-					    idJSON,{
-					   		"type": 'atom',
-					   		"field": [cfg.type+'_CUSTOMVARIABLE_NAME'],
-					   		"method": ['='],
-					   		"value": ['EDB_FILTER']
-					    }]
+						idJSON,{
+								"type": 'atom',
+								"field": [cfg.type+'_CUSTOMVARIABLE_NAME'],
+								"method": ['='],
+								"value": ['EDB_FILTER']
+						}]
 				}),
 				target_field: cfg.type+'_ID'
 			},
@@ -129,7 +129,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	/**
 	 * Create link with jsonFilter from customvar in a specific cell 
 	 * @param {DOMNode} elem	The DOM Node of the cell's div
-	 * @param {Object} data   	The customvar result from the icinga-api
+	 * @param {Object} data		The customvar result from the icinga-api
 	 * @author jmosshammer<jannis.mosshammer@netways.de>
 	 */
 	var buildLink = function(elem,data) {
@@ -189,11 +189,8 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	
 	
 	Cronk.grid.ColumnRenderer.edbColumn = function(cfg) {
-
 		return function(value, garbage, record, rowIndex, colIndex, store) {
-			
 			edbColumnSelector.delay(500,null,null,[cfg,record]);
-			AppKit.log(record)
 			return '<div class="edb_cronk_sel unfinished" edb_val="'+value+'" host="'+record.data.host_name+'" service="'+record.data.service_name+'" style="width:25px;height:24px;display:block"></div>'
 		}
 	}

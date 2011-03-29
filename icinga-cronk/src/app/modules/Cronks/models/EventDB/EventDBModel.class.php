@@ -78,9 +78,10 @@ class Cronks_EventDB_EventDBModel extends CronksBaseModel {
 		if(!$filterCollection)
 			return false;
 		$isFirst = true;	
-		
 		$dql = "";	
+	
 		foreach($filterCollection as $filter) {
+			
 			$isNegative = false;	
 			if(!isset($filter["isGroup"])) {	
 				$isNegative = $this->getOperator($filter['operator'],$filter['value']);	
@@ -93,16 +94,21 @@ class Cronks_EventDB_EventDBModel extends CronksBaseModel {
 		
 			if($isNegative === true)
 				$chain = $chain." NOT ";
+		
 			if(!isset($filter["isGroup"])) {
 				if(is_array($filter["value"])) {
 					if(count($filter["value"]) == 1)
 						$filter["value"] = $filter["value"][0];
 				}
+					
 				if(!is_numeric($filter["value"])) {
 					$dql .= " ".$chain." ".$filter["target"]." ".$filter["operator"];	
+					if($filter['operator'] == 'IN'  && !is_array($filter['value'])) {
+						$filter['value'] = array($filter['value']);	
+					} 
 					if(is_array($filter["value"])) {
 						$dql .= "('".implode("','",$filter["value"])."')";
-						
+	
 					} else {
 						$dql .= '?';
 						$values[] = $filter["value"];
@@ -111,8 +117,12 @@ class Cronks_EventDB_EventDBModel extends CronksBaseModel {
 					if($filter["operator"] == "IN")
 						$filter["value"] = "(".$filter["value"].")";
 					$dql .= " ".$chain." ".$filter["target"]." ".$filter["operator"]." ".$filter["value"];	
+		
+		
 				}
 			} else {
+				
+			
 	
 				$subDql = $this->buildWhereDql($filter["filter"],$values,$filter["operator"]); 
 				if($subDql)

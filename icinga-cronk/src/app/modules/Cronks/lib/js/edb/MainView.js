@@ -8,7 +8,7 @@ Cronk.EventDB.MainView = function(cfg) {
 	var url = cfg.eventUrl;
 	var commentUrl = cfg.commentUrl;
 	var commentAddUrl = cfg.commentAddUrl;
-	var userName = cfg.userName
+	var userName = cfg.userName;
 	var ackFilterBtn = new Ext.Button({
 		text: _('Ack'),
 		iconCls: 'icinga-icon-accept',
@@ -17,8 +17,9 @@ Cronk.EventDB.MainView = function(cfg) {
 			toggle: function(e,state) {
 				e.setIconClass('icinga-icon-'+(state ? 'cancel' : 'accept')); 
 				var desc = fm.getFilterDescriptor();
-				if(!desc.misc)
-					desc.misc = {}
+				if(!desc.misc) {
+					desc.misc = {};
+				}
 				desc.misc.hideAck = state;
 				
 				eventStore.baseParams = {jsonFilter: Ext.encode(desc)}; 
@@ -43,8 +44,9 @@ Cronk.EventDB.MainView = function(cfg) {
 				var btns = elem.findByType('button');
 				var vals = [];
 				Ext.iterate(btns,function(btn) {
-					if(!btn.pressed) 
+					if(!btn.pressed) {
 						vals.push(btn.value);
+					}
 				},elem);
 
 				var desc = fm.getFilterDescriptor();
@@ -57,13 +59,14 @@ Cronk.EventDB.MainView = function(cfg) {
 		},
 
 		syncWithFilter: function(f) {
-			var filter = f || fm.getFilterDescriptor();
+			var filter = f || fm.getFilterDescriptor();
 			var filterBtn =  Ext.DomQuery.selectNode('.filterBtn');
-			if(fm.hasActiveFilter() && filterBtn)
+			if(fm.hasActiveFilter() && filterBtn) {
 				Ext.get(filterBtn).addClass('activeFilter');
-			else if(filterBtn)
+			} else if(filterBtn) {
 				Ext.get(filterBtn).removeClass('activeFilter');
-			if((filter.misc || {}).hideAck) {
+			}
+			if((filter.misc || {}).hideAck) {
 				ackFilterBtn.toggle(true,true);
 				ackFilterBtn.setIconClass('icinga-icon-cancel');
 			} else {
@@ -71,11 +74,11 @@ Cronk.EventDB.MainView = function(cfg) {
 				ackFilterBtn.setIconClass('icinga-icon-accept');	
 			}
 			filter = filter.priorityExclusion;		
-			if(!filter)
+			if(!filter) {
 				return true;
-			
+			}
 			Ext.iterate(this.items.items,function(i) {
-				if(filter.indexOf(i.value.toString()) > -1 || filter.indexOf(i.value) > -1) {
+				if(filter.indexOf(i.value.toString()) > -1 || filter.indexOf(i.value) > -1) {
 					
 					i.toggle(false,true);	
 				} else {	
@@ -139,133 +142,133 @@ Cronk.EventDB.MainView = function(cfg) {
 
 
 	var eventStore = new Ext.data.JsonStore({
-    	autoLoad: false,
-    	autoDestroy: true,
-    	baseParams: {
-    		offset:0,
-    		count: 'id',	
+		autoLoad:false,
+		autoDestroy:true,
+		baseParams: {
+			offset:0,
+			count: 'id',	
 			limit:25
-    	},
-    	remoteSort: true,
+		},
+		remoteSort: true,
 		paramNames: {
-    		start: 'offset'
-    	},
-    	url: url,
-    	root: 'events',
+			start: 'offset'
+		},
+		url: url,
+		root: 'events',
 		totalProperty: 'count',
-    	fields: [
-            {name: 'id'},
-            {name: 'host_name'},
+		fields: [
+			{name: 'id'},
+			{name: 'host_name'},
 			{name: 'address'},	
-            {name: 'facility'},
-            {name: 'priority'}, 
-            {name: 'program'},
-            {name: 'created'},
-            {name: 'modified'},
-            {name: 'message'},
-            {name: 'ack'},
-            {name: 'type'},
-     		{name: 'real_host'}
-	 ]
-    });
+			{name: 'facility'},
+			{name: 'priority'}, 
+			{name: 'program'},
+			{name: 'created'},
+			{name: 'modified'},
+			{name: 'message'},
+			{name: 'ack'},
+			{name: 'type'},
+			{name: 'real_host'}
+	]
+	});
 
-    var commentStore = new Ext.data.JsonStore({
-        autoLoad: false,
-        autoDestroy: true,
-        baseParams: {
-            offset:0,
-            limit:25,
+	var commentStore = new Ext.data.JsonStore({
+		autoLoad: false,
+		autoDestroy: true,
+		baseParams: {
+			offset:0,
+			limit:25,
 			count: 'id'
-        },
+		},
 		totalProperty: 'count',
-        paramNames: {
-            start: 'offset'
-        },
-        url: commentUrl,
-        root: 'comments',
-        fields: [
-            {name: 'id'},
-            {name: 'user'},
-            {name: 'message'},
-            {name: 'type'},
-            {name: 'created'}
-        ]
-    });
-    
-    var fm = new Cronk.EventDB.FilterManager({url: url, parentCmp: parentCmp});
-    
-	fm.addListener('applyFilter', function(filters) {    	
-    		
-    	eventGrid.fireEvent('statechange');
-    	eventGridPager.pageSize = filters.display.limit;;	
-    	eventStore.baseParams = {"jsonFilter": Ext.encode(filters)}
- 		Cronk.Registry.get(CE.id).params["FilterJSON"] = Ext.encode(fm.getFilterDescriptor());   		
-    	
-    	quickFilterBar.syncWithFilter();
+		paramNames: {
+			start: 'offset'
+		},
+		url: commentUrl,
+		root: 'comments',
+		fields: [
+			{name: 'id'},
+			{name: 'user'},
+			{name: 'message'},
+			{name: 'type'},
+			{name: 'created'}
+		]
+	});
+	
+	var fm = new Cronk.EventDB.FilterManager({url: url, parentCmp: parentCmp});
+	
+	fm.addListener('applyFilter', function(filters) {		
+			
+		eventGrid.fireEvent('statechange');
+		eventGridPager.pageSize = filters.display.limit;
+		eventStore.baseParams = {"jsonFilter": Ext.encode(filters)};
+		Cronk.Registry.get(CE.id).params.FilterJSON = Ext.encode(fm.getFilterDescriptor());		
+		quickFilterBar.syncWithFilter();
 		eventGrid.refresh();
-    },this,{buffer:true});
-   
+	},this,{buffer:true});
+	
 	var checkColumn = function(config){
-	    Ext.apply(this, config);
-	    if(!this.id){
-	        this.id = Ext.id();
-	    }
-	    this.initialValues = {};
-	    this.renderer = this.renderer.createDelegate(this);
+		Ext.apply(this, config);
+		if(!this.id){
+			this.id = Ext.id();
+		}
+		this.initialValues = {};
+		this.renderer = this.renderer.createDelegate(this);
 	};
 	
 	checkColumn.prototype = {
-	    init: function(grid){
-	        this.grid = grid;
-	        this.grid.on('render', function(){
-	            var view = this.grid.getView();
-	            view.mainBody.on('mousedown', this.onMouseDown, this);
-	        }, this);
-	    },
+		init: function(grid){
+			this.grid = grid;
+			this.grid.on('render', function(){
+				var view = this.grid.getView();
+				view.mainBody.on('mousedown', this.onMouseDown, this);
+			}, this);
+		},
 	
-	    onMouseDown: function(e, t){
-	        if(Ext.fly(t).hasClass(this.createId())){
-	            e.stopEvent();
+		onMouseDown: function(e, t){
+			if(Ext.fly(t).hasClass(this.createId())){
+				e.stopEvent();
 				el = Ext.get(t);
-	            var index = this.grid.getView().findRowIndex(t);
-	            var record = this.grid.store.getAt(index);
-	           	if(!this.grid.selectedRecords) 
+				var index = this.grid.getView().findRowIndex(t);
+				var record = this.grid.store.getAt(index);
+				if(!this.grid.selectedRecords) {
 					this.grid.selectedRecords =[];
+				}
 				if(!el.hasClass('x-grid3-check-col-on')) {
 					this.grid.selectedRecords.push(record);
-	        		el.replaceClass('x-grid3-check-col','x-grid3-check-col-on'); 
+					el.replaceClass('x-grid3-check-col','x-grid3-check-col-on'); 
 					
 				} else {
 					
 					this.grid.selectedRecords.remove(record);
-	        		el.replaceClass('x-grid3-check-col-on','x-grid3-check-col'); 
+					el.replaceClass('x-grid3-check-col-on','x-grid3-check-col'); 
 				}
 				this.grid.updateCommentButton();
 			}
-	    },
+		},
 	
-	    renderer: function(v, p, record) {
-	    	if (this.initialValues[record.id]) {
-	    		this.grid.updateCommentButton();
-	    	} else {
-	    		this.initialValues[record.id] = v;
-	    	}
-	        p.css += ' x-grid3-check-col-td';
-	        return String.format('<div record="'+record.id+'"class="x-grid3-check-col{0} {1}">&#160;</div>', (this.grid.selectedRecords || []).indexOf(record) > -1 ? '-on' : '', this.createId());
-	    },
+		renderer: function(v, p, record) {
+			if (this.initialValues[record.id]) {
+				this.grid.updateCommentButton();
+			} else {
+				this.initialValues[record.id] = v;
+			}
+			p.css += ' x-grid3-check-col-td';
+			return String.format('<div record="'+record.id+'"class="x-grid3-check-col{0} {1}">&#160;</div>', (this.grid.selectedRecords || []).indexOf(record) > -1 ? '-on' : '', this.createId());
+		},
 	
-	    createId: function(){
-	        return 'x-grid3-cc-' + this.id;
-	    }
+		createId: function(){
+			return 'x-grid3-cc-' + this.id;
+		}
 	};
-    
-    var ack = new checkColumn({
-       header: _(''),
-       dataIndex: 'ack',
-       width: 25,
-	   fixed: true,
-	   menuDisabled: true
-    });
+	
+	var ack = new checkColumn({
+		header: _(''),
+		dataIndex: 'ack',
+		width: 25,
+		fixed: true,
+		menuDisabled: true
+	});
 	var eventGridPager = new Ext.PagingToolbar({
 		pageSize: 25,
 		store: eventStore,
@@ -274,18 +277,18 @@ Cronk.EventDB.MainView = function(cfg) {
 		emptyMsg: _('No events to display')	
 	});
 
-    var _commentGrid = Ext.extend(Ext.grid.GridPanel, {
-    	store: commentStore,
-        stateId: 'db-commentGrid-' + this.id,
-        stateful: true,
+	var _commentGrid = Ext.extend(Ext.grid.GridPanel, {
+		store: commentStore,
+		stateId: 'db-commentGrid-' + this.id,
+		stateful: true,
 		stateEvents: ['sortchange','columnresize','columnmove'],
-        colModel: new Ext.grid.ColumnModel({
-            defaults: {
-                width: 80,
-                sortable: true
-            },
-            columns: [
-                {header: _('Type'), dataIndex: 'type',renderer: function(v) {
+		colModel: new Ext.grid.ColumnModel({
+			defaults: {
+				width: 80,
+				sortable: true
+			},
+			columns: [
+				{header: _('Type'), dataIndex: 'type',renderer: function(v) {
 					switch(v) {
 						case '0':
 							return '<div class="icon-16 icinga-icon-note" qtip="'+_('Comment')+'"></div>';
@@ -295,68 +298,68 @@ Cronk.EventDB.MainView = function(cfg) {
 							return '<div class="icon-16 icinga-icon-cancel" qtip="'+_('Revoke')+'"></div>';
 					}	
 				}},
-                {header: _('Author'), dataIndex: 'user'},
-                {header: _('Created'), dataIndex: 'created', width: 150},
-                {header: _('Message'), dataIndex: 'message', width: 200}
-            ]           
-        }),
-        bbar: new Ext.PagingToolbar({
-            pageSize: 25,
-            store: commentStore,
-            displayInfo: true,
-            displayMsg: _('Displaying comments {0} - {1} of {2}'),
-            emptyMsg: _('No comments to display')
-        }),
-        frame: true,
-        border: false,
-        getState: function() {
-            var state = {
-                height: this.getHeight(),
-                width: this.getWidth(),
-                storeParams: this.store.baseParams
-            };
+				{header: _('Author'), dataIndex: 'user'},
+				{header: _('Created'), dataIndex: 'created', width: 150},
+				{header: _('Message'), dataIndex: 'message', width: 200}
+			]
+		}),
+		bbar: new Ext.PagingToolbar({
+			pageSize: 25,
+			store: commentStore,
+			displayInfo: true,
+			displayMsg: _('Displaying comments {0} - {1} of {2}'),
+			emptyMsg: _('No comments to display')
+		}),
+		frame: true,
+		border: false,
+		getState: function() {
+			var state = {
+				height: this.getHeight(),
+				width: this.getWidth(),
+				storeParams: this.store.baseParams
+			};
 		
-            this.resumeEvents();
-        },
-        applyState: function(state) {
-            this.setHeight(state.height);
-            this.setWidth(state.width);
-            this.store.baseParams = state.storeParams;
+			this.resumeEvents();
+		},
+		applyState: function(state) {
+			this.setHeight(state.height);
+			this.setWidth(state.width);
+			this.store.baseParams = state.storeParams;
 		}
-    });
-    
-    var commentGrid = new _commentGrid();
-    
-    var commentForm = (function() {
-    	oWin = null;
+	});
+	
+	var commentGrid = new _commentGrid();
+	
+	var commentForm = (function() {
+		oWin = null;
 
-    	return {
-    		show : function() {
-		        if(!oWin){
-		            oWin = new Ext.Window({
-		            	title: _('Acknwoledge/Add comment'),
-		                layout: 'fit',
-		                region: 'center',
-		                width: 500,
-		                height: 320,
-		                closeAction: 'hide',
-		                plain: false,
-		                modal: true,
-		                items: new Ext.FormPanel({
-		                	labelAlign: 'top',
-		                	layout: 'form',
+		return {
+			show : function() {
+				if(!oWin){
+					oWin = new Ext.Window({
+						title: _('Acknwoledge/Add comment'),
+						layout: 'fit',
+						region: 'center',
+						width: 500,
+						height: 320,
+						closeAction: 'hide',
+						plain: false,
+						modal: true,
+						items: new Ext.FormPanel({
+							labelAlign: 'top',
+							layout: 'form',
 							frame: true,
-		                	url: commentAddUrl,	
-		                	items: [{
-			                	xtype: 'textfield',
-			                	fieldLabel: _('Author'),
-			                	readOnly: true,
-			                	name: 'author',
-			                	allowBlank: false,
-			                	width: 460,
-                                height: 20,
-			                	value: userName
-			                },{
+							url: commentAddUrl,	
+							items: [{
+								xtype: 'textfield',
+								fieldLabel: _('Author'),
+								readOnly: true,
+								name: 'author',
+								allowBlank: false,
+								width: 460,
+								height: 20,
+								value: userName
+							},{
 								xtype: 'radiogroup',
 								showText:true,
 								defaults: {
@@ -379,89 +382,89 @@ Cronk.EventDB.MainView = function(cfg) {
 									inputValue: 'type_2'
 								}]
 							},{
-			                	xtype: 'textarea',
-			                	fieldLabel: _('Comment'),
-			                	name: 'message',
+								xtype: 'textarea',
+								fieldLabel: _('Comment'),
+								name: 'message',
 								width: 460,
-			                	height: 130,
-			                	allowBlank: true
-			                }],
-	                        buttons: [{
-	                            text: 'Submit',
-	                            handler: function() {
-	                            	oForm = this.findParentByType(Ext.FormPanel);
-	                            	if (oForm.getForm().isValid()) {
-		                           		var vals = oForm.getForm().getValues();
-										vals["type"] = vals["type"].split('_')[1];
+								height: 130,
+								allowBlank: true
+							}],
+							buttons: [{
+								text: 'Submit',
+								handler: function() {
+									oForm = this.findParentByType(Ext.FormPanel);
+									if (oForm.getForm().isValid()) {
+										var vals = oForm.getForm().getValues();
+										vals.type = vals.type.split('_')[1];
 										
 										var events = [];
-		                            	var params = {};
+										var params = {};
 										
-	                                    Ext.iterate(eventGrid.selectedRecords, function(r) {
-	                                    	var ignored = [];
+										Ext.iterate(eventGrid.selectedRecords, function(r) {
+											var ignored = [];
 											if (vals.type == 0 ||
 												(vals.type == 1 && r.get('ack') != 1) ||
 												(vals.type == 2 && r.get('ack') == 1)) {
-	                                          
-											   events.push(r.get('id'));
-	                                    	} else {
+											  
+												events.push(r.get('id'));
+											} else {
 												ignored.push({
 													host: r.get('host_name'),
 													msg: r.get('message'),
 													cr: r.get('created')
 												});	
 											}
-	                                    });                        	
+										});							
 										eventsJson = Ext.encode([Ext.apply(vals, {ids: events})]);
 										eventGrid.unselectAll();
-		                            	oForm.getForm().submit({
-		                            		params: Ext.apply({'comments': eventsJson}, params),
-		                            		success: function(oForm, action) {
-		                            			AppKit.notifyMessage(_('Request successful'), action.result.message);
-		                            			// TODO: Reload only if selected.
-		                            			eventGrid.refresh();
+										oForm.getForm().submit({
+											params: Ext.apply({'comments': eventsJson}, params),
+											success: function(oForm, action) {
+												AppKit.notifyMessage(_('Request successful'), action.result.message);
+												// TODO: Reload only if selected.
+												eventGrid.refresh();
 												if ('event' in commentStore.baseParams) {
-			                            			commentStore.load();
+													commentStore.load();
 												}
-		                            		}
-		                            	});
-		                            	oWin.hide();
-	                            	}
-	                            }
-	                        },{
-	                            text: 'Close',
-	                            handler: function() {
-	                                oWin.hide();
-	                            }
-	                        }]
-		                })
-		            });
-		            parentCmp.add(Ext.clean(oWin));
-		            parentCmp.doLayout();
-		        }
-		        oWin.show(this);
-		    }
-    	}
-    })();
+											}
+										});
+										oWin.hide();
+									}
+								}
+							},{
+								text: 'Close',
+								handler: function() {
+									oWin.hide();
+								}
+							}]
+						})
+					});
+					parentCmp.add(Ext.clean(oWin));
+					parentCmp.doLayout();
+				}
+				oWin.show(this);
+			}
+		}
+	})();
 
-        
-    var _eventGrid = Ext.extend(Ext.grid.GridPanel, {
-	    id: "evGrid_"+this.id,
+	var _eventGrid = Ext.extend(Ext.grid.GridPanel, {
+		id: "evGrid_"+this.id,
 		constructor: function() {
-	        this.addEvents({
-	            'statechange': true,
-	            'hostFilterChanged': true
-	        });
-	       	Ext.grid.GridPanel.prototype.constructor.call(this);
-	    	this.store.on("beforeload",function() {
-				var f = fm.getFilterDescriptor();			
+			this.addEvents({
+				'statechange': true,
+				'hostFilterChanged': true
+			});
+			Ext.grid.GridPanel.prototype.constructor.call(this);
+			this.store.on("beforeload",function() {
+				var f = fm.getFilterDescriptor();
 				var isEmpty = true;
 				for(var i in f) {
 					isEmpty = false;
 					break;
 				}
-				if(isEmpty)
+				if(isEmpty) {
 					f = fm.getFilterDescriptor(true);
+				}
 				var sortState = this.getSortState();
 				if(Ext.isObject(sortState)) {
 					f.display.order =  
@@ -470,10 +473,10 @@ Cronk.EventDB.MainView = function(cfg) {
 						field: sortState.field
 					}
 				}
-				try {
+				try {
 					quickFilterBar.syncWithFilter();
 				this.setBaseParam('jsonFilter',Ext.encode(f));
-				} catch(e) {
+				} catch(e) {
 					AppKit.log(e);	
 				}
 			},this.store);
@@ -511,7 +514,7 @@ Cronk.EventDB.MainView = function(cfg) {
 		unselectAll: function(viewOnly) {
 			if(!viewOnly) {
 				this.selectedRecords = [];
-     		}
+	 		}
 			var elem = Ext.DomQuery.select('.x-grid3-check-col-on',this.dom);
 			Ext.iterate(elem,function(i) {
 				Ext.get(i).replaceClass('x-grid3-check-col-on','x-grid3-check-col',this.dom);
@@ -545,11 +548,11 @@ Cronk.EventDB.MainView = function(cfg) {
 					Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',this.dom);	
 				},this)
 			},this);
-	       	this.updateCommentButton();	
+			this.updateCommentButton();	
 		
 		},
-   		/**
-    	* http://extjs.com/forum/showthread.php?t=22218
+		/**
+		* http://extjs.com/forum/showthread.php?t=22218
 		* For non-IE browsers, this is fixed with a CSS addition.
 		*/
 		reenableTextSelection : function(){
@@ -564,44 +567,43 @@ Cronk.EventDB.MainView = function(cfg) {
 			}
 		},
 		store: eventStore,
-        stateId: 'db-eventGrid-' + this.id,
-        stateful: true,
+		stateId: 'db-eventGrid-' + this.id,
+		stateful: true,
 		stateEvents: ['statechange','sortchange','columnresize','columnmove'],
-       
-        tbar: [{
-            iconCls: 'icinga-icon-arrow-refresh',
-            text: _('Refresh'),
-            tooltip: _('Refresh the data in the grid'),
-            handler: function(oBtn, e) { eventGrid.refresh(); },
-            scope: this
-        },{
-            iconCls: 'icinga-icon-cog',
-            text: _('Settings'),
-            menu: {
-                items: [{
-                    text: _('Auto refresh'),
-                    checked: false,
+		tbar: [{
+			iconCls: 'icinga-icon-arrow-refresh',
+			text: _('Refresh'),
+			tooltip: _('Refresh the data in the grid'),
+			handler: function(oBtn, e) { eventGrid.refresh(); },
+			scope: this
+		},{
+			iconCls: 'icinga-icon-cog',
+			text: _('Settings'),
+			menu: {
+				items: [{
+					text: _('Auto refresh'),
+					checked: false,
 
-                    checkHandler: function(checkItem, checked) {
-                        if (checked == true) {
-                            this.trefresh = AppKit.getTr().start({
-                                run: function() {
-                            	  
-								   eventGrid.refresh();
-                                },
-                                interval: 120000,
-                                scope: this
-                            });
-                        }
-                        else {
-                            AppKit.getTr().stop(this.trefresh);
-                            delete this.trefresh;
-                        }   
-                    }
-                }]
-            },
-            scope: this
-        },'-',{
+					checkHandler: function(checkItem, checked) {
+						if (checked == true) {
+							this.trefresh = AppKit.getTr().start({
+								run: function() {
+								  
+									eventGrid.refresh();
+								},
+								interval: 120000,
+								scope: this
+							});
+						}
+						else {
+							AppKit.getTr().stop(this.trefresh);
+							delete this.trefresh;
+						}
+					}
+				}]
+			},
+			scope: this
+		},'-',{
 			text: _('Select All '),
 			handler: function(btn) {
 				eventGrid.selectAll();
@@ -614,11 +616,11 @@ Cronk.EventDB.MainView = function(cfg) {
 			},
 			scope: this
 		},'-',{
-            text: _('Filter'),
+			text: _('Filter'),
 			cls: 'filterBtn', 
-            iconCls: 'icinga-icon-pencil',
+			iconCls: 'icinga-icon-pencil',
 			listeners: {
-				render: function(e) {
+				render: function(e) {
 					if(fm.hasActiveFilter())
 						e.addClass('activeFilter');
 					else
@@ -626,30 +628,30 @@ Cronk.EventDB.MainView = function(cfg) {
 				}	
 			},
 			menu: {
-                items: [{
-                    text: _('Edit '),
-                    iconCls: 'icinga-icon-application-form',
-                    handler: function() {
-                        fm.show();
-                    },
-                    scope: this
-                },{
-                    text: _('Remove'),
-                    iconCls: 'icinga-icon-cancel',
-                    handler: function() {
-                    	fm.show(true);
-                    	fm.clearFilterFields();
-                    	eventStore.baseParams = {offset:0, limit:25};
+				items: [{
+					text: _('Edit '),
+					iconCls: 'icinga-icon-application-form',
+					handler: function() {
+						fm.show();
+					},
+					scope: this
+				},{
+					text: _('Remove'),
+					iconCls: 'icinga-icon-cancel',
+					handler: function() {
+						fm.show(true);
+						fm.clearFilterFields();
+						eventStore.baseParams = {offset:0, limit:25};
 						eventGrid.refresh();
-                    },
-                    scope: this
-                }]
-            }
-        },'-',ackFilterBtn,'-',quickFilterBar,'-',new Ext.form.TextField({
+					},
+					scope: this
+				}]
+			}
+		},'-',ackFilterBtn,'-',quickFilterBar,'-',new Ext.form.TextField({
 			xtype: 'textfield',
 			emptyText: _('Host name'),
 			enableKeyEvents: true,
-			value: (CE.params || {}).hostQuickFilter, 
+			value: (CE.params || {}).hostQuickFilter, 
 			listeners:{ 
 				blur: function(el) {
 					var value = el.getValue();
@@ -665,13 +667,13 @@ Cronk.EventDB.MainView = function(cfg) {
 			}
 		
 		}),'-',{
-            text:'Acknowledge/Comment',
-            tooltip:'Add comment to your acknoledgement',
-            iconCls:'icinga-icon-add',
-            ref: '../commentButton',
-            handler: function() { commentForm.show(); },
-            disabled: true
-        }],
+			text:'Acknowledge/Comment',
+			tooltip:'Add comment to your acknoledgement',
+			iconCls:'icinga-icon-add',
+			ref: '../commentButton',
+			handler: function() { commentForm.show(); },
+			disabled: true
+		}],
 		// buffer store reload
 		refreshTask : new Ext.util.DelayedTask(function() {
 			eventStore.load();
@@ -693,13 +695,13 @@ Cronk.EventDB.MainView = function(cfg) {
 					return 'Unknown';	
 			}	
 		},
-        columns: [{
+		columns: [{
 				showHeader:false,
 				width:18,
 				fixed:true,
-	   			menuDisabled: true,
+				menuDisabled: true,
 				dataIndex: 'type',
-				renderer: function(v,cell,record) {;
+				renderer: function(v,cell,record) {
 					var t = eventGrid.resolveType(v);
 					var qtip = '<b>'+t+' - '+record.get('priority')+' :</b> <br/> ';
 					qtip += record.get('message');
@@ -707,13 +709,13 @@ Cronk.EventDB.MainView = function(cfg) {
 						'<div qtip="'+qtip+'" class="icon-16"></div></div>';
 				}
 			},ack,{
-	        	dataIndex: 'id',
-	            id: 'id',
-	            hidden:true,
+				dataIndex: 'id',
+				id: 'id',
+				hidden:true,
 				header: _('ID'),
-	            sortable: true,
-	            width: 75
-            },{
+				sortable: true,
+				width: 75
+			},{
 				dataIndex: 'ack',	
 				header: _('Ack'),
 				menuDisabled: true,
@@ -722,21 +724,21 @@ Cronk.EventDB.MainView = function(cfg) {
 				},
 				width:25
 			},{
-                dataIndex: 'type',
-                header: _('Type'),
-                sortable: true,
-                width: 100,
-                renderer: function(v) {
+				dataIndex: 'type',
+				header: _('Type'),
+				sortable: true,
+				width: 100,
+				renderer: function(v) {
 					var typename = eventGrid.resolveType(v);
 					
 					return '<span class="eventdb-type '+typename.toLowerCase()+'">'+ 
 						'<div style="float:left" class="icon-16"></div>'+typename+'</span>';
 				}
-            },{
-            	dataIndex: 'host_name',
-            	header: _('Host'),
-            	sortable: true,
-            	width: 100,
+			},{
+				dataIndex: 'host_name',
+				header: _('Host'),
+				sortable: true,
+				width: 100,
 				renderer: function(v,meta,rec) {
 					var host_name = "";
 					var style = "";
@@ -747,74 +749,74 @@ Cronk.EventDB.MainView = function(cfg) {
 					return '<span isHostField="true" '+host_name+' '+style+' class="eventdb-host '+v.toLowerCase()+'">'+ 
 						'<div style="float:left" class="icon-16"></div>'+v+'</span>';
 				}
-            },{
+			},{
 				dataIndex: 'address',
 				header: _('Address'),
 				hidden: true,
 				width: 100
 			},{
-            	dataIndex: 'priority',
-            	header: _('Priority'),
-            	sortable: true,
-            	width: 100,
-            	renderer: function(v) {
-					return '<div class="tag '+v.toLowerCase()+'">'+v+'</div>'	
+				dataIndex: 'priority',
+				header: _('Priority'),
+				sortable: true,
+				width: 100,
+				renderer: function(v) {
+					return '<div class="tag '+v.toLowerCase()+'">'+v+'</div>';
 				}
-            },{
-            	dataIndex: 'message',
-            	header: _('Message'),
-            	sortable: true,
-        		width: 200,
+			},{
+				dataIndex: 'message',
+				header: _('Message'),
+				sortable: true,
+				width: 200,
 				renderer: function(v) {
 					return '<div qtip="'+v+'">'+v+'</div>';	
 				}
 			},{
-            	dataIndex: 'program',
-            	header: _('Program'),
-            	sortable: true,
+				dataIndex: 'program',
+				header: _('Program'),
+				sortable: true,
 				renderer: function(v) {
 					return '<span class="eventdb-program '+v.toLowerCase()+'">'+ 
 						'<div style="float:left" class="icon-16"></div>'+v+'</span>';
 				},
-            	width: 100
-            },{
-            	dataIndex: 'facility',
-            	header: _('Facility'),
-            	sortable: true,
+				width: 100
+			},{
+				dataIndex: 'facility',
+				header: _('Facility'),
+				sortable: true,
 				renderer: function(v) {
 					if(!v)
 						return "INVALID FACILITY!";
 					return '<span class="eventdb-facility '+v.toLowerCase()+'">'+ 
 						'<div style="float:left" class="icon-16"></div>'+v+'</span>';
 				},
-            	width: 100
-            },{
-            	dataIndex: 'created',
-            	header: _('Created'),
-            	sortable: true,
-            	width: 200
-            }
+				width: 100
+			},{
+				dataIndex: 'created',
+				header: _('Created'),
+				sortable: true,
+				width: 200
+			}
 		],
-        sm: false,        
+		sm: false,		
 		plugins: ack,
-        bbar: eventGridPager, 
-        autoScroll: true,
-        listeners: {
-        	defaults: {
-        		scope: this
-        	},
-        	rowclick: function(grid, rowIndex, e) {
-        		commentStore.baseParams = {event: grid.getStore().getAt(rowIndex).get('id'), offset: 0, limit: 25};
-        		commentStore.load();
-        		commentGrid.findParentByType('panel').show();
-        		commentGrid.findParentByType('panel').expand();		
-        	},
-        	keydown: function(ev) {
+		bbar: eventGridPager, 
+		autoScroll: true,
+		listeners: {
+			defaults: {
+				scope: this
+			},
+			rowclick: function(grid, rowIndex, e) {
+				commentStore.baseParams = {event: grid.getStore().getAt(rowIndex).get('id'), offset: 0, limit: 25};
+				commentStore.load();
+				commentGrid.findParentByType('panel').show();
+				commentGrid.findParentByType('panel').expand();		
+			},
+			keydown: function(ev) {
 				if(ev.keyCode == 32) {
 					var toDelete = [];
 					var toAdd = [];
 					Ext.iterate(Ext.DomQuery.select('.x-grid3-row-selected',this.el.dom),function(sRow) {			
-			            ev.stopEvent();
+						ev.stopEvent();
 						var el = Ext.get(Ext.DomQuery.select('.x-grid3-check-col, .x-grid3-check-col-on',sRow)[0]);
 						var index = this.getView().findRowIndex(sRow);
 						var record =this.store.getAt(index);
@@ -842,50 +844,48 @@ Cronk.EventDB.MainView = function(cfg) {
 				}
 			},	
 			beforerender: function(_this) {
-        		_this.fireEvent('hostFilterChanged', _this, true);
-        	},
-            hostFilterChanged: function(_this, fromrender) {	
+				_this.fireEvent('hostFilterChanged', _this, true);
+			},
+			hostFilterChanged: function(_this, fromrender) {	
 		
 				fromrender = fromrender || false;
-                this.unselectAll();
-				if (parentCmp.hostFilter) {                    
-                    if (!fromrender) {
-	                    eventGrid.store.load();
-                    }
-                    _this.fireEvent('statechanged');
-                }
-            }
-        },
-        border: false,
-        getState: function() {
+				this.unselectAll();
+				if (parentCmp.hostFilter) {					
+					if (!fromrender) {
+						eventGrid.store.load();
+					}
+					_this.fireEvent('statechanged');
+				}
+			}
+		},
+		border: false,
+		getState: function() {
 		
-        	var state = {
-       
+			var state = {
 				height: this.getHeight(),
-        		width: this.getWidth(),
-        		storeParams: this.store.baseParams,
-        		filters: fm.getFilterDescriptor()
-        	};
+				width: this.getWidth(),
+				storeParams: this.store.baseParams,
+				filters: fm.getFilterDescriptor()
+			};
 
 
 
 
-        	return state;
-        },
-        applyState: function(state) {	
+			return state;
+		},
+		applyState: function(state) {	
 			
 			if(state.colModel)
 				this.getColumnModel().setConfig(Ext.decode(state.colModel))
-        	this.setHeight(state.height);
-        	this.setWidth(state.width);
-        	this.store.baseParams = state.storeParams;
-       	
+			this.setHeight(state.height);
+			this.setWidth(state.width);
+			this.store.baseParams = state.storeParams;
 			fm.defaultValues = state.filters || fm.getFilterDescriptor(); 
-    		if(state.filters)
+			if(state.filters)
 				fm.stateApplied = true;  				
 		
 			eventGridPager.pageSize = (fm.defaultValues.display || {limit:25}).limit;	
-    		quickFilterBar.syncWithFilter();
+			quickFilterBar.syncWithFilter();
 		},
 		viewConfig: {
 			
@@ -893,50 +893,50 @@ Cronk.EventDB.MainView = function(cfg) {
 				return 'tag '+record.get('priority').toLowerCase();	
 			}
 		}
-    });
-   	
-    eventGrid = new _eventGrid();
-    
-    var _IcingaEventDBCronk = Ext.extend(Ext.Container, {
-	    constructor: function(config) {
-	        Ext.Container.prototype.constructor.call(this, config);
-	    },
-	    
-	    applyHostFilter: function() {
-	    	eventGrid.fireEvent('hostFilterChanged', eventGrid);
-	    }
-    });
-    
-    var IcingaEventDBCronk = new _IcingaEventDBCronk({
-    	layout: 'border',
-        width: parentCmp.getInnerWidth()*0.98,
-        items: [{
-            region:'center',
-            xtype:'panel',
-            layout:'fit',
-            border:false,
-            items: eventGrid
-        },{
-            xtype: 'panel',
-            region: 'south',
-            title: 'Comments',
+	});
+
+	eventGrid = new _eventGrid();
+	
+	var _IcingaEventDBCronk = Ext.extend(Ext.Container, {
+		constructor: function(config) {
+			Ext.Container.prototype.constructor.call(this, config);
+		},
+		
+		applyHostFilter: function() {
+			eventGrid.fireEvent('hostFilterChanged', eventGrid);
+		}
+	});
+	
+	var IcingaEventDBCronk = new _IcingaEventDBCronk({
+		layout: 'border',
+		width: parentCmp.getInnerWidth()*0.98,
+		items: [{
+			region:'center',
+			xtype:'panel',
+			layout:'fit',
+			border:false,
+			items: eventGrid
+		},{
+			xtype: 'panel',
+			region: 'south',
+			title: 'Comments',
 			height: 200,
-            collapsible: true,
-            split: true,
-            collapsed: true,
-            hidden: true,
-            layout: 'fit',
-            border: false,
-            items: commentGrid
-        }]
-    });
-    
-    CE.add(IcingaEventDBCronk);
-    CE.doLayout()
+			collapsible: true,
+			split: true,
+			collapsed: true,
+			hidden: true,
+			layout: 'fit',
+			border: false,
+			items: commentGrid
+		}]
+	});
+	
+	CE.add(IcingaEventDBCronk);
+	CE.doLayout()
 	
 	
 	if(CE.params.hostQuickFilter) {
-		eventStore.baseParams = Ext.apply(eventStore.baseParams || {},{hostQuickFilter: CE.params.hostQuickFilter});
+		eventStore.baseParams = Ext.apply(eventStore.baseParams || {},{hostQuickFilter: CE.params.hostQuickFilter});
 	}
 	if(CE.params.FilterJSON) {	
 		var params = Ext.decode(CE.params.FilterJSON);

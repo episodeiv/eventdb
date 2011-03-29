@@ -107,7 +107,7 @@ Cronk.EventDB.FilterManagerViews.Advanced = function(url) {
 		},
 
 		addFilterMsgRow: function(elem,values) {
-			var presets = values || {};
+			var presets = values || {};
 			
 			var ct = elem.add ? elem :  elem.ownerCt.ownerCt; //toolbar->panel	
 			var id = Ext.id('row');
@@ -168,7 +168,7 @@ Cronk.EventDB.FilterManagerViews.Advanced = function(url) {
 			if(ct.getValue)
 				g = ct.getValue;
 			ct.getValue = function(set) {
-				var set = set || [];
+				var set = set || [];
 				
 				if(!row.hidden) {
 					set.push(row.getValue());
@@ -553,7 +553,7 @@ Cronk.EventDB.FilterManagerViews.General = function() {
 						break;
 					case 'timespan':
 						var t;
-						if((vals[i].from || -1) != -1) {
+						if((vals[i].from || -1) != -1) {
 							t = new Date();
 							t.setTime(vals[i].from*1000);
 							var d_from = Ext.getCmp('date_from_'+ev_id);
@@ -563,7 +563,7 @@ Cronk.EventDB.FilterManagerViews.General = function() {
 							d_from.setValue(t);
 							t_from.setValue(t);
 						}
-						if((vals[i].to || -1) != -1) {
+						if((vals[i].to || -1) != -1) {
 							t = new Date();
 							t.setTime(vals[i].to*1000);
 							var d_to = Ext.getCmp('date_to_'+ev_id);
@@ -585,7 +585,7 @@ Cronk.EventDB.FilterManagerViews.General = function() {
 									field.setActiveItem(it[0]);	
 							}
 						}
-						if(vals[i].limit) {
+						if(vals[i].limit) {
 							var field = Ext.getCmp('rpp_cycle_'+ev_id);
 							this.toSearch = vals[i].limit;
 							var it = field.menu.findBy(cycleSearch,this);
@@ -789,7 +789,7 @@ Cronk.EventDB.FilterManagerViews.General = function() {
 					var chkBoxes = Ext.getCmp('fac_chkbx_'+ev_id);
 					for(var i=0;i<chkBoxes.items.items.length;i++) {
 						var val = chkBoxes.items.items[i];
-						if(val.name.split("_")[1] > 15)
+						if(val.name.split("_")[1] > 15)
 							val.setValue(true);
 						else 
 							val.setValue(false);
@@ -834,7 +834,7 @@ Cronk.EventDB.FilterManagerViews.General = function() {
 					{name: 'facility_21', id: 'facility_21'+ev_id, ctCls: 'eventdb_tag local5', boxLabel : 'local5'},
 					{name: 'facility_22', id: 'facility_22'+ev_id, ctCls: 'eventdb_tag local6', boxLabel : 'local6'},
 					{name: 'facility_23', id: 'facility_23'+ev_id, ctCls: 'eventdb_tag local7', boxLabel : 'local7'}
-				]	   
+				]		
 			})]	
 		},{
 			xtype: 'panel',
@@ -1141,7 +1141,7 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 			if(f.hostFilter.exclude_pattern_type != 'disabled')
 				return true;
 		}
-		if(f.programFilter) {
+		if(f.programFilter) {
 			if(f.programFilter.include_pattern_type != 'disabled')
 				return true;
 			if(f.programFilter.exclude_pattern_type != 'disabled')
@@ -1154,7 +1154,7 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 			if(f.sourceExclusion.length)
 				return true;
 		if(f.timespan)
-			if(f.timespan.from > -1 || f.timespan.to < -1)
+			if(f.timespan.from > -1 || f.timespan.to < -1)
 				return true;
 		return false;
 	},
@@ -1205,7 +1205,7 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 		}
 		if(blank === true)
 			return descriptor;
-		if(!this.oWin) {
+		if(!this.oWin) {
 			return this.defaultValues;
 			
 		}
@@ -1312,27 +1312,27 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 	defaultValues: {},
 	generalView: null,
 	advancedView: null, 
-    show: function(renderOnly) {
+	show: function(renderOnly) {
 		if(!this.generalView)
 			this.generalView =Cronk.EventDB.FilterManagerViews.General();
 		if(!this.advancedView)	
 			this.advancedView = Cronk.EventDB.FilterManagerViews.Advanced(this.url);
 		
 		var ev_uid = Ext.id('eventdb_filterwin');
-    	renderOnly = renderOnly || false;
+		renderOnly = renderOnly || false;
 		
 		this.generalView.updateFields(this.defaultValues);
 		this.advancedView.updateFields(this.defaultValues);
-    	
-    	if (!this.oWin) {
-    		this.oWin = new Ext.Window({
-                layout: 'fit',
-                closeAction: 'hide',
-                region: 'center',
-                width: 820,
-                height: 550,
-                title: _('Filter'),
-                items: //new Ext.form.FormPanel({ 
+		
+		if (!this.oWin) {
+			this.oWin = new Ext.Window({
+				layout: 'fit',
+				closeAction: 'hide',
+				region: 'center',
+				width: 820,
+				height: 550,
+				title: _('Filter'),
+				items: //new Ext.form.FormPanel({ 
 				//	items: 
 						new Ext.TabPanel({
 							activeTab: 0,
@@ -1343,37 +1343,37 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 						}),
 			//	}),
 				bbar: {
-                    defaults: {
-                        scope: this
-                    },
-                    items: [{
-                        text: _('Apply'),
-                        iconCls: 'icinga-icon-accept',
-                        handler: function(oButton, e) {
-                        	var desc = this.getFilterDescriptor();
+					defaults: {
+						scope: this
+					},
+					items: [{
+						text: _('Apply'),
+						iconCls: 'icinga-icon-accept',
+						handler: function(oButton, e) {
+							var desc = this.getFilterDescriptor();
 							this.fireEvent("applyFilter",desc);
 							this.oWin.hide();
 						}
-                    },{
-                        text: _('Cancel'),
-                        iconCls: 'icinga-icon-cross',
-                        handler: function() {
-                            this.oWin.hide();
-                        }
-                    },'-',{
-                        text: _('Reset'),
-                        iconCls: 'icinga-icon-delete',
-                        handler: function() {
-                        	this.clearFilterFields();
-                        }
-                    }]
-                },
-                modal: true,
-                renderTo: Ext.getBody()
-            });
-        }
-        if (!renderOnly) {
-            this.oWin.show();
-        }
-    }
+					},{
+						text: _('Cancel'),
+						iconCls: 'icinga-icon-cross',
+						handler: function() {
+							this.oWin.hide();
+						}
+					},'-',{
+						text: _('Reset'),
+						iconCls: 'icinga-icon-delete',
+						handler: function() {
+							this.clearFilterFields();
+						}
+					}]
+				},
+				modal: true,
+				renderTo: Ext.getBody()
+			});
+		}
+		if (!renderOnly) {
+			this.oWin.show();
+		}
+	}
 });
