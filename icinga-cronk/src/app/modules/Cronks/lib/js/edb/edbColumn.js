@@ -46,7 +46,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 			idJSON.field.push({type:'atom',field: [cfg.type+'_ID'],method:['='],value: [id]});
 		});
 		Ext.Ajax.request({
-			url: window.location.protocol+"//"+window.window.location.host+"/"+cfg.base+"/web/api/json",
+			url: AppKit.c.path+"/web/api/json",
 			params: {
 				
 				target: cfg.target,

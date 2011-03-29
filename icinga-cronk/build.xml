@@ -42,7 +42,7 @@ Available targets:
 		<manifestDependencyChecker refid="manifest"/>
 		
 		<!-- Install module and additional -->		
-		<input propertyname="web_base" promptChar="?" defaultValue="icinga-web">Base web-path of icinga-web</input>
+<!--		<input propertyname="web_base" promptChar="?" defaultValue="icinga-web">Base web-path of icinga-web</input>
 		<copy overwrite="true" todir="etc/xml">
 			<fileset dir="etc/xml_tpl/">
 				<include name="*.xml" />
@@ -58,6 +58,8 @@ Available targets:
 				</replacetokens>
 			</filterchain>
 		</reflexive>	
+-->
+
 		<echo>Installing to ${PATH_Icinga}</echo>
 		<copy overwrite="true" todir="${PATH_Icinga}">
 			<filterchain>
