@@ -1047,7 +1047,7 @@ Cronk.EventDB.FilterManagerViews.General = function() {
 				fieldLabel: _('Order by'),
 				items: [{
 					text: _('Create time'),
-					value: 'created',	
+					value: 'created'	
 				},{
 					text: _('Last modified'),
 					value: 'modified'
