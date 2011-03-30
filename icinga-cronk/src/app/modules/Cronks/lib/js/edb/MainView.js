@@ -583,15 +583,20 @@ Cronk.EventDB.MainView = function(cfg) {
 				items: [{
 					text: _('Auto refresh'),
 					checked: false,
-
+					id: 'refreshBtn_'+this.id,
 					checkHandler: function(checkItem, checked) {
 						if (checked == true) {
+							if(this.trefresh)
+								this.trefresh.stop();
 							this.trefresh = AppKit.getTr().start({
-								run: function() {
-								  
-									eventGrid.refresh();
+								run: function() { 
+									if(eventGrid.getStore().proxy)
+										if(eventGrid.getStore().proxy.getConnection())
+											if(eventGrid.getStore().proxy.getConnection().isLoading())
+												return true;
+									eventGrid.getStore().load();
 								},
-								interval: 120000,
+								interval:  20000,
 								scope: this
 							});
 						}
@@ -959,6 +964,8 @@ Cronk.EventDB.MainView = function(cfg) {
 		eventGrid.fireEvent('hostFilterChanged', eventGrid);
 		
 	}
+	if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
+		Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
 	eventGrid.refreshTask.delay(1000);  
 
 }
