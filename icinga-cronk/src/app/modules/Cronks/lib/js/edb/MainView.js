@@ -693,7 +693,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				case '0':
 					return 'Syslog';	
 				case '1':
-					return 'SMNP';
+					return 'SNMP';
 				case '2':
 					return 'Mail';
 				default:
