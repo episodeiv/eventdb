@@ -4,6 +4,7 @@ Cronk.EventDB.MainView = function(cfg) {
 
 	var CE = cfg.CE;
 	this.id = CE.id;
+
 	var parentCmp = cfg.parentCmp;
 	var url = cfg.eventUrl;
 	var commentUrl = cfg.commentUrl;
@@ -56,14 +57,16 @@ Cronk.EventDB.MainView = function(cfg) {
 				
 				eventStore.baseParams = {jsonFilter: Ext.encode(desc)}; 
 				eventGrid.store.ignoreBaseFilter = true;
-				eventGrid.refreshTask.delay(1500);
+				eventGrid.refreshTask.delay(1500,null,eventGrid);
 			},
 			scope:this
 		},
 
 		syncWithFilter: function(f) {
 			var filter = f || fm.getFilterDescriptor();
-			var filterBtn =  Ext.DomQuery.selectNode('.filterBtn');
+			var filterBtn
+			if(parentCmp.el)
+				filterBtn = Ext.DomQuery.selectNode('.filterBtn',parentCmp.el.dom);
 			if(fm.hasActiveFilter() && filterBtn) {
 				Ext.get(filterBtn).addClass('activeFilter');
 			} else if(filterBtn) {
@@ -197,13 +200,13 @@ Cronk.EventDB.MainView = function(cfg) {
 			{name: 'created'}
 		]
 	});
-	
+
 	var fm = new Cronk.EventDB.FilterManager({url: url, parentCmp: parentCmp});
 	
 	fm.addListener('applyFilter', function(filters) {		
 			
 		eventGrid.fireEvent('statechange');
-		eventGridPager.pageSize = filters.display.limit;
+		eventGrid.setPageSize(filters.display.limit);
 		eventStore.baseParams = {"jsonFilter": Ext.encode(filters)};
 		Cronk.Registry.get(CE.id).params.FilterJSON = Ext.encode(fm.getFilterDescriptor());		
 		quickFilterBar.syncWithFilter();
@@ -272,15 +275,25 @@ Cronk.EventDB.MainView = function(cfg) {
 		fixed: true,
 		menuDisabled: true
 	});
-	var eventGridPager = new Ext.PagingToolbar({
-		pageSize: 25,
-		store: eventStore,
-		displayInfo: true,
-		displayMsg: _('Displaying events {0} - {1} of {2}'),
-		emptyMsg: _('No events to display')	
-	});
-
+	
 	var _commentGrid = Ext.extend(Ext.grid.GridPanel, {
+		getState: function() {
+			var state = {
+				height: this.getHeight(),
+				width: this.getWidth(),
+				storeParams: this.store.baseParams
+			};
+		
+			this.resumeEvents();
+		},
+		applyState: function(state) {
+			this.setHeight(state.height);
+			this.setWidth(state.width);
+			this.store.baseParams = state.storeParams;
+		}
+	});
+	
+	var commentGrid = new _commentGrid({
 		store: commentStore,
 		stateId: 'db-commentGrid-' + this.id,
 		stateful: true,
@@ -314,24 +327,8 @@ Cronk.EventDB.MainView = function(cfg) {
 			emptyMsg: _('No comments to display')
 		}),
 		frame: true,
-		border: false,
-		getState: function() {
-			var state = {
-				height: this.getHeight(),
-				width: this.getWidth(),
-				storeParams: this.store.baseParams
-			};
-		
-			this.resumeEvents();
-		},
-		applyState: function(state) {
-			this.setHeight(state.height);
-			this.setWidth(state.width);
-			this.store.baseParams = state.storeParams;
-		}
+		border: false
 	});
-	
-	var commentGrid = new _commentGrid();
 	
 	var commentForm = (function() {
 		oWin = null;
@@ -451,8 +448,20 @@ Cronk.EventDB.MainView = function(cfg) {
 	})();
 
 	var _eventGrid = Ext.extend(Ext.grid.GridPanel, {
-		id: "evGrid_"+this.id,
-		constructor: function() {
+		setPageSize: function(size) {
+			this.bottomToolbar.pageSize = size;
+		},
+		constructor: function(cfg) {
+			Ext.apply(this,cfg);
+			this.bbar = new Ext.PagingToolbar({
+				pageSize: 25,
+				id: 'pager_'+this.id,
+				store: eventStore,
+				displayInfo: true,
+				displayMsg: _('Displaying events {0} - {1} of {2}'),
+				emptyMsg: _('No events to display')	
+			});
+
 			this.addEvents({
 				'statechange': true,
 				'hostFilterChanged': true
@@ -493,7 +502,7 @@ Cronk.EventDB.MainView = function(cfg) {
 		},
 
 		buildInterGridLink: function() {
-			var elems = Ext.DomQuery.select('span[isHostField=true]');
+			var elems = Ext.DomQuery.select('span[isHostField=true]',parentCmp.el.dom);
 			Ext.iterate(elems,function(elem) {
 				Ext.get(elem).on("click",function(ev,e) {
 					var host_name = e.getAttribute('hostName');	
@@ -520,16 +529,16 @@ Cronk.EventDB.MainView = function(cfg) {
 			if(!viewOnly) {
 				this.selectedRecords = [];
 	 		}
-			var elem = Ext.DomQuery.select('.x-grid3-check-col-on',this.dom);
+			var elem = Ext.DomQuery.select('.x-grid3-check-col-on',parentCmp.el.dom);
 			Ext.iterate(elem,function(i) {
-				Ext.get(i).replaceClass('x-grid3-check-col-on','x-grid3-check-col',this.dom);
+				Ext.get(i).replaceClass('x-grid3-check-col-on','x-grid3-check-col',parentCmp.el.dom);
 			},this);
 			this.updateCommentButton();
 		},
 		selectAll: function() {
-			var elem = Ext.DomQuery.select('.x-grid3-check-col');
+			var elem = Ext.DomQuery.select('.x-grid3-check-col',parentCmp.el.dom);
 			Ext.iterate(elem,function(i) {	
-				Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',this.dom);	
+				Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',parentCmp.el.dom);	
 				var id = Ext.get(i).getAttribute("record");
 				this.selectedRecords.push(this.store.getById(id));
 			},this);
@@ -548,9 +557,9 @@ Cronk.EventDB.MainView = function(cfg) {
 		updateSelected: function() {
 			this.unselectAll(true);
 			Ext.iterate(this.selectedRecords,function(r) {
-				var elem = Ext.DomQuery.select('div.x-grid3-check-col[record='+r.id+']');
+				var elem = Ext.DomQuery.select('div.x-grid3-check-col[record='+r.id+']',parentCmp.el.dom);
 				Ext.iterate(elem, function(i) {	
-					Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',this.dom);	
+					Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',parentCmp.el.dom);	
 				},this)
 			},this);
 			this.updateCommentButton();	
@@ -564,135 +573,25 @@ Cronk.EventDB.MainView = function(cfg) {
 			var grid = this;
 			if(Ext.isIE){
 				grid.store.on("load", function(){
-					var elems=Ext.DomQuery.select("div[unselectable=on]", grid.dom);
+					var elems=Ext.DomQuery.select("div[unselectable=on]", parentCmp.el.dom);
 					for(var i=0, len=elems.length; i<len; i++){
 						elems[i].unselectable = "off";
 					}
 				});
 			}
 		},
-		store: eventStore,
-		stateId: 'db-eventGrid-' + this.id,
-		stateful: true,
-		stateEvents: ['statechange','sortchange','columnresize','columnmove'],
-		tbar: [{
-			iconCls: 'icinga-icon-arrow-refresh',
-			text: _('Refresh'),
-			tooltip: _('Refresh the data in the grid'),
-			handler: function(oBtn, e) { eventGrid.refresh(); },
-			scope: this
-		},{
-			iconCls: 'icinga-icon-cog',
-			text: _('Settings'),
-			menu: {
-				items: [{
-					text: _('Auto refresh'),
-					checked: false,
-					id: 'refreshBtn_'+this.id,
-					checkHandler: function(checkItem, checked) {
-						if (checked == true) {
-							if(this.trefresh)
-								this.trefresh.stop();
-							this.trefresh = AppKit.getTr().start({
-								run: function() { 
-									if(eventGrid.getStore().proxy)
-										if(eventGrid.getStore().proxy.getConnection())
-											if(eventGrid.getStore().proxy.getConnection().isLoading())
-												return true;
-									eventGrid.getStore().load();
-								},
-								interval:  20000,
-								scope: this
-							});
-						}
-						else {
-							AppKit.getTr().stop(this.trefresh);
-							delete this.trefresh;
-						}
-					}
-				}]
-			},
-			scope: this
-		},'-',{
-			text: _('Select All '),
-			handler: function(btn) {
-				eventGrid.selectAll();
-			},
-			scope: this
-		},{
-			text: _('Clear selection '),
-			handler: function(btn) {
-				eventGrid.unselectAll();
-			},
-			scope: this
-		},'-',{
-			text: _('Filter'),
-			cls: 'filterBtn', 
-			iconCls: 'icinga-icon-pencil',
-			listeners: {
-				render: function(e) {
-					if(fm.hasActiveFilter())
-						e.addClass('activeFilter');
-					else
-						e.removeClass('activeFilter');
-				}	
-			},
-			menu: {
-				items: [{
-					text: _('Edit '),
-					iconCls: 'icinga-icon-application-form',
-					handler: function() {
-						eventGrid.store.ignoreBaseFilter = false;
-						fm.show();
-					},
-					scope: this
-				},{
-					text: _('Remove'),
-					iconCls: 'icinga-icon-cancel',
-					handler: function() {
-						fm.show(true);
-						fm.clearFilterFields();
-						eventStore.baseParams = {offset:0, limit:25};
-						eventGrid.refresh();
-					},
-					scope: this
-				}]
-			}
-		},'-',ackFilterBtn,'-',quickFilterBar,'-',new Ext.form.TextField({
-			xtype: 'textfield',
-			emptyText: _('Host name'),
-			enableKeyEvents: true,
-			value: (CE.params || {}).hostQuickFilter, 
-			listeners:{ 
-				blur: function(el) {
-					var value = el.getValue();
-					eventStore.setBaseParam('hostQuickFilter',value || null);
-					eventGrid.refresh();				
-				},
-				keydown: function(el) {
-					var value = el.getValue();
-					eventStore.setBaseParam('hostQuickFilter',value || null);
-					eventGrid.refresh();
-				},
-				scope: this
-			}
 		
-		}),'-',{
-			text:'Acknowledge/Comment',
-			tooltip:'Add comment to your acknoledgement',
-			iconCls:'icinga-icon-add',
-			ref: '../commentButton',
-			handler: function() { commentForm.show(); },
-			disabled: true
-		}],
 		// buffer store reload
 		refreshTask : new Ext.util.DelayedTask(function() {
-			eventStore.load();
+			if(this.store)
+				this.store.load();
+			else 
+				eventStore.load();
 			quickFilterBar.active = true;
 			
 		}),
 		refresh: function() {
-			this.refreshTask.delay(1000);
+			this.refreshTask.delay(1000,null,this);
 		},
 		resolveType: function(v) {	
 			switch(v) {
@@ -706,6 +605,46 @@ Cronk.EventDB.MainView = function(cfg) {
 					return 'Unknown';	
 			}	
 		},
+		
+		getState: function() {
+		
+			var state = {
+				height: this.getHeight(),
+				width: this.getWidth(),
+				storeParams: this.store.baseParams,
+				filters: fm.getFilterDescriptor()
+			};
+
+
+
+
+			return state;
+		},
+		applyState: function(state) {	
+			
+			if(state.colModel)
+				this.getColumnModel().setConfig(Ext.decode(state.colModel))
+			this.setHeight(state.height);
+			this.setWidth(state.width);
+			this.store.baseParams = state.storeParams;
+			fm.defaultValues = state.filters || fm.getFilterDescriptor(); 
+			if(state.filters)
+				fm.stateApplied = true;  				
+		
+			this.setPageSize((fm.defaultValues.display || {limit:25}).limit);	
+			quickFilterBar.syncWithFilter();
+		},
+		viewConfig: {
+			
+			getRowClass: function(record,index) {
+				return 'tag '+record.get('priority').toLowerCase();	
+			}
+		}
+	});
+
+	var eventGrid = new _eventGrid({
+		id: "evGrid_"+this.id,
+		
 		columns: [{
 				showHeader:false,
 				width:18,
@@ -736,7 +675,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				width:25
 			},{
 				dataIndex: 'type',
-				header: _('Type'),
+				header: _('Source'),
 				sortable: true,
 				width: 100,
 				renderer: function(v) {
@@ -808,9 +747,123 @@ Cronk.EventDB.MainView = function(cfg) {
 				width: 200
 			}
 		],
+		store: eventStore,
+		stateId: 'db-eventGrid-' + this.id,
+		stateful: true,
+		stateEvents: ['statechange','sortchange','columnresize','columnmove'],
+		tbar: [{
+			iconCls: 'icinga-icon-arrow-refresh',
+			text: _('Refresh'),
+			tooltip: _('Refresh the data in the grid'),
+			handler: function(oBtn, e) { eventGrid.refresh(); },
+			scope: this
+		},{
+			iconCls: 'icinga-icon-cog',
+			text: _('Settings'),
+			menu: {
+				items: [{
+					text: _('Auto refresh'),
+					checked: false,
+					id: 'refreshBtn_'+this.id,
+					checkHandler: function(checkItem, checked) {
+						if (checked == true) {
+							if(this.trefresh)
+								this.trefresh.stop();
+							this.trefresh = AppKit.getTr().start({
+								run: function() { 
+									if(eventGrid.getStore().proxy)
+										if(eventGrid.getStore().proxy.getConnection())
+											if(eventGrid.getStore().proxy.getConnection().isLoading())
+												return true;
+									eventGrid.getStore().load();
+								},
+								interval:  20000,
+								scope: this
+							});
+						}
+						else {
+							AppKit.getTr().stop(this.trefresh);
+							delete this.trefresh;
+						}
+					}
+				}]
+			},
+			scope: this
+		},'-',{
+			text: _('Select All '),
+			handler: function(btn) {
+				eventGrid.selectAll();
+			},
+			scope: this
+		},{
+			text: _('Clear selection '),
+			handler: function(btn) {
+				eventGrid.unselectAll();
+			},
+			scope: this
+		},'-',{
+			text: _('Filter'),
+			cls: 'filterBtn',
+			iconCls: 'icinga-icon-pencil',
+			listeners: {
+				render: function(e) {
+					if(fm.hasActiveFilter())
+						e.addClass('activeFilter');
+					else
+						e.removeClass('activeFilter');
+				}
+			},
+			menu: {
+				items: [{
+					text: _('Edit '),
+					iconCls: 'icinga-icon-application-form',
+					handler: function() {
+						eventGrid.store.ignoreBaseFilter = false;
+						fm.show();
+					},
+					scope: this
+				},{
+					text: _('Remove'),
+					iconCls: 'icinga-icon-cancel',
+					handler: function() {
+						fm.show(true);
+						fm.clearFilterFields();
+						eventStore.baseParams = {offset:0, limit:25};
+						eventGrid.refresh();
+					},
+					scope: this
+				}]
+			}
+		},'-',ackFilterBtn,'-',quickFilterBar,'-',new Ext.form.TextField({
+			xtype: 'textfield',
+			emptyText: _('Host name'),
+			enableKeyEvents: true,
+			value: (CE.params || {}).hostQuickFilter, 
+			listeners:{ 
+				blur: function(el) {
+					var value = el.getValue();
+					eventStore.setBaseParam('hostQuickFilter',value || null);
+					eventGrid.refresh();				
+				},
+				keydown: function(el) {
+					var value = el.getValue();
+					eventStore.setBaseParam('hostQuickFilter',value || null);
+					eventGrid.refresh();
+				},
+				scope: this
+			}
+		
+		}),'-',{
+			text:'Acknowledge/Comment',
+			tooltip:'Add comment to your acknoledgement',
+			iconCls:'icinga-icon-add',
+			ref: '../commentButton',
+			handler: function() { commentForm.show(); },
+			disabled: true
+		}],
 		sm: false,		
 		plugins: ack,
-		bbar: eventGridPager, 
+		
 		autoScroll: true,
 		listeners: {
 			defaults: {
@@ -857,6 +910,11 @@ Cronk.EventDB.MainView = function(cfg) {
 			beforerender: function(_this) {
 				_this.fireEvent('hostFilterChanged', _this, true);
 			},
+			show: function(_this) {
+				_this.store.load();
+				_this.updateSelected();	
+
+			},
 			hostFilterChanged: function(_this, fromrender) {	
 		
 				fromrender = fromrender || false;
@@ -869,44 +927,8 @@ Cronk.EventDB.MainView = function(cfg) {
 				}
 			}
 		},
-		border: false,
-		getState: function() {
-		
-			var state = {
-				height: this.getHeight(),
-				width: this.getWidth(),
-				storeParams: this.store.baseParams,
-				filters: fm.getFilterDescriptor()
-			};
-
-
-
-
-			return state;
-		},
-		applyState: function(state) {	
-			
-			if(state.colModel)
-				this.getColumnModel().setConfig(Ext.decode(state.colModel))
-			this.setHeight(state.height);
-			this.setWidth(state.width);
-			this.store.baseParams = state.storeParams;
-			fm.defaultValues = state.filters || fm.getFilterDescriptor(); 
-			if(state.filters)
-				fm.stateApplied = true;  				
-		
-			eventGridPager.pageSize = (fm.defaultValues.display || {limit:25}).limit;	
-			quickFilterBar.syncWithFilter();
-		},
-		viewConfig: {
-			
-			getRowClass: function(record,index) {
-				return 'tag '+record.get('priority').toLowerCase();	
-			}
-		}
+		border: false
 	});
-
-	eventGrid = new _eventGrid();
 	
 	var _IcingaEventDBCronk = Ext.extend(Ext.Container, {
 		constructor: function(config) {

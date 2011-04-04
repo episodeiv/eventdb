@@ -1153,6 +1153,15 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 		if(f.sourceExclusion)
 			if(f.sourceExclusion.length)
 				return true;
+		if(f.facilityExclusion)
+			if(f.facilityExclusion.length)
+				return true;
+		if(f.priorityExclusion)
+			if(f.priorityExclusion.length)
+				return true;
+		if(f.misc)
+			if(f.misc.hideAck === true)
+				return true;
 		if(f.timespan)
 			if(f.timespan.from > -1 || f.timespan.to < -1)
 				return true;
