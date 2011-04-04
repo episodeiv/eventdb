@@ -22,7 +22,9 @@ Cronk.EventDB.MainView = function(cfg) {
 				}
 				desc.misc.hideAck = state;
 				
-				eventStore.baseParams = {jsonFilter: Ext.encode(desc)}; 
+				eventStore.baseParams = {jsonFilter: Ext.encode(desc)};
+				eventGrid.store.ignoreBaseFilter = true;
+
 				eventGrid.refreshTask.delay(1500);		
 			}	
 		}
@@ -53,6 +55,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				desc.priorityExclusion = vals;
 				
 				eventStore.baseParams = {jsonFilter: Ext.encode(desc)}; 
+				eventGrid.store.ignoreBaseFilter = true;
 				eventGrid.refreshTask.delay(1500);
 			},
 			scope:this
@@ -473,11 +476,13 @@ Cronk.EventDB.MainView = function(cfg) {
 						field: sortState.field
 					}
 				}
-				try {
-					quickFilterBar.syncWithFilter();
-				this.setBaseParam('jsonFilter',Ext.encode(f));
-				} catch(e) {
-					AppKit.log(e);	
+				if(!this.ignoreBaseFilter) {
+					try {
+						quickFilterBar.syncWithFilter();
+					this.setBaseParam('jsonFilter',Ext.encode(f));
+					} catch(e) {
+						AppKit.log(e);	
+					}
 				}
 			},this.store);
 			this.store.on("load", function() {
@@ -637,6 +642,7 @@ Cronk.EventDB.MainView = function(cfg) {
 					text: _('Edit '),
 					iconCls: 'icinga-icon-application-form',
 					handler: function() {
+						eventGrid.store.ignoreBaseFilter = false;
 						fm.show();
 					},
 					scope: this
