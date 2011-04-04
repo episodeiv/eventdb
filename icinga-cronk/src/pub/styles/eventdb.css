@@ -22,7 +22,7 @@ Type (syslog, smnp, mail) icons and text-style
 .x-grid3-cell-inner .eventdb-type.syslog .icon-16 {
 	background-image: url(../images/icons/script-text.png) !important; background-repeat: no-repeat;
 }
-.x-grid3-cell-inner .eventdb-type.smnp .icon-16 {
+.x-grid3-cell-inner .eventdb-type.snmp .icon-16 {
 	background-image: url(../images/icons/network-ethernet.png) !important; background-repeat: no-repeat;
 }
 .x-grid3-cell-inner .eventdb-type.mail .icon-16 {
