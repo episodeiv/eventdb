@@ -1,9 +1,20 @@
 #!/bin/sh
-# Start/stop the syslog2mysql daemon.
+#
+# chkconfig: 345 99 01
+# description: Icinga network monitor
+### BEGIN INIT INFO
+# Provides:          syslog-ng2mysql
+# Required-Start:
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: EventDB syslog-ng2mysql Initscript
+# Description:       EventDB Syslog to MySQL
+### END INIT INFO
 
 USER=icinga
 GROUP=icinga
-DAEMON=./syslog-ng2mysql.pl
+DAEMON=/usr/local/icinga/contrib/syslog-ng2mysql.pl
 FIFO=$(cat $DAEMON |egrep -i '^my \$fifo' |cut -d"=" -f2 |sed 's/"//g; s/;//g')
 test -p $FIFO || mkfifo -m 0664 $FIFO
 chown $USER:$GROUP $FIFO
@@ -16,7 +27,7 @@ start)	echo -n "Starting syslog2mysql daemon"
         echo "." 
 	;;
 stop)   echo -n "Stopping syslog2mysql daemon"
-        start-stop-daemon --stop --quiet --pidfile /var/run/syslog-ng2mysql.pid  
+        $DAEMON --stop --quiet --pidfile /var/run/syslog-ng2mysql.pid  
 		killall syslog-ng2mysql.pl     
         echo "."
         ;;
