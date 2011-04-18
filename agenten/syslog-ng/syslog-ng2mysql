@@ -12,7 +12,7 @@ test -f $DAEMON || exit 0
 
 case "$1" in
 start)	echo -n "Starting syslog2mysql daemon"
-        start-stop-daemon --start --user $USER --quiet -m --pidfile /var/run/syslog-ng2mysql.pid --startas $DAEMON -b
+        $DAEMON --start --user $USER --quiet -m --pidfile /var/run/syslog-ng2mysql.pid --startas $DAEMON -b
         echo "." 
 	;;
 stop)   echo -n "Stopping syslog2mysql daemon"
