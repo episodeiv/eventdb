@@ -1,0 +1,68 @@
+#!/bin/bash
+#
+# chkconfig: 345 99 01
+# description: Icinga network monitor
+### BEGIN INIT INFO
+# Provides:          syslog-ng2mysql
+# Required-Start:
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: EventDB syslog-ng2mysql Initscript
+# Description:       EventDB Syslog to MySQL
+### END INIT INFO
+
+# Source function library
+. /etc/init.d/functions
+
+USER=icinga
+GROUP=icinga
+DAEMON=/usr/local/icinga/contrib/syslog-ng2mysql.pl
+FIFO=$(cat $DAEMON |egrep -i '^my \$fifo' |cut -d"=" -f2 |sed 's/"//g; s/;//g')
+test -p $FIFO || mkfifo -m 0664 $FIFO
+chown $USER:$GROUP $FIFO
+
+RETVAL=0
+
+start() {
+        echo -n $"Starting syslog-ng2mysql: "
+        daemon --user $USER $DAEMON --daemon & 
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && touch /var/lock/subsys/syslog-ng2mysql
+        return $RETVAL
+        }
+
+stop() {
+        echo -n $"Stopping syslog-ng2mysql: "
+        killproc syslog-ng2mysql.pl     
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/syslog-ng2mysql
+        return $RETVAL
+        } 
+restart() {
+        stop
+        start
+        }
+
+case "$1" in
+start)
+        start
+        ;;
+stop)
+        stop
+        ;;
+restart)
+        restart
+        ;;
+
+status)
+        status syslog-ng2mysql
+        ;;
+
+*)
+        echo $"Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+exit $?
