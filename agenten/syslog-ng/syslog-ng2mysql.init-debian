@@ -23,11 +23,11 @@ test -f $DAEMON || exit 0
 
 case "$1" in
 start)	echo -n "Starting syslog2mysql daemon"
-        $DAEMON --start --user $USER --quiet -m --pidfile /var/run/syslog-ng2mysql.pid --startas $DAEMON -b
+        start-stop-daemon --start --user $USER --quiet -m --pidfile /var/run/syslog-ng2mysql.pid --startas $DAEMON -b
         echo "." 
 	;;
 stop)   echo -n "Stopping syslog2mysql daemon"
-        $DAEMON --stop --quiet --pidfile /var/run/syslog-ng2mysql.pid  
+        start-stop-daemon --stop --quiet --pidfile /var/run/syslog-ng2mysql.pid  
 		killall syslog-ng2mysql.pl     
         echo "."
         ;;
