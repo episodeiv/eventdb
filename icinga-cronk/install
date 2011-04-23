@@ -1,2 +1,3 @@
 #!/bin/bash
 php ./phing.php install-cronk
+php ./phing.php -f=test.xml test

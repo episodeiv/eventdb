@@ -118,7 +118,6 @@ Available targets:
 				<phing phingfile="additional.xml" inheritAll="true" />
 			</then>
 		</if>
-
 		<echo>******** There is one more step to complete the installation - check out doc/database_snippet</echo>
 	</target>
 
