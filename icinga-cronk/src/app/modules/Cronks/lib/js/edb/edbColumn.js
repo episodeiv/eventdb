@@ -91,12 +91,18 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	var drawLinks = function(data,cfg) {
 		var objects = Ext.DomQuery.select('.edb_cronk_sel.unfinished');
 		var map = {}
-		
+		if(!data.edb) {
+			data.edb = {
+				result: []
+			}
+		}
 		// create a service->filter map for easier access
-		Ext.iterate(data.edb, function(elem) {
-			map[elem[cfg.type+'_ID']] = Ext.decode(elem[cfg.type+'_CUSTOMVARIABLE_VALUE']); 
-			map[elem[cfg.type+'_ID']].host = elem.HOST_NAME;
-			map[elem[cfg.type+'_ID']].service = elem[cfg.type+'_NAME'];
+		Ext.iterate(data.edb.result || [], function(elem) {
+	
+				map[elem[cfg.type+'_ID']] = Ext.decode(elem[cfg.type+'_CUSTOMVARIABLE_VALUE']); 
+				map[elem[cfg.type+'_ID']].host = elem.HOST_NAME;
+				map[elem[cfg.type+'_ID']].service = elem[cfg.type+'_NAME'];
+
 		});
 		// Add host/service as a filter per default
 		Ext.iterate(objects,function(DOMNode) {
