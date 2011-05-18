@@ -139,12 +139,15 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	 * @author jmosshammer<jannis.mosshammer@netways.de>
 	 */
 	var buildLink = function(elem,data) {
+		
 		var cronk = {
 			parentid: Ext.id(),
-			title: 'EventDB: '+data.service,
+			title: 'EventDB: '+(data.service != "undefined" ? data.service : data.host),
 			crname: 'icingaEventDB',
 			closable: true,
 			params: {
+				action: 'EventDB.Index',
+				module: 'Cronks',
 				FilterJSON:Ext.encode({
 				
 					"hostFilter":{
@@ -164,7 +167,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 						"exclude_set":[]
 					},
 					"messageFilter":{
-						"items": data.msg || []
+						"items": [data.msg] || []
 					},
 					"misc":{
 						"hideAck":false
@@ -190,6 +193,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 				})
 			}
 		}
+		
 		elem.on("click",Cronk.util.InterGridUtil.gridFilterLink.createDelegate(this,[cronk, {}]));
 	}
 	

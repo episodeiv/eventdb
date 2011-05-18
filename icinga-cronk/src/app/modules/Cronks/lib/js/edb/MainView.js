@@ -771,6 +771,8 @@ Cronk.EventDB.MainView = function(cfg) {
 								this.trefresh.stop();
 							this.trefresh = AppKit.getTr().start({
 								run: function() { 
+									if(!eventGrid.getStore())
+										return false;
 									if(eventGrid.getStore().proxy)
 										if(eventGrid.getStore().proxy.getConnection())
 											if(eventGrid.getStore().proxy.getConnection().isLoading())
