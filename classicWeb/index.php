@@ -290,7 +290,7 @@ function get_data
   if (is_array($facility_arr)) {
     $i = false;
     foreach ($facility_arr as $facility) {
-      if (!$facility) continue;
+      # if (!$facility) continue;
       $parts[] = Array (
         'field' => 'facility',
         'value' => $facility,
@@ -305,7 +305,7 @@ function get_data
   if (is_array($priority_arr)) {
     $i = false;
     foreach ($priority_arr as $priority) {
-      if (!$priority) continue;
+      # if (!$priority) continue;
       $parts[] = Array (
         'field' => 'priority',
         'value' => $priority,
@@ -1274,7 +1274,7 @@ function html_select_options($array, $selected=false, $add_blank = false, $cb = 
         if ($sval == $key) $stag = true;
       }
     }
-    elseif ($selected == $key) $stag = true;
+    elseif ($selected === $key) $stag = true;
     $out[] = sprintf('<option value="%1$s"%3$s>%2$s</option>', $key, $val, $stag ? ' selected="selected"' : false);
   }
 

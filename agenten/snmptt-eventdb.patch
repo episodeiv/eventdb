@@ -19,7 +19,7 @@
 +            "host_name",    $agent_dns_name,        # $A
 +            "host_address", getBinaryIpV6($var[4]), # $aA
 +            "type",         1, # SNMP Trap
-+            "facility",     NULL, # EventDB shall allow NULL, as
++            "facility",     undef, # EventDB shall allow NULL, as
 +                               # there is no SNMP facility
 +            "priority", getNumericPriority($event2[2]), # $s
 +            "program", "snmptrap",
