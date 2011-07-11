@@ -70,7 +70,7 @@ timestack ('config', false, 'Parsing the config');
 
 // Application
 cset('app.title', 'NETWAYS eventdb');
-cset('app.version', '1.3');
+cset('app.version', '2.0.1');
 
 // Database
 cset('db.user', 'eventdb');
