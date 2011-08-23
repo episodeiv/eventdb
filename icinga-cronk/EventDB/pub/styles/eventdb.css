@@ -1,0 +1,194 @@
+.tag {
+	
+}
+.tag .x-btn-text {
+	border-radius: 2px 2px 2px 2px;
+	padding: 2px;
+	width:20px;
+}
+
+/*
+Type (syslog, smnp, mail) icons and text-style
+*/
+.x-grid3-cell-inner .eventdb-type.syslog {
+	color: #458833;	
+}
+.x-grid3-cell-inner .eventdb-type.smnp {
+	color: #455599;	
+}
+.x-grid3-cell-inner .eventdb-type.mail {
+	color: #772233;	
+}
+.x-grid3-cell-inner .eventdb-type.syslog .icon-16 {
+	background-image: url(../images/icons/script-text.png) !important; background-repeat: no-repeat;
+}
+.x-grid3-cell-inner .eventdb-type.snmp .icon-16 {
+	background-image: url(../images/icons/network-ethernet.png) !important; background-repeat: no-repeat;
+}
+.x-grid3-cell-inner .eventdb-type.mail .icon-16 {
+	background-image: url(../images/icons/mail-medium.png) !important; background-repeat: no-repeat;
+}
+.x-grid3-cell-inner .eventdb-type.unknown .icon-16 {
+	background-image: url(../images/icons/question.png) !important; background-repeat: no-repeat;
+}
+
+/*
+Host icons and style
+*/
+
+/*
+Default icon - per default no icon should be displayed 
+*/
+.x-grid3-cell-inner .eventdb-host .icon-16 {
+/*	background-image: url(../images/icons/server.png) !important; background-repeat: no-repeat;*/
+	width: 0px;
+}
+
+/*
+Facility icons and styles
+*/
+.x-grid3-cell-inner .eventdb-facility .icon-16 {
+/*	background-image: url(../images/icons/server.png) !important; background-repeat: no-repeat;*/
+	width: 0px;
+}
+
+/*
+Priority icons and styles
+*/
+.x-grid3-cell-inner .eventdb-priority .icon-16 {
+/*	background-image: url(../images/icons/server.png) !important; background-repeat: no-repeat;*/
+	width: 0px;
+}
+
+/*
+Program icons and styles
+*/
+.x-grid3-cell-inner .eventdb-program .icon-16 {
+/*	background-image: url(../images/icons/server.png) !important; background-repeat: no-repeat;*/
+	width: 0px;
+}
+
+/*
+Cell color and style of priority field
+*/
+
+.x-grid3-cell-inner .tag {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	width:90px;
+	text-align:center;	
+	-moz-border-radius:5px;
+	-o-border-radius:5px;
+	-webkit-border-radius:5px;
+}
+.x-grid3-cell-inner .tag.emergency {
+	background-color: #ff2200;
+}
+.x-grid3-cell-inner .tag.alert  {
+	background-color: #ff4400;
+}
+.x-grid3-cell-inner .tag.critical  {
+	background-color: #ff6600;
+}
+.x-grid3-cell-inner .tag.error  {
+	background-color: #ff8800;
+}
+.x-grid3-cell-inner .tag.warning  {
+	background-color: #ffff00;
+}
+.x-grid3-cell-inner .tag.notice  {
+	background-color: #00ff00;
+}
+.x-grid3-cell-inner .tag.information {
+	background-color: #aaaaff;
+}
+.x-grid3-cell-inner .tag.debug  {
+	background-color: #bbbbbb;
+}
+
+/**
+* Disable text-selection supression in grid
+**/
+.x-grid3-row.tag td {
+	-moz-user-select:inherit;
+	-khtml-user-select:text;
+}
+
+ 
+/**
+* Tag color of the first cell, which indicates priority
+**/
+.x-grid3-row.tag.emergency .x-grid3-cell-first {
+	background-color: #ff2200;
+}
+.x-grid3-row.tag.alert .x-grid3-cell-first {
+	background-color: #ff4400;
+}
+.x-grid3-row.tag.critical .x-grid3-cell-first {
+	background-color: #ff6600;
+}
+.x-grid3-row.tag.error .x-grid3-cell-first {
+	background-color: #ff8800;
+}
+.x-grid3-row.tag.warning .x-grid3-cell-first {
+	background-color: #ffff00;
+}
+.x-grid3-row.tag.notice .x-grid3-cell-first {
+	background-color: #00ff00;
+}
+.x-grid3-row.tag.information .x-grid3-cell-first {
+	background-color: #aaaaff;
+}
+.x-grid3-row.tag.debug .x-grid3-cell-first {
+	background-color: #bbbbbb;
+}
+
+.tag.emergency .x-btn-pressed .x-btn-text  {
+	background-color: #ff2200;
+}
+.tag.alert .x-btn-pressed .x-btn-text {
+	background-color: #ff4400;
+}
+.tag.warning .x-btn-pressed .x-btn-text {
+	background-color: #ffff00;
+}
+.tag.error .x-btn-pressed .x-btn-text {
+	background-color: #ff8800;
+}
+.tag.critical .x-btn-pressed .x-btn-text {
+	background-color: #ff6600;
+}
+.tag.notice .x-btn-pressed .x-btn-text {
+	background-color: #00ff00;
+}
+.tag.debug .x-btn-pressed .x-btn-text {
+	background-color: #bbbbbb;
+}
+.tag.info .x-btn-pressed .x-btn-text {
+	background-color: #aaaaff;
+}
+
+.edb_cronk_sel.unfinished{
+
+	background-image: url(../../../../images/ajax/circle-ball.gif);
+	height:24;
+	width:32;
+	background-repeat: no-repeat;	
+}
+
+
+.edb_cronk_sel.available{
+	background: url(../../../../images/icons/database--pencil.png) center center no-repeat;
+	height:24;
+	width:24;
+	cursor:pointer;
+	background-repeat: no-repeat;	
+}
+
+.edb_cronk_sel.notAvailable{
+	background-image: none;
+	height:24;
+	width:24;
+	background-repeat: no-repeat;	
+}
+
