@@ -63,11 +63,7 @@ Available targets:
 
 		<echo>Clearing cache</echo>
 		<delete dir="${PATH_Icinga}/app/cache/*" />	
-		<property name="buildAdditional"ls
-        sssa
-        
-        
-        value="false" />
+		<property name="buildAdditional"  value="false" />
 		<available file="additional.xml" property="buildAdditional" value="true" />
 		<if>
 			<equals arg1="${buildAdditional}" arg2="1" />
