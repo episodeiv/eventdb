@@ -209,20 +209,20 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 			$event->host_address = null;
 		}
 		
-        $API = $this->getContext()->getModel('Icinga.ApiContainer', 'Api');
+        $API = $this->getContext()->getModel('Icinga.ApiContainer', 'Web');
 
-        $search = @$API->createSearch()->setSearchTarget(IcingaApi::TARGET_HOST);
+        $search = @$API->createSearch()->setSearchTarget(IcingaApiConstants::TARGET_HOST);
         $search->setResultColumns(array('HOST_NAME'));
         $search->setSearchGroup(array('HOST_NAME'));
         
-        $filterGroup = $search->createFilterGroup(IcingaApi::SEARCH_OR);
+        $filterGroup = $search->createFilterGroup(IcingaApiConstants::SEARCH_OR);
         foreach ($eventHosts as $host) {
-        	$filterGroup->addFilter($search->createFilter('HOST_NAME', $host, IcingaApi::MATCH_EXACT));
+        	$filterGroup->addFilter($search->createFilter('HOST_NAME', $host, IcingaApiConstants::MATCH_EXACT));
         }
        
 		$search->setSearchFilter($filterGroup);
 
-        $search->setResultType(IcingaApiSearch::RESULT_ARRAY);
+        $search->setResultType(IcingaApiConstants::RESULT_ARRAY);
         $res = $search->fetch()->getAll();
    
 		$q = $r;
