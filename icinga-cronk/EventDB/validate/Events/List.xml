@@ -18,6 +18,10 @@
 				</ae:parameters>
 			</validator>
 
+			 <validator class="string" required="false" name="simple">
+                <argument>simple</argument>
+            </validator>
+
 
 			<validator class="number" required="false" name="offset">
 		        <argument>offset</argument>

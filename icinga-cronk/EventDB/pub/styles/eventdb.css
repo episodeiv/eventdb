@@ -20,16 +20,16 @@ Type (syslog, smnp, mail) icons and text-style
 	color: #772233;	
 }
 .x-grid3-cell-inner .eventdb-type.syslog .icon-16 {
-	background-image: url(../images/icons/script-text.png) !important; background-repeat: no-repeat;
+	background-image: url(../../../../images/icons/script-text.png) !important; background-repeat: no-repeat;
 }
 .x-grid3-cell-inner .eventdb-type.snmp .icon-16 {
-	background-image: url(../images/icons/network-ethernet.png) !important; background-repeat: no-repeat;
+	background-image: url(../../../../images/icons/network-ethernet.png) !important; background-repeat: no-repeat;
 }
 .x-grid3-cell-inner .eventdb-type.mail .icon-16 {
-	background-image: url(../images/icons/mail-medium.png) !important; background-repeat: no-repeat;
+	background-image: url(../../../../images/icons/mail-medium.png) !important; background-repeat: no-repeat;
 }
 .x-grid3-cell-inner .eventdb-type.unknown .icon-16 {
-	background-image: url(../images/icons/question.png) !important; background-repeat: no-repeat;
+	background-image: url(../../../../images/icons/question.png) !important; background-repeat: no-repeat;
 }
 
 /*

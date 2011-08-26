@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit  bootstrap="icingaWebTesting.php">
+	<logging>
+		 <log type="junit" target="./results.xml" logIncompleteSkipped="false"/>
+	</logging>
+	<testsuites>
+		<testsuite name="agaviBootstrapTests">
+			<file>agaviBootstrapTest.php</file>
+		</testsuite>
+		<testsuite name="dbTests">
+			<file>db/ORMListenersTest.php</file>
+			<file>db/EventDBModelTest.php</file>
+			<file>db/EventsListActionTest.php</file>
+			<file>db/EventCommentsActionTest.php</file>
+		</testsuite>
+	</testsuites>
+
+</phpunit>
+	

@@ -21,7 +21,7 @@ abstract class BaseEventDbComments extends Doctrine_Record
 {
     public function setTableDefinition()
     {
-        $this->setTableName('comment');
+        $this->setTableName('event_comment');
         $this->hasColumn('id', 'integer', 4, array(
              'type' => 'integer',
              'length' => 4,
@@ -74,7 +74,8 @@ abstract class BaseEventDbComments extends Doctrine_Record
              'notnull' => false,
              'autoincrement' => false,
              ));
-        $this->hasColumn('user', 'string', 64, array(
+        // compatibilty alias
+        $this->hasColumn('comment_user as user', 'string', 64, array(
              'type' => 'string',
              'length' => 64,
              'fixed' => false,

@@ -8,6 +8,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 	private $__conn_r = NULL;
 	private $__conn_w = NULL;
 
+    
     protected function getReadConnection() {
 		if(is_null($this->__conn_r)) 
 			$this->__conn_r = $this->getContext()->getDatabaseManager()->getDatabase("eventdb_r")->getConnection();
@@ -49,7 +50,11 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 				$operator = '|';
 				break;
 			case 'REGEXP':
-				$operator = 'REGEXP';
+                $t = strtolower($this->getReadConnection()->getDriverName());
+				if(trim($t) == "oracle")
+                    $operator = 'REGEXP_LIKE';
+                else 
+                    $operator = 'REGEXP';
 				$value = $this->createDbRegExp($value);
 				break;
 			case 'NOT REGEXP':
@@ -96,30 +101,39 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 				$chain = $chain." NOT ";
 		
 			if(!isset($filter["isGroup"])) {
-				if(is_array($filter["value"])) {
-					if(count($filter["value"]) == 1)
-						$filter["value"] = $filter["value"][0];
-				}
-					
-				if(!is_numeric($filter["value"])) {
-					$dql .= " ".$chain." ".$filter["target"]." ".$filter["operator"];	
-					if($filter['operator'] == 'IN'  && !is_array($filter['value'])) {
-						$filter['value'] = array($filter['value']);	
-					} 
-					if(is_array($filter["value"])) {
-						$dql .= "('".implode("','",$filter["value"])."')";
-	
-					} else {
-						$dql .= '?';
-						$values[] = $filter["value"];
-					}
-				} else {
-					if($filter["operator"] == "IN")
-						$filter["value"] = "(".$filter["value"].")";
-					$dql .= " ".$chain." ".$filter["target"]." ".$filter["operator"]." ".$filter["value"];	
-		
-		
-				}
+                if($filter["operator"] == "REGEXP_LIKE") {
+                    $dql = " ".$filter["operator"]."(".$filter["target"].", '".$filter["value"]."')";	
+                } else {
+                    if(is_array($filter["value"])) {
+                        if(count($filter["value"]) == 1)
+                            $filter["value"] = $filter["value"][0];
+                    }
+
+                    if(!is_numeric($filter["value"])) {
+                        $dql .= " ".$chain." ".$filter["target"]." ".$filter["operator"];	
+                        // Check if we need parenthesis around the filter expression
+                        if($filter['operator'] == 'IN'  && !is_array($filter['value'])) {
+                            $filter['value'] = array($filter['value']);	
+                        } 
+                        if(is_array($filter["value"])) {
+                            $dql .= "('".implode("','",$filter["value"])."')";
+
+                        } else {
+                            $dql .= '?';
+                            $values[] = $filter["value"];
+                        }
+                    } else {
+
+                        if($filter["operator"] == "REGEXP_LIKE")
+                            $dql = " ".$chain." ".$filter["operator"]."(".$filter["target"].", ".$filter["value"].")";	
+                        else {
+                            if($filter["operator"] == "IN")
+                                $filter["value"] = "(".$filter["value"].")";
+                            $dql .= " ".$chain." ".$filter["target"]." ".$filter["operator"]." ".$filter["value"];	
+                        }
+
+                    }
+                }
 			} else {
 				
 			
@@ -147,6 +161,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 	
     public function getEvents($default=array(), $offset=0, $limit=false,
         $filter = array(
+            'simple' => false,
             'target' => 'EventDbEvent',
             'order_by' => false,
 			'dir' => 'desc',
@@ -156,6 +171,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 			'count' => 'id'
         )) {
 		
+      
 		if(!is_array($filter['columns']))
 			$filter['columns'] = array('*');
     	$vals = array();
@@ -182,6 +198,9 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 		}
     	$dql = $selectDql.$dql;
 		
+        if($filter['simple']) // required for host/program summary
+            return $this->getPlainQuery($dql,$countDql,$vals);
+        
 		$r = $this->getReadConnection()->query($dql,$vals);
     	if (!$r->count()) {
     		return array("values" => $default, "count" => 0);
@@ -265,7 +284,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 		$val = preg_replace('/\\\D/','[^[:digit:]]',$val);
 		$val = preg_replace('/\\\S/','[^[:space:]_]',$val);
 		$val = preg_replace('/\\\W/','[^[:alnum:]]',$val);
-		
+
 		return $val;
 	}
 
@@ -275,6 +294,30 @@ class EventDB_EventDBModel extends EventDBBaseModel {
     	->where('e.id = ?', $eId);
     	
     	return $q->fetchOne();
+    }
+    
+    private function getPlainQuery($requestDQL,$countDQL,$vals) {
+        $r = $this->getReadConnection()->query($requestDQL,$vals,  Doctrine::HYDRATE_SCALAR);
+        $r = $this->reHydrateScalarResult($r);
+        if(!count($r))
+            return array("values" => array(), "count" => 0);
+        
+        $count = $this->getReadConnection()->query($countDQL,$vals,  Doctrine::HYDRATE_SCALAR);
+        $count = $this->reHydrateScalarResult($count);  
+        return array("values" => $r, "count" => $count[0]["__count"]);
+    }
+    
+    private function reHydrateScalarResult(array $r) {
+        $rehydrated = array();
+        foreach($r as $event) {
+            $element = array();
+            foreach($event as $field=>$val) {
+                $field = explode("_",$field,2);
+                $element[$field[1]] = $val;
+            }
+            $rehydrated[] = $element;
+        }
+        return $rehydrated;
     }
     
     public function addComment(array $comments = array()) {

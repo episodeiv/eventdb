@@ -62,8 +62,8 @@ abstract class BaseEventDbEvent extends Doctrine_Record
              'notnull' => true,
              'autoincrement' => false,
              ));
-        $this->hasColumn('host_address', 'string', 16, array(
-             'type' => 'string',
+        $this->hasColumn('host_address', 'clob', 16, array(
+             'type' => 'clob',
              'fixed' => false,
 			 'length' => 16,
              'unsigned' => false,
@@ -90,8 +90,8 @@ abstract class BaseEventDbEvent extends Doctrine_Record
              'notnull' => true,
              'autoincrement' => false,
              ));
-        $this->hasColumn('message', 'string', 4096, array(
-             'type' => 'string',
+        $this->hasColumn('message', 'clob', 4096, array(
+             'type' => 'clob',
              'length' => 4096,
              'fixed' => false,
              'unsigned' => false,
