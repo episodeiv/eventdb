@@ -13,12 +13,14 @@ Available targets:
 	<target name="install-cronk">
 		<!-- define tasks -->
 		
+		<taskdef name="actionQueue" classname="bin.actionQueueTask" />
 		<typedef name="icingaManifest" classname="bin.icingaManifest" />
 		<taskdef name="moduleMetaPrinter" classname="bin.moduleMetaPrinterTask"/>	
 		<taskdef name="dependencyChecker" classname="bin.dependencyCheckerTask" />
 		<taskdef name="manifestDependencyChecker" classname="bin.dependencyCheckerTask"/>
+		<taskdef name="xmlMergerChain" classname="bin.xmlMergerChainTask" />
 		
-		
+		<actionQueue path="./"/>
 		<!--  load defaults -->
 		<property file="build.properties" />
 
@@ -38,17 +40,49 @@ Available targets:
 		<!--  Check dependencies -->		
 		<echo msg="Checking dependencies..." />
 		<manifestDependencyChecker refid="manifest"/>
-	
+		
 		<!-- Install module and additional -->		
+<!--		<input propertyname="web_base" promptChar="?" defaultValue="icinga-web">Base web-path of icinga-web</input>
+		<copy overwrite="true" todir="etc/xml">
+			<fileset dir="etc/xml_tpl/">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<reflexive>
+			<fileset dir="etc/xml/">
+				<include name="*.xml" />	
+			</fileset>
+			<filterchain>
+				<replacetokens beginToken="@@" endToken="@@">
+					<token key="WEB_BASE" value="${web_base}"/>
+				</replacetokens>
+			</filterchain>
+		</reflexive>	
+-->
+
 		<echo>Installing to ${PATH_Icinga}</echo>
-        <mkdir dir="${PATH_Icinga}/app/modules/EventDB" />
-		<copy todir="${PATH_Icinga}/app/modules/EventDB">
-			<fileset dir="EventDB">
-				<include name="*/**" />
+		<copy overwrite="true" todir="${PATH_Icinga}">
+			<filterchain>
+				<filterreader classname="bin.saveCopyFilter"/>
+			</filterchain>
+			<fileset dir="src">
+				<exclude name="snippets.dat"></exclude>
+				<exclude name="routes.xml"></exclude>
+				<include name="**" />
 			</fileset>
 		</copy>	
 		
-	
+		<xmlMergerChain  folder="etc/xml/"/>
+		
+	<!--  Doctrine models  --> 
+		<echo>Copying Doctrine-Models</echo>
+		<copy todir="${PATH_Icinga}/${PATH_AppKit}/database/models/">
+			<fileset dir="etc/doctrine">
+				<include name="**" />
+			</fileset>
+		</copy>
+		<!-- setting up database -->	
+		
 		<echo>Setting up db</echo>
 		<taskdef name="sqlRunner" classname="bin.sqlRunnerTask" />
 		
@@ -60,14 +94,23 @@ Available targets:
  			</then>
 		</if>
 		
-
+		<echo>Inserting snippets</echo>
+	
+		<!-- Set up Doctrine
+		<taskdef name="doctrineDBBuilder" classname="bin.doctrineDBBuilderTask" />
+		<input propertyname="confirm" promptChar="?" defaultValue="y" validargs="y,n">Create tables</input>
+		<if>
+			<equals arg1="${confirm}" arg2="y" />
+			<then>
+				<doctrineDBBuilder models="etc/doctrine" action="create" ini="db.ini"/>
+ 			</then>
+		</if>
+		
+	-->
 		<echo>Clearing cache</echo>
 		<delete dir="${PATH_Icinga}/app/cache/*" />	
-		<property name="buildAdditional"ls
-        sssa
-        
-        
-        value="false" />
+		<delete dir="${PATH_Icinga}/app/modules/Cronks/cache/" />	
+		<property name="buildAdditional" value="false" />
 		<available file="additional.xml" property="buildAdditional" value="true" />
 		<if>
 			<equals arg1="${buildAdditional}" arg2="1" />
@@ -75,8 +118,22 @@ Available targets:
 				<phing phingfile="additional.xml" inheritAll="true" />
 			</then>
 		</if>
-		<echo>******** Don't forget to set your eventdb database credentials under %icinga-web%/app/modules/EventDB/config/databases.xml</echo>
+		<echo>******** There is one more step to complete the installation - check out doc/database_snippet</echo>
 	</target>
 
 	
+	<target name="structure-create">
+		<mkdir dir="${MODULE_Name}"/>
+		<mkdir dir="${MODULE_Name}/src"/>
+		<mkdir dir="${MODULE_Name}/doc"/>
+		<mkdir dir="${MODULE_Name}/etc/"/>
+		<mkdir dir="${MODULE_Name}/etc/doctrine"/>
+		<mkdir dir="${MODULE_Name}/etc/sql"/>
+		<mkdir dir="${MODULE_Name}/etc/xml"/>
+	</target>
+		
+	<target name="rollback">
+		<taskdef name="actionQueue" classname="bin.actionQueueTask" />
+		<actionQueue path="./" restore="true"/>
+	</target>
 </project>

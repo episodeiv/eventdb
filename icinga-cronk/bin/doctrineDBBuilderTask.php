@@ -36,19 +36,18 @@ class doctrineDBBuilderTask extends Task {
 	 */
 	protected function checkForDoctrine() {
 		$icinga = $this->project->getUserProperty("PATH_Icinga");
-        self::$APPKIT_LIB_DB = $icinga."/app/modules/AppKit/lib/database/models/";
-		$doctrinePath = $icinga."/lib/doctrine/";
-		if(!file_exists($doctrinePath."/Doctrine.compiled.php"))
-			throw new BuildException("Doctrine.php not found at ".$doctrinePath."Doctrine.compiled.php");
+		$doctrinePath = $icinga."/".$this->project->getUserProperty("PATH_Doctrine");
+		if(!file_exists($doctrinePath."/Doctrine.php"))
+			throw new BuildException("Doctrine.php not found at ".$doctrinePath."Doctrine.php");
 		// setup autoloader
-		require_once($doctrinePath."/Doctrine.compiled.php");
+		require_once($doctrinePath."/Doctrine.php");
 		spl_autoload_register("Doctrine::autoload");
-		spl_autoload_register("doctrineDBBuilderTask::loadModel");
+		
 		$iniData = parse_ini_file($this->ini);
 		if(empty($iniData))
 			throw new BuildException("Couldn't read db.ini");
 		$dsn = $iniData["dbtype"]."://".$iniData["dbuser"].":".$iniData["dbpass"]."@".$iniData["host"].":".$iniData["port"]."/".$iniData["dbname"];
-		Doctrine_Manager::connection($dsn,'icinga_web');
+		Doctrine_Manager::connection($dsn);
 	}
 	
 	/**
@@ -63,17 +62,6 @@ class doctrineDBBuilderTask extends Task {
 			 ");
 		echo "\n Dropping tables $tablesToDelete \n";
 	}
-
-	protected static $APPKIT_LIB_DB = "";
-
-	public static function loadModel($name) {
-    
-		if(preg_match("/^Base/",$name)) {
-			include(self::$APPKIT_LIB_DB."/generated/".$name.".php");		
-		} else {
-			include(self::$APPKIT_LIB_DB."/".$name.".php");		
-		}
-	}
 	
 	/**
 	 * Rebuilds a db as described by the doctrine models
@@ -82,7 +70,12 @@ class doctrineDBBuilderTask extends Task {
 	public function buildDBFromModels() {	
 
 		$icinga = $this->project->getUserProperty("PATH_Icinga");
-		$modelPath = $icinga."/app/modules/".$this->project->getUserProperty("MODULE_Name")."/lib/database/";	
+		$modelPath = $icinga."/app/modules/".$this->project->getUserProperty("MODULE_Name")."/lib/";
+		
+		$appKitPath = $this->project->getUserProperty("PATH_AppKit");
+
+		Doctrine::loadModels($icinga."/".$appKitPath."database/models/generated/");
+		Doctrine::loadModel($icinga."/".$appKitPath."database/models/");
 
 		$tables = Doctrine::getLoadedModels();
 		$tableList = array();
@@ -90,7 +83,10 @@ class doctrineDBBuilderTask extends Task {
 			$tableList[] = Doctrine::getTable($table)->getTableName();	
 		}
 
-		Doctrine::createTablesFromModels(array($this->models.'/generated',$this->models));	
+		Doctrine::createTablesFromModels(array($this->models.'/generated',$this->models));
+	
+		file_put_contents($modelPath."/.models.cfg",implode(",",$tableList));
+	
 	}
 	
 	/**

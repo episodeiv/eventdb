@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="" tests="28" assertions="140" failures="0" errors="1" time="0.901160">
+    <testsuite name="agaviBootstrapTests" tests="2" assertions="2" failures="0" errors="0" time="0.209089">
+      <testsuite name="agaviBootstrapTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/agaviBootstrapTest.php" tests="2" assertions="2" failures="0" errors="0" time="0.209089">
+        <testcase name="testRequiredFileAvailabilty" class="agaviBootstrapTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/agaviBootstrapTest.php" line="15" assertions="1" time="0.001395"/>
+        <testcase name="testBootstrap" class="agaviBootstrapTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/agaviBootstrapTest.php" line="29" assertions="1" time="0.207694"/>
+      </testsuite>
+    </testsuite>
+    <testsuite name="dbTests" tests="26" assertions="138" failures="0" errors="1" time="0.692071">
+      <testsuite name="ORMListenersTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php" tests="9" assertions="10" failures="0" errors="1" time="0.102190">
+        <testcase name="testGetReadConnection" class="ORMListenersTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php" line="10" assertions="1" time="0.000682"/>
+        <testcase name="testAddressResolving" class="ORMListenersTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php" line="16" assertions="1" time="0.006508"/>
+        <testcase name="testDataInsertion" class="ORMListenersTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php" line="37" assertions="1" time="0.048599"/>
+        <testcase name="testDataRetrieval" class="ORMListenersTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php" line="72" assertions="1" time="0.008004"/>
+        <testcase name="testDataSearch" class="ORMListenersTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php" line="83" assertions="1" time="0.007732">
+          <error type="PHPUnit_Framework_Error_Notice">ORMListenersTest::testDataSearch
+Trying to get property of non-object
+
+/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php:99
+</error>
+        </testcase>
+        <testcase name="testAddComments" class="ORMListenersTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php" line="102" assertions="0" time="0.011042"/>
+        <testcase name="testReadComments" class="ORMListenersTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php" line="116" assertions="2" time="0.004746"/>
+        <testcase name="testDeleteComments" class="ORMListenersTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php" line="130" assertions="3" time="0.006851"/>
+        <testcase name="testAcknowledgeEvent" class="ORMListenersTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/ORMListenersTest.php" line="146" assertions="0" time="0.008026"/>
+      </testsuite>
+      <testsuite name="EventDBModelTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventDBModelTest.php" tests="2" assertions="2" failures="0" errors="0" time="0.105693">
+        <testcase name="testGetEventsUnfiltered" class="EventDBModelTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventDBModelTest.php" line="25" assertions="2" time="0.104848"/>
+        <testcase name="testGetEventParameters" class="EventDBModelTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventDBModelTest.php" line="33" assertions="0" time="0.000845"/>
+      </testsuite>
+      <testsuite name="EventsListActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventsListActionTest.php" tests="8" assertions="115" failures="0" errors="0" time="0.324990">
+        <testcase name="testListAction" class="EventsListActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventsListActionTest.php" line="37" assertions="3" time="0.109556"/>
+        <testcase name="testLimitAndOffset" class="EventsListActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventsListActionTest.php" line="52" assertions="4" time="0.027796"/>
+        <testcase name="testGroupBy" class="EventsListActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventsListActionTest.php" line="78" assertions="3" time="0.014562"/>
+        <testcase name="testExactFilter" class="EventsListActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventsListActionTest.php" line="93" assertions="2" time="0.015192"/>
+        <testcase name="testRegExpFilter" class="EventsListActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventsListActionTest.php" line="141" assertions="2" time="0.014397"/>
+        <testcase name="testInFilter" class="EventsListActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventsListActionTest.php" line="167" assertions="5" time="0.016096"/>
+        <testcase name="testNotInFilter" class="EventsListActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventsListActionTest.php" line="192" assertions="95" time="0.107179"/>
+        <testcase name="testChainedFilter" class="EventsListActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventsListActionTest.php" line="217" assertions="1" time="0.020212"/>
+      </testsuite>
+      <testsuite name="EventCommentsActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventCommentsActionTest.php" tests="7" assertions="11" failures="0" errors="0" time="0.159198">
+        <testcase name="testCommentEvent" class="EventCommentsActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventCommentsActionTest.php" line="38" assertions="1" time="0.061116"/>
+        <testcase name="testFetchComments" class="EventCommentsActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventCommentsActionTest.php" line="79" assertions="1" time="0.009505"/>
+        <testcase name="testAcknowledgeEvents" class="EventCommentsActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventCommentsActionTest.php" line="93" assertions="1" time="0.025371"/>
+        <testcase name="testFetchAcknowledged" class="EventCommentsActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventCommentsActionTest.php" line="119" assertions="4" time="0.004486"/>
+        <testcase name="testRevokeEvents" class="EventCommentsActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventCommentsActionTest.php" line="133" assertions="1" time="0.025837"/>
+        <testcase name="testFetchRevoked" class="EventCommentsActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventCommentsActionTest.php" line="159" assertions="1" time="0.003568"/>
+        <testcase name="testCommentFetchAction" class="EventCommentsActionTest" file="/home/jmosshammer/eventdb/icinga/cronk/etc/tests/db/EventCommentsActionTest.php" line="173" assertions="2" time="0.029315"/>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>

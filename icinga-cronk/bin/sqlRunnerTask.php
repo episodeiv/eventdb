@@ -26,11 +26,11 @@ class sqlRunnerTask extends Task {
 	 */
 	protected function checkForDoctrine() {
 		$icinga = $this->project->getUserProperty("PATH_Icinga");
-		$doctrinePath = $icinga."/lib/doctrine/";
-		if(!file_exists($doctrinePath."Doctrine.compiled.php"))
-			throw new BuildException("Doctrine.php not found at ".$doctrinePath."Doctrine.compiled.php");
+		$doctrinePath = $icinga."/".$this->project->getUserProperty("PATH_Doctrine");
+		if(!file_exists($doctrinePath."/Doctrine.php"))
+			throw new BuildException("Doctrine.php not found at ".$doctrinePath."Doctrine.php");
 		
-		require_once($doctrinePath."Doctrine.compiled.php");
+		require_once($doctrinePath."/Doctrine.php");
 		spl_autoload_register("Doctrine::autoload");
 	}
 	
@@ -51,10 +51,7 @@ class sqlRunnerTask extends Task {
 		foreach($files as $filename) {
 			if(substr($filename,-3) == 'sql') {
 				$sql = file_get_contents($this->files."/".$filename);
-				$sql = preg_split("/\n/",$sql);
-				foreach($sql as $line) 
-					if($line)
-						$doctrine->query($line);
+				$doctrine->query($sql);
 			}
 		}
 		Doctrine_Manager::getInstance()->getCurrentConnection()->commit();
