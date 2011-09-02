@@ -11,9 +11,10 @@ Cronk.EventDB.FilterManagerViews.Advanced = function(url) {
 					{name: field}
 				],
 				baseParams: {
-					'group_by' : field,
+		
 					'columns[0]' : field,	
-					'count' : field
+					'count' : field,
+                    'simple' :true
 				},
 				defaultParamNames: {
 					start: 'offset',
@@ -352,7 +353,7 @@ Cronk.EventDB.FilterManagerViews.Advanced = function(url) {
 								name: name+"_"+includeOrExclude+'_pattern'
 							}] 
 						},{
-							width:100,
+							width:75,
 							layout: 'column',	
 							border: false,
 							items: btns	

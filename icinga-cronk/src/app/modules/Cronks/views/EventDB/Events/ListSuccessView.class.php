@@ -23,6 +23,7 @@ class Cronks_EventDB_Events_ListSuccessView extends CronksBaseView {
 				$rd->getParameter('offset', 0),
 				$rd->getParameter('limit', false),
 				array(
+                    'simple' => $rd->getParameter('simple',false) ? true : false,
 					'order_by' => $rd->getParameter('order_by',false),
 					'dir' => $rd->getParameter('dir','DESC'),
 					'target' => $rd->getParameter('target', 'EventDbEvent'),

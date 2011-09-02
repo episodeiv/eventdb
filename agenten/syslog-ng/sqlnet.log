@@ -1,0 +1,52 @@
+
+
+***********************************************************************
+Fatal NI connect error 12528, connecting to:
+ (DESCRIPTION=(ADDRESS=(HOST=localhost)(PROTOCOL=tcp)(PORT=1521))(CONNECT_DATA=(SID=XE)(CID=(PROGRAM=perl)(HOST=linux-7kv8)(USER=root))))
+
+  VERSION INFORMATION:
+	TNS for Linux: Version 10.2.0.1.0 - Production
+	TCP/IP NT Protocol Adapter for Linux: Version 10.2.0.1.0 - Production
+  Time: 31-AUG-2011 16:10:02
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12564
+
+
+***********************************************************************
+Fatal NI connect error 12528, connecting to:
+ (DESCRIPTION=(ADDRESS=(HOST=localhost)(PROTOCOL=tcp)(PORT=1521))(CONNECT_DATA=(SID=XE)(CID=(PROGRAM=perl)(HOST=linux-7kv8)(USER=root))))
+
+  VERSION INFORMATION:
+	TNS for Linux: Version 10.2.0.1.0 - Production
+	TCP/IP NT Protocol Adapter for Linux: Version 10.2.0.1.0 - Production
+  Time: 31-AUG-2011 16:10:02
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12564
+    TNS-12564: TNS:connection refused
+    ns secondary err code: 0
+    nt main err code: 0
+        nt secondary err code: 0
+TNS-12564: TNS:connection refused
+    ns secondary err code: 0
+    nt main err code: 0
+    nt secondary err code: 0
+    nt OS err code: 0
+
+
+***********************************************************************
+Fatal NI connect error 12505, connecting to:
+ (DESCRIPTION=(ADDRESS=(HOST=localhost)(PROTOCOL=tcp)(PORT=1521))(CONNECT_DATA=(SID=XE)(CID=(PROGRAM=perl)(HOST=linux-7kv8)(USER=root))))
+
+  VERSION INFORMATION:
+	TNS for Linux: Version 10.2.0.1.0 - Production
+	TCP/IP NT Protocol Adapter for Linux: Version 10.2.0.1.0 - Production
+  Time: 31-AUG-2011 16:10:07
+  Tracing not turned on.
+  Tns error struct:
+    ns main err code: 12564
+    TNS-12564: TNS:connection refused
+    ns secondary err code: 0
+    nt main err code: 0
+    nt secondary err code: 0
