@@ -12,7 +12,7 @@ class DatabaseException(Exception):
 '   User defined type that hides database-implementation 
 '   from executing code
 '''
-class DBHandler():
+class DBHandler:
     def __importPackages(self):
         if(self.__type == "mysql"):
             import MySQLdb,_mysql_exceptions
