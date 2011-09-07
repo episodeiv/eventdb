@@ -49,7 +49,7 @@ while (1) {
                 $type = 1;
             }
         }
-                print("ora123");
+
 		if($host ne "") {
 		
             if($dbh = DBI->connect_cached("DBI:Oracle:SID=".$db.";host=".$dbhost.";port=".$dbport, $dbuser, $dbpass)) {
@@ -63,7 +63,7 @@ while (1) {
                               'program, message) VALUES (?,?,?,?,?,?,?,?,?)');
  
                my $datetime = $date . " " . $time ;
-                print("ora");
+
                 $db_insert->execute($type, $host,$host_address, $facility, $priority,
                             $datetime, $datetime, $prg, $msg
                            ) or warn $DBI::errstr;
