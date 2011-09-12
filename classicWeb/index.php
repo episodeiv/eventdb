@@ -123,7 +123,7 @@ cset('page.fields', Array (
 cset('page.pvars', Array (
   'offset',
   'type',
-  'host_name',
+  'host',
   'facility',
   'order',
   'orderby',
