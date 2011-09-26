@@ -52,14 +52,14 @@ class DBHandler:
 
     def __connectOracle(self):
         import cx_Oracle
-        
-        dsnString = cx_Oracle.makedsn(self.__host,self.__port, self.__database)
        
+        dsnString = cx_Oracle.makedsn(self.__host,self.__port, self.__database)
         self.__connection = cx_Oracle.connect(
                     user=self.__user,
                     password=self.__password,
                     dsn=dsnString)
-        self.__cursor = self.__connection.cursor()
+      
+        self.__cursor = self.__connection.cursor() 
         self.__cursor.execute('ALTER SESSION SET NLS_DATE_FORMAT = "YYYY-MM-DD HH24:MI:SS"')
 
     def execute(self,query):
@@ -75,7 +75,7 @@ class DBHandler:
         result = self.__cursor.fetchall()
         return result
 
-    def __executeOracle(self,queryString): 
+    def __executeOracle(self,queryString):
         self.__cursor.execute(queryString)  
         result = self.__cursor.fetchall();
         return result
@@ -107,6 +107,8 @@ def main():
         result = dbQuery(options)  
         if(result):
             checkResult(result[0],result[1],options,result[2])    
+    except SystemExit, s:
+        return
     except Exception, e:
         pluginExit("UNKNOWN","An error occured",e,options)
 
@@ -250,32 +252,32 @@ def dbQuery(options):
             values.append(row[0])
             return values
         
-        pluginExit('OK',"0 matches found.","matches=0 count=0",options)
+        pluginExit('OK',"0 matches found.\n","matches=0 count=%dc" % (options.startfrom),options);
 
     except Exception, e:
         pluginExit('UNKNOWN', e,"",options)
 
 
 def checkResult(count, last,options,msg = ""):
-
-
+  
     #strip newlines from message
-    msg= msg.replace('\n',' ')
+    if(msg != ""):
+        msg= msg.replace('\n',' ')
     if(count >= options.critical):
         if(options.resetregex and re.search(options.resetregex,msg)):
-            pluginExit('OK',"Matches found already reseted.", 'matches=%d count=%dc' % (count,last),options) 
+            pluginExit('OK',"%d matches found\nMatches found already reseted." % (count), 'matches=%d count=%dc' % (count,last),options) 
         else:
-            pluginExit('CRITICAL',msg, 'matches=%d count=%dc' % (count,last),options) 
+            pluginExit('CRITICAL',("%d matches found\n"+msg) % (count), 'matches=%d count=%dc' % (count,last),options) 
     elif(count >= options.warning):
         
         if(options.resetregex  and re.search(options.resetregex,msg)):
-            pluginExit('OK',"Matches found already reseted.", 'matches=%d count=%dc' % (count,last),options) 
+            pluginExit('OK',"%d matches found\nMatches found already reseted."% (count), 'matches=%d count=%dc' % (count,last),options) 
         else:
-            pluginExit('WARNING',msg, 'matches=%d count=%dc' % (count,last),options) 
+            pluginExit('WARNING',('%d matches found \n,'+msg) % (count), 'matches=%d count=%dc' % (count,last),options) 
     else:
         pluginExit('OK',"%d matches found."%(count),"matches=%d count=%dc"%(count,last),options)
 
-    pluginExit('UNKNOWN', 'Default exit',options)
+    pluginExit('UNKNOWN', '0 matches found.\n','Default exit',options)
 
 
 
