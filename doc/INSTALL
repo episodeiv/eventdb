@@ -1,5 +1,5 @@
 #
-#	EventDB v1.2 
+#	EventDB v2.0.2
 #	
 #	Quick installation guide for Web interfaces
 #	
@@ -53,29 +53,7 @@ Icinga-Cronk:
 
 3.) run ./install.sh
 
-4.) in your /usr/local/icinga-web/app/config/databases.xml:
-	Add the following snippet BEFORE our icinga_web config (otherwise the config will crash)
-
-
-	<database xmlns="http://agavi.org/agavi/config/parts/databases/1.0" name="eventdb_w" class="AgaviDoctrineDatabase">
-		<ae:parameter name="dsn">mysql://eventdb:eventdb@localhost:3306/eventdb</ae:parameter>
-		<ae:parameter name="charset">utf8</ae:parameter>
-		<ae:parameter name="manager_attributes">
-			<ae:parameter name="Doctrine_Core::ATTR_MODEL_LOADING">CONSERVATIVE</ae:parameter>
-		</ae:parameter>
-		<ae:parameter name="load_models">%core.module_dir%/AppKit/lib/database/models/generated</ae:parameter>
-		<ae:parameter name="models_directory">%core.module_dir%/AppKit/lib/database/models</ae:parameter>	
-	</database>
-
-	<database xmlns="http://agavi.org/agavi/config/parts/databases/1.0" name="eventdb_r" class="AgaviDoctrineDatabase">
-		<ae:parameter name="dsn">mysql://eventdb:eventdb@localhost:3306/eventdb</ae:parameter>
-		<ae:parameter name="charset">utf8</ae:parameter>
-		<ae:parameter name="manager_attributes">
-			<ae:parameter name="Doctrine_Core::ATTR_MODEL_LOADING">CONSERVATIVE</ae:parameter>
-		</ae:parameter>
-		<ae:parameter name="load_models">%core.module_dir%/AppKit/lib/database/models/generated</ae:parameter>
-		<ae:parameter name="models_directory">%core.module_dir%/AppKit/lib/database/models</ae:parameter>	
-	</database>
+4.) in your /usr/local/icinga-web/app/modules/EventDB/config/databases.xml set up your connection details to fit to your database credentials
 
 5. ) In order to have a link from host/services to the eventdb cronk, run the plugin with the --cventry command and copy the returned customvar to your service/host check
 

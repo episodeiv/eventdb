@@ -1,15 +1,15 @@
 <?php
-require_once '/usr/local/icinga-web/lib/doctrine/lib/Doctrine.php';
+/*require_once '/usr/local/icinga-web/lib/doctrine/lib/Doctrine.php';
 
-spl_autoload_register("Doctrine::autoload");
+spl_autoload_register("Doctrine::autoload");*/
+
+putenv("ORACLE_HOME=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/");
+putenv("ORACLE_SID=XE");
 require_once('/usr/local/icinga-web/lib/agavi/src/agavi.php');
 
 $includes = array(
 		
-		'/app/modules/AppKit/lib/AppKit.class.php',
-		'/app/modules/AppKit/lib/class/AppKitBaseClass.class.php',
-		'/app/modules/AppKit/lib/class/AppKitSingleton.class.php',
-		'/app/modules/AppKit/lib/util/AppKitModuleUtil.class.php'
+		'/app/modules/AppKit/lib/AppKit.class.php'
 	);
 
 
@@ -47,6 +47,7 @@ $conn_r = $ctx->getDatabaseManager()->getDatabase("eventdb_r")->getConnection();
 $dql = "SELECT DISTINCT * FROM EventDbEvent e WHERE (NOT (e.prival & 16)) AND (host_name IN ('host 1') OR host_name LIKE '%oracle%') ORDER BY e.prionr desc LIMIT 200 OFFSET 200)"; 
 $count = "SELECT COUNT(id) as __c FROM EventDbEvent";
 for($i = 0;$i<$nr;$i++) {
+  
 	$event = new EventDbEvent();
 		$event->ip_address = getRandomIP();
 		$event->priority = rand(0,7);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<ae:configurations xmlns:ae="http://agavi.org/agavi/config/global/envelope/1.0" xmlns="http://icinga.org/cronks/config/parts/cronks/1.0"> 
+    <ae:configuration> 
+        
+        <cronks>
+            <cronk name="icingaEventDB">
+			    <ae:parameter name="module">EventDB</ae:parameter>
+			    <ae:parameter name="action">Index</ae:parameter>
+			    <ae:parameter name="hide">false</ae:parameter>
+			   	<ae:parameter name="image">cronks.Database</ae:parameter> 
+				<ae:parameter name="description">EventDB</ae:parameter>
+			    <ae:parameter name="name">EventDB</ae:parameter>
+			    <ae:parameter name="categories">misc</ae:parameter>
+			</cronk>
+        </cronks>
+    </ae:configuration> 
+   
+</ae:configurations> 
+

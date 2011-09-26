@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<template match-pattern="icinga-service-template">
+	 <fields>
+		<field name="edb_service_link">
+            <preferPosition>after:comments</preferPosition>
+            <datasource>
+            	<parameter name="field">SERVICE_ID</parameter>
+            </datasource>
+            
+            <display>
+                <parameter name="visible">true</parameter>
+                <parameter name="label"></parameter>
+
+                <parameter name="width">22</parameter>
+                
+                <!-- Config for the AJAX grid (see http://www.extjs.com/deploy/dev/docs/?class=Ext.grid.Column) -->
+                <parameter name="Ext.grid.Column">
+                	<parameter name="menuDisabled">true</parameter>
+                	<parameter name="fixed">true</parameter>
+                </parameter>
+
+                <parameter name="jsFunc">
+                
+                	<parameter>
+	                	<parameter name="namespace">Cronk.grid.ColumnRenderer</parameter>
+	                	<parameter name="function">edbColumn</parameter>
+	                	
+	                	<!-- renderer/gridevent[cellclick|celldblclick|...] -->
+	                	<parameter name="type">renderer</parameter>
+	                	
+	                	<parameter name="arguments">
+							<parameter name="image">images/icons/server.png</parameter>
+							<parameter name="css">x-icinga-grid-link</parameter>
+							<parameter name="base">icinga-web</parameter>
+							<parameter name="target">service</parameter>
+							<parameter name="type">SERVICE</parameter>
+							
+							<parameter name="attr">
+								<parameter name="qtip">Click here for the host</parameter>
+							</parameter>
+	                	</parameter>
+	                </parameter>
+                </parameter>
+                
+            </display>
+            
+            <filter>
+                <parameter name="enabled">false</parameter>
+            </filter>
+            
+            <order>
+                <parameter name="enabled">false</parameter>
+            </order>
+        </field>
+	</fields>
+</template>
