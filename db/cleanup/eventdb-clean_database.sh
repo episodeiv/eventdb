@@ -31,5 +31,10 @@ ACKNOWLEDGED=""
 $MYSQL --execute="SELECT * INTO OUTFILE '$BACKUPDIR/$OLDDATE.txt' FIELDS TERMINATED BY '\t' FROM event WHERE created < '$OLDDATE' $ACKNOWLEDGED;"
 
 # clean
-$MYSQL --execute="DELETE FROM event WHERE created < '$OLDDATE' $ACKNOWLEDGED;"
-$MYSQL --execute="optimize table event;"
+echo -n "cleanup eventdb: "
+$MYSQL -v -v -v --execute="DELETE FROM event WHERE created < '$OLDDATE' $ACKNOWLEDGED;" | grep -i rows
+echo -n "optimize eventdb: "
+#$MYSQL --silent --execute="optimize table event;" 
+$MYSQL --execute="alter table event type=innodb;"
+echo "done."
+
