@@ -254,6 +254,8 @@ def dbQuery(options):
         
         pluginExit('OK',"0 matches found.\n","matches=0 count=%dc" % (options.startfrom),options);
 
+    except SystemExit, e:
+        raise
     except Exception, e:
         pluginExit('UNKNOWN', e,"",options)
 
