@@ -718,7 +718,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				sortable: true,
 				width: 200,
 				renderer: function(v) {
-					return '<div qtip="'+v+'">'+v+'</div>';	
+					return '<div qtip="'+Ext.util.Format.htmlEncode(v)+'">'+Ext.util.Format.htmlEncode(v)+'</div>';	
 				}
 			},{
 				dataIndex: 'program',
