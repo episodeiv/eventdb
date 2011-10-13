@@ -108,7 +108,7 @@ def main():
         if(result):
             checkResult(result[0],result[1],options,result[2])    
     except SystemExit, s:
-        return
+        raise
     except Exception, e:
         pluginExit("UNKNOWN","An error occured",e,options)
 
@@ -254,6 +254,8 @@ def dbQuery(options):
         
         pluginExit('OK',"0 matches found.\n","matches=0 count=%dc" % (options.startfrom),options);
 
+    except SystemExit, e:
+        raise
     except Exception, e:
         pluginExit('UNKNOWN', e,"",options)
 
@@ -344,7 +346,7 @@ def getWherePart(field,value,op = "=",agg = "AND"):
 
 
 def pluginExit(status,text,perfdata, options):
-    statusCode = {'UNKNOWN' : -1, 'OK' : 0, 'WARNING' : 1, 'CRITICAL' : 2}
+    statusCode = {'UNKNOWN' : 3, 'OK' : 0, 'WARNING' : 1, 'CRITICAL' : 2}
     out = ""
     if(options.url != "" and hasattr(options,"urlParams")):
         params = urllib.urlencode(options.urlParams);
