@@ -654,7 +654,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				renderer: function(v,cell,record) {
 					var t = eventGrid.resolveType(v);
 					var qtip = '<b>'+t+' - '+record.get('priority')+' :</b> <br/> ';
-					qtip += record.get('message');
+					qtip += Ext.util.Format.htmlEncode(record.get('message'));
 					return '<div style="margin-left:-16px" class="eventdb-type '+t.toLowerCase()+'">'+ 
 						'<div qtip="'+qtip+'" class="icon-16"></div></div>';
 				}
