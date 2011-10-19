@@ -263,7 +263,7 @@ def dbQuery(options):
 def checkResult(count, last,options,msg = ""):
   
     #strip newlines from message
-    if(msg != ""):
+    if(msg != "" and isinstance(msg,str)):
         msg= msg.replace('\n',' ')
     if(count >= options.critical):
         if(options.resetregex and re.search(options.resetregex,msg)):
@@ -335,15 +335,16 @@ def getWherePart(field,value,op = "=",agg = "AND"):
         if(re.search(r"\*|\%",value) != None):
             op = "LIKE"
             value = re.sub(r"(\*)","%",value)
-    tpl = "%s %s %s "
+    tpl = agg+" "+field+" "+op+" "
     if(value.isdigit()):
-        tpl += "%d "
-        value = int(value)
+        value = str(int(value))
     elif op != 'IN':
-        tpl += "'%s' "
+        value = "'"+value+"' "
     else:
-        tpl += "%s "
-    return tpl % (agg,field,op,value) 
+        value = value+" "
+    tpl += value
+   
+    return tpl
 
 
 def pluginExit(status,text,perfdata, options):
