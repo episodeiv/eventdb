@@ -288,7 +288,7 @@ def buildQuery(o):
     queryBase = queryBase % (o.db_table,o.startfrom)
     urlParams = {} 
     if(o.host != ""):
-        queryBase += getWherePart("host_name",o.host)
+        queryBase += getWherePart("upper(host_name)",o.host.upper())
         urlParams["host[]"] = o.host
     
     if(o.message != ""):
@@ -318,6 +318,7 @@ def buildQuery(o):
     queryBase += getWherePart("ack",0)
     urlParams["ack"] = "0"  
     o.urlParams = urlParams
+  
     return queryBase; 
 
 

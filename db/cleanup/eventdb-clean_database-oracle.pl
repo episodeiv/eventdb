@@ -29,7 +29,7 @@ open FILE, ">".$backupFolder."eventdb-".$date or die $!;
 if($dbh = DBI->connect("DBI:Oracle:SID=".$db.";host=".$dbhost.";port=".$dbport, $dbuser, $dbpass)) {
 		
 	$dbh->prepare('ALTER SESSION SET NLS_DATE_FORMAT = "YYYY-MM-DD HH24:MI:SS"')->execute();
-	my $events = $dbh->prepare('SELECT * FROM event WHERE created > ROUND(created)-'.$maxage.' AND ack >= '.$onlyAcks);
+	my $events = $dbh->prepare('SELECT * FROM event WHERE created < ROUND(CURRENT_DATE)-'.$maxage.' AND ack >= '.$onlyAcks);
 	$events->execute();
       
 	while (my @event = $events->fetchrow_array) {
@@ -47,7 +47,7 @@ if($dbh = DBI->connect("DBI:Oracle:SID=".$db.";host=".$dbhost.";port=".$dbport, 
 		print FILE "\n";	
 	}
 	$events->finish;
-	$dbh->prepare('DELETE FROM  event WHERE created > ROUND(created)-'.$maxage.' AND ack >= '.$onlyAcks)->execute();
+	$dbh->prepare('DELETE FROM  event WHERE created < ROUND(CURRENT_DATE)-'.$maxage.' AND ack >= '.$onlyAcks)->execute();
 }
 close FILE;
 $file = $backupFolder."eventdb-".$date;
