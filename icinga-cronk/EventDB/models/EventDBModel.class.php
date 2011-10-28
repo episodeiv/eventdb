@@ -102,7 +102,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 		
 			if(!isset($filter["isGroup"])) {
                 if($filter["operator"] == "REGEXP_LIKE") {
-                    $dql = " ".$filter["operator"]."(".$filter["target"].", '".$filter["value"]."')";	
+                    $dql = " ".$filter["operator"]."(".$filter["target"].", '".$filter["value"]."','i')";	
                 } else {
                     if(is_array($filter["value"])) {
                         if(count($filter["value"]) == 1)
@@ -125,7 +125,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
                     } else {
 
                         if($filter["operator"] == "REGEXP_LIKE")
-                            $dql = " ".$chain." ".$filter["operator"]."(".$filter["target"].", ".$filter["value"].")";	
+                            $dql = " ".$chain." ".$filter["operator"]."(".$filter["target"].", ".$filter["value"].",'i')";	
                         else {
                             if($filter["operator"] == "IN")
                                 $filter["value"] = "(".$filter["value"].")";
@@ -145,7 +145,6 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 			if($dql != "")
 				$isFirst = false;
 		}
-			
 		return $dql;
 	}
 	
