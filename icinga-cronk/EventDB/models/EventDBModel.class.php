@@ -231,8 +231,8 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 
         $search = @$API->createSearch()->setSearchTarget(IcingaApiConstants::TARGET_HOST);
         $search->setResultColumns(array('HOST_NAME'));
-        $search->setSearchGroup(array('HOST_NAME'));
-        
+        $search->setSearchGroup(array('HOST_NAME','HOST_OBJECT_ID'));
+  
         $filterGroup = $search->createFilterGroup(IcingaApiConstants::SEARCH_OR);
         foreach ($eventHosts as $host) {
         	$filterGroup->addFilter($search->createFilter('HOST_NAME', $host, IcingaApiConstants::MATCH_EXACT));
