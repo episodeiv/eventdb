@@ -48,7 +48,7 @@ Available targets:
 			</fileset>
 		</copy>	
 		
-	
+<!--	
 		<echo>Setting up db</echo>
 		<taskdef name="sqlRunner" classname="bin.sqlRunnerTask" />
 		
@@ -59,7 +59,7 @@ Available targets:
 				<sqlRunner files="etc/sql" ini="db.ini"/>
  			</then>
 		</if>
-		
+-->		
 		<input propertyname="rdbms" promptChar="?" defaultValue="mysql" validArgs="mysql,oracle">Which db backend do you want to use?</input>
 		<if>
 			<equals arg1="${rdbms}" arg2="mysql" />
