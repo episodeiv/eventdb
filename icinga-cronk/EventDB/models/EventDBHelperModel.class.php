@@ -2,6 +2,9 @@
 
 class EventDB_EventDBHelperModel extends EventDBBaseModel {
 	public function getAddressFromBinary($bin) {
+
+        $bin = str_pad($bin,16,chr(0),STR_PAD_LEFT);
+        
 		$addr = inet_ntop($bin);
 		if(preg_match("/f{4}:(\d{1,3})\./",$addr)) {
 			$addr = explode(":",$addr);
@@ -26,11 +29,12 @@ class EventDB_EventDBHelperModel extends EventDBBaseModel {
 				$d = $this->resolveIPv6($address);
 				break;
 		}
-		
-		return $d; 
+
+		return $d;
 	}
 	public function resolveIPv4($address) {
 		$address = "::ffff:".$address;
+        
 		return inet_pton($address);
 	}
 

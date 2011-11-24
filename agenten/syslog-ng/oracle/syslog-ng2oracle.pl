@@ -60,7 +60,7 @@ while (1) {
 							  'host_address, '.
                               'facility, priority, ' . 
                               'created, modified, ' .
-                              'program, message) VALUES (?,?,?,?,?,?,?,?,?)');
+                              'program, message) VALUES (?,?,utl_raw.cast_to_raw(?),?,?,?,?,?,?)');
  
                my $datetime = $date . " " . $time ;
 

@@ -175,8 +175,8 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 			$filter['columns'] = array('*');
     	$vals = array();
     	
-		$selectDql = "SELECT DISTINCT ".implode(',',$filter['columns']);
-		$countDql = "SELECT DISTINCT COUNT(".$filter['count'].") as __count";
+		$selectDql = "SELECT  ".implode(',',$filter['columns']);
+		$countDql = "SELECT  COUNT(".$filter['count'].") as __count";
 		$dql =" FROM EventDbEvent";
 		$wherePart = $this->buildWhereDql($filter['filter'],$vals);
  		if($wherePart)

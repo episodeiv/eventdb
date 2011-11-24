@@ -81,7 +81,7 @@
 > 
 >           if (&oracle_insert($oracle_dbi_table,
 >             "host_name",    $agent_dns_name,        # $A
->             "host_address", getBinaryIpV6($var[4]), # $aA
+>             "host_address", "utl_raw.cast_to_raw(".getBinaryIpV6($var[4]).")", # $aA
 >             "type",         1, # SNMP Trap
 >             "facility",     undef, # EventDB shall allow NULL, as
 >                                # there is no SNMP facility
@@ -125,7 +125,7 @@
 > 
 >         &oracle_insert($oracle_dbi_table_unknown,
 >           "host_name",    $agent_dns_name,
->           "host_address", getBinaryIpV6($var[4]),
+>           "host_address", "utl_raw.cast_to_raw(".getBinaryIpV6($var[4]).")",
 >           "type",         1,
 >           "facility",     0,
 >           "priority", getNumericPriority($event2[2]),

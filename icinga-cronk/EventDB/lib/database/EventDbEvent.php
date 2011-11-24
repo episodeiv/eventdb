@@ -20,6 +20,17 @@ class EventDbEventListener extends Doctrine_Record_Listener {
 	
 		$record = $event->getInvoker();
 		$this->preUpdate($event);
+        // Make sure oracle get's hex values
+        if($record->getConnection()->getDriverName() != "mysql") {
+            $addr = str_split($record->host_address);
+            $str = "";
+        
+            foreach($addr as $char) {
+                $str .= dechex(ord($char));
+            }
+
+            $record->host_address = $str;
+        }
 		$record->created = date('Y-m-d H:i:s',time());
 	}
 	
@@ -35,7 +46,8 @@ class EventDbEventListener extends Doctrine_Record_Listener {
 	public function preUpdate(Doctrine_Event $event) {
 		$record = $event->getInvoker();	
 		$record->prepareWrite();
-		$record->modified = date('Y-m-d H:i:s',time());	
+		$record->modified = date('Y-m-d H:i:s',time());
+
 		$record->host_address = $record->resolveAddress($record->ip_address);
 		
 	}
@@ -124,8 +136,8 @@ class EventDbEvent extends BaseEventDbEvent
 	}
 	
 	public function hasAddress($address) {
-		$myIp = unpack("v*",$this->host_address);
-		$checkIp = unpack("v*",$this->helper->resolveAddress($address));
+		$myIp = unpack("C*",$this->host_address);
+		$checkIp = unpack("C*",$this->helper->resolveAddress($address));
 		return $myIp == $checkIp;
 	}
 

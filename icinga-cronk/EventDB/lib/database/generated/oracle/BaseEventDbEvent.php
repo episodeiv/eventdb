@@ -62,8 +62,8 @@ abstract class BaseEventDbEvent extends Doctrine_Record
              'notnull' => true,
              'autoincrement' => false,
              ));
-        $this->hasColumn('host_address', 'clob', 16, array(
-             'type' => 'clob',
+        $this->hasColumn('host_address', 'blob', 16, array(
+             'type' => 'blob',
              'fixed' => false,
 			 'length' => 16,
              'unsigned' => false,
