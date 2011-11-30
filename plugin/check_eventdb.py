@@ -3,7 +3,7 @@
 import getopt, time, pprint, sys, re, urllib
 from optparse import OptionParser
 
-DEBUG = False
+DEBUG = False 
 
 class DatabaseException(Exception):
     def __init__(self,m):
@@ -106,7 +106,7 @@ def main():
     try:
         result = dbQuery(options)  
         if(result):
-            checkResult(result[0],result[1],options,result[2])    
+            checkResult(result[2],result[3],result[0],result[1],options,result[4]) 
     except SystemExit, s:
         raise
     except Exception, e:
@@ -135,7 +135,6 @@ def handleArguments(options):
         options.facility = options.facility.split(",")
     if(options.priority):
         options.priority = options.priority.split(",")
-    
     #set default ports
     if(options.db_port == None):
         if(options.db_type == "mysql"):
@@ -242,9 +241,9 @@ def dbQuery(options):
          
         values = [0,0] 
         for row in cursor:
-            if(len(row) != 2):
+            if(len(row) != 4):
                 raise DatabaseException("SQL Query failed, returned wrong values")
-            values = [row[0],row[1]]
+            values = [row[0],row[1],row[2],row[3]]
         if(values[1] == None):
             values[1] = 0 
         cursor = db.execute("SELECT message FROM %s WHERE id = %d" % (options.db_table, values[1]))
@@ -252,7 +251,7 @@ def dbQuery(options):
             values.append(row[0])
             return values
         
-        pluginExit('OK',"0 matches found.\n","matches=0 count=%dc" % (options.startfrom),options);
+        pluginExit('OK',"0 critcal and 0 warning matches found.\n","matches=0 count=%dc" % (options.startfrom),options);
 
     except SystemExit, e:
         raise
@@ -260,31 +259,33 @@ def dbQuery(options):
         pluginExit('UNKNOWN', e,"",options)
 
 
-def checkResult(count, last,options,msg = ""):
-  
+def checkResult(warnings,criticals,count, last,options,msg = ""):
+    
     #strip newlines from message
     if(msg != "" and isinstance(msg,str)):
         msg= msg.replace('\n',' ')
-    if(count >= options.critical):
+    if(criticals >= options.critical):
         if(options.resetregex and re.search(options.resetregex,msg)):
-            pluginExit('OK',"%d matches found\nMatches found already reseted." % (count), 'matches=%d count=%dc' % (count,last),options) 
+            pluginExit('OK',"%d critical and %d warning matches found\nMatches found already reseted." % (criticals,warnings), 'matches=%d count=%dc' % (criticals+warnings,last),options) 
         else:
-            pluginExit('CRITICAL',("%d matches found\n"+msg) % (count), 'matches=%d count=%dc' % (count,last),options) 
-    elif(count >= options.warning):
+            pluginExit('CRITICAL',("%d critical and %d warning matches found\n"+msg) % (criticals,warnings), 'matches=%d count=%dc' % (criticals+warnings,last),options) 
+    elif(warnings >= options.warning):
         
         if(options.resetregex  and re.search(options.resetregex,msg)):
-            pluginExit('OK',"%d matches found\nMatches found already reseted."% (count), 'matches=%d count=%dc' % (count,last),options) 
+            pluginExit('OK',"%d critical and %d warning matches found\nMatches found already reseted."% (criticals,warnings), 'matches=%d count=%dc' % (warnings+criticals,last),options) 
         else:
-            pluginExit('WARNING',('%d matches found \n,'+msg) % (count), 'matches=%d count=%dc' % (count,last),options) 
+            pluginExit('WARNING',('%d critical and %d matches found \n,'+msg) % (criticals,warnings), 'matches=%d count=%dc' % (warnings+criticals,last),options) 
     else:
-        pluginExit('OK',"%d matches found."%(count),"matches=%d count=%dc"%(count,last),options)
+        pluginExit('OK',"%d critical and %d warning matches found."%(criticals,warnings),"matches=%d count=%dc"%(warnings+criticals,last),options)
 
     pluginExit('UNKNOWN', '0 matches found.\n','Default exit',options)
 
 
 
 def buildQuery(o):
-    queryBase = "SELECT COUNT(id) as count, MAX(id) as last from %s where id > %d " 
+    warningCount = getCountField(o.prio_warning,"count_warning");
+    criticalCount = getCountField(o.prio_critical,"count_critical");
+    queryBase = "SELECT COUNT(id) as count, MAX(id) as last , "+warningCount+", "+criticalCount+" from %s where id > %d " 
     queryBase = queryBase % (o.db_table,o.startfrom)
     urlParams = {} 
     if(o.host != ""):
@@ -318,12 +319,15 @@ def buildQuery(o):
     queryBase += getWherePart("ack",0)
     urlParams["ack"] = "0"  
     o.urlParams = urlParams
-  
+
     return queryBase; 
 
-
-
-
+def getCountField(values, field):
+    if(values == ""):
+        return " COUNT(id) AS "+field+" "
+    caseQuery = "CASE WHEN PRIORITY IN ("+values+") THEN 1 ELSE 0 END"
+    return " SUM("+caseQuery+") AS "+field+" "
+    
 
 def getWherePart(field,value,op = "=",agg = "AND"):
     
@@ -344,7 +348,7 @@ def getWherePart(field,value,op = "=",agg = "AND"):
         value = value+" "
     tpl += value
    
-    return tpl
+    return " "+tpl+" "
 
 
 def pluginExit(status,text,perfdata, options):
@@ -380,8 +384,10 @@ def parseArguments():
                     help="The logtype (syslog,snmptrap,mail)",choices=["syslog","snmptrap","mail"])
     parser.add_option("-P","--program",dest="program",
                     help="Program as logged by the agent", default="")
-   
-    
+    parser.add_option("-W","--warning-priorities",dest="prio_warning",default="", 
+                    help="A comma seperated set of priorities which will be used for determine the warning state" ),        
+    parser.add_option("-C","--critical-priorities",dest="prio_critical",default="", 
+                    help="A comma seperated set of priorities which will be used for determine the warning state" ),    
     parser.add_option("--db",dest="db_name",
                     help="Name of the database to query",
                     default="eventdb")
