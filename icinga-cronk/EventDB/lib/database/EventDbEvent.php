@@ -18,10 +18,11 @@ class EventDbEventListener extends Doctrine_Record_Listener {
 
 	public function preInsert(Doctrine_Event $event) {		
 	
-		$record = $event->getInvoker();
-		$this->preUpdate($event);
-        // Make sure oracle get's hex values
-        if($record->getConnection()->getDriverName() != "mysql") {
+	$record = $event->getInvoker();
+	$this->preUpdate($event);
+
+        if(Doctrine_Manager::getInstance()->getConnection("eventdb_w") != "mysql") {
+  	
             $addr = str_split($record->host_address);
             $str = "";
         
@@ -30,8 +31,10 @@ class EventDbEventListener extends Doctrine_Record_Listener {
             }
 
             $record->host_address = $str;
-        }
+      
+	}
 		$record->created = date('Y-m-d H:i:s',time());
+
 	}
 	
 	public function preSave(Doctrine_Event $event) {
