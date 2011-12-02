@@ -152,7 +152,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 				
 					"hostFilter":{
 						"include_pattern":data.host,
-						"include_pattern_type":"exact",
+						"include_pattern_type":"regex",
 						"exclude_pattern_type":"disabled",
 						"exclude_pattern":false,
 						"include_set":[],
