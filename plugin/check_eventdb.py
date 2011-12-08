@@ -359,12 +359,16 @@ def pluginExit(status,text,perfdata, options):
         link = '<a href="%s?%s">%s</a>' % (options.url,params,text)
         out += "%s: %s %s" % (status, options.label, link) 
     else:
-        out += "%s %s %s" % (status,options.label,text)    
+		try:
+			text = text.replace('|', '')
+			text = text.replace('\n', ' ')
+		except Exception:
+			pass
+		out += "%s %s %s" % (status,options.label,text)    
         
     out += '|%s' % perfdata
-    out += "\nmessage filter: %s" % options.message
-    out += "\nreset regexp: %s" % options.resetregex
-    out += chr(10)
+    #out += "\nmessage filter: %s" % options.message
+    #out += "\nreset regexp: %s" % options.resetregex
     print(out)
   
     sys.exit(statusCode[status])
