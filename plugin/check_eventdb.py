@@ -1,25 +1,31 @@
-#! /usr/bin/python 
+#! /usr/bin/python
+
+import os.path
 
 import getopt, pprint, sys, re, urllib
 from checkfilter import CheckFilter
 from dbhandler import DBHandler, DatabaseException
 from optparse import OptionParser
+from daemon import Daemon, DAEMON_DEFAULT_LOG
 
 class CheckStatusException(Exception):
-    def __init__(self,status,msg = "No message"):
+    def __init__(self,status,output,perfdata = ""):
         self.status = status
-        self.msg = msg
+        self.output = output
+        self.perfdata = perfdata
 
 
 class EventDBPlugin:
     def __init__(self,arguments = None,noExit = False,asDaemon = False):
         self.__noExit = noExit;
         self.__isDaemon = asDaemon;
+
         if arguments == None:
-            self.__parseArguments()
+            self.__options = self.__parseArguments()
         elif isinstance(arguments,object):
             self.__options = arguments;
 
+  
         self.__prepareArguments()
         self.__runCheck()
 
@@ -32,16 +38,20 @@ class EventDBPlugin:
         try:
             self.__validateArguments()
 
-        except CheckStatusException, cs:
-            raise
+
         except Exception, e:
             self.__pluginExit("UNKNOWN","Invalid Arguments",e)
 
 
     def __runCheck(self):
         options = self.__options
+        result = False
+
         try:
-            result = self.__dbQuery()
+            if options.daemon_pid != False:
+                result = self.__daemonQuery()
+            if result == False :
+                result = self.__dbQuery()
             if(result):
                 self.__checkResult(result[2],result[3],result[0],result[1],result[4])
         except CheckStatusException, cs:
@@ -127,6 +137,29 @@ class EventDBPlugin:
          )
          return db
 
+    def __daemonQuery(self):
+        try:
+            daemon = self.__connectToDaemon(
+                self.__options.daemon_pid,
+                True
+            )
+            if daemon == False:
+                return False
+            return daemon.__request(self.__options)
+        except CheckStatusException, cs:
+            raise
+        except Exception, e:
+            self.__pluginExit('UNKNOWN', "",e)
+
+    def __connectToDaemon(self,pid,spawnOnMissing):
+
+        daemon = Daemon(pid,spawnOnMissing,self.__options.daemon_log)
+        #if daemon.connect():
+        return False
+       # return False
+
+        
+
     def __dbQuery(self):
         try:
             db = self.__setupDB()
@@ -185,7 +218,7 @@ class EventDBPlugin:
             else:
                 return self.__pluginExit(
                     'WARNING',
-                    ('%d critical and %d matches found \n,'+msg) % (criticals,warnings),
+                    ('%d critical and %d warning matches found \n,'+msg) % (criticals,warnings),
                     'matches=%d count=%dc' % (count,last)
                 )
         else:
@@ -291,7 +324,7 @@ class EventDBPlugin:
         if self.__noExit == False:
             sys.exit(statusCode[status])
         if status > 0 :
-            raise CheckStatusException(statusCode[status],str(perfdata))
+            raise CheckStatusException(statusCode[status],str(text),str(perfdata))
         return out
 
     def __parseArguments(self):
@@ -343,6 +376,10 @@ class EventDBPlugin:
         parser.add_option("-c","--critical",dest="critical",type="int",help="Number of matches to result in critical state",default="-1")
         parser.add_option("--cventry",dest="print_cv", default=False,action="store_true",
                         help="returns the custom variable entry for this call (needed in order to use icinga-web cronk integration)")
+        parser.add_option("--daemon_pid", dest="daemon_pid", default="False",
+                        help="Location of eventdb_daemon.pid which will be used for connection pooling. If no daemon is currently running, the plugin will spawn one.")
+        parser.add_option("--daemonize", dest="daemonize", default=False)
+        parser.add_option("--daemon_log", dest="daemon_log", default=DAEMON_DEFAULT_LOG)
         (options, args) = parser.parse_args()
         return options;
 

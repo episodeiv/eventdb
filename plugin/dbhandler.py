@@ -1,4 +1,4 @@
-DEBUG = True
+DEBUG = False
 import sqlalchemy
 from sqlalchemy import create_engine
 class DatabaseException(Exception):
@@ -57,5 +57,5 @@ class DBHandler:
 
     def __del__(self):
         if(hasattr(self,"__connection") and self.__connection):
-            self.__cursor.close()
+            self.__connection.close()
 
