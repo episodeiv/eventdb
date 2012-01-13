@@ -4,10 +4,7 @@ from sqlalchemy import create_engine
 class DatabaseException(Exception):
     def __init__(self,m):
         self.message = m
-'''
-'   User defined type that hides database-implementation
-'   from executing code
-'''
+
 class DBHandler:
 
     def __init__(self):
@@ -26,6 +23,18 @@ class DBHandler:
 
         if(self.__cursor == None):
             raise DatabaseException("Couldn't connect to db")
+
+    @staticmethod
+    def getURLString(self,driver,host="localhost",user=None,password=None,database=None,port=None):
+        url = sqlalchemy.engine.url.URL(
+            driver,
+            user,
+            password,
+            host,
+            port,
+            database
+        );
+        return sqlalchemy.engine.url.make_url(url)
 
     def __connectWithEngine(self):
         url =  sqlalchemy.engine.url.URL(

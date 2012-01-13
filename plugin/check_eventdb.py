@@ -6,8 +6,8 @@ import getopt, pprint, sys, re, urllib
 from checkfilter import CheckFilter
 from dbhandler import DBHandler, DatabaseException
 from optparse import OptionParser
-from daemon import DAEMON_DEFAULT_LOG, DAEMON_CONCURRENCY_BEHAVIOURS
-from connPoolDaemon import ConnPoolDaemon
+
+from connPoolDaemonProxy import ConnPoolDaemonProxy, DEFAULT_LOG
 
 class CheckStatusException(Exception):
     def __init__(self,status,output,perfdata = ""):
@@ -17,15 +17,13 @@ class CheckStatusException(Exception):
 
 
 class EventDBPlugin():
-    def __init__(self,arguments = None,noExit = False,asDaemon = False):
+    def __init__(self,arguments = None,noExit = False):
         self.__noExit = noExit;
-        self.__isDaemon = asDaemon;
-
+        self.__requestStrategies = []
         if arguments == None:
             self.__options = self.__parseArguments()
         elif isinstance(arguments,object):
             self.__options = arguments;
-
   
         self.__prepareArguments()
         self.__runCheck()
@@ -50,16 +48,26 @@ class EventDBPlugin():
 
         try:
             if options.daemon_pid != False:
-                result = self.__daemonQuery()
+                self.__requestStrategies.insert(
+                    0,
+                    ConnPoolDaemonProxy(
+                        options.daemon_pid,
+                        options.daemon_log,
+                        options.daemon_behaviour,
+                        options.daemon_lifetime
+                    )
+                )
             if result == False :
                 result = self.__dbQuery()
             if(result):
                 self.__checkResult(result[2],result[3],result[0],result[1],result[4])
+
         except CheckStatusException, cs:
             raise
         except SystemExit, s:
             raise
         except Exception, e:
+
             self.__pluginExit("UNKNOWN","An error occured",e)
 
 
@@ -126,76 +134,50 @@ class EventDBPlugin():
     '   Creates and returns an instance of DBHandler for the passed arguments
     '
     '''
-    def __setupDB(self):
-         db = DBHandler()
-         db.connect(
+    def __setupDB(self,strategy):
+        db = strategy
+        db.connect(
             self.__options.db_type,
             self.__options.db_host,
             self.__options.db_user,
             self.__options.db_password,
             self.__options.db_name,
             self.__options.db_port
-         )
-         return db
-
-    def __daemonQuery(self):
-        try:
-            daemon = self.__connectToDaemon(
-                self.__options.daemon_pid,
-                True
-            )
-            if daemon == False:
-                return False
-            return daemon.request(self.__options)
-        except CheckStatusException, cs:
-            raise
-        except Exception, e:
-            self.__pluginExit('UNKNOWN', "",e)
-
-    def __connectToDaemon(self,pid,spawnOnMissing):
-
-        daemon = ConnPoolDaemon(
-            pid,
-            spawnOnMissing,
-            self.__options.daemon_log,
-            self.__options.daemon_behaviour
         )
-        if daemon.connect():
-            return daemon
-        return False
-
-       # return False
-
-        
+        return db
+   
 
     def __dbQuery(self):
-        try:
-            db = self.__setupDB()
-            query = self.__buildQuery()
-            cursor = db.execute(query)
+        for strategy in self.__requestStrategies:
 
-            values = [0,0]
-            
-            
-            for row in cursor:
-                if(len(row) != 4):
-                    raise DatabaseException("SQL Query failed, returned wrong values")
-                values = [row[0],row[1],row[2],row[3]]
-            if(values[1] == None):
-                values[1] = 0
-            cursor = db.execute("SELECT message FROM %s WHERE id = %d" % (self.__options.db_table, values[1]))
-            for row in cursor:
-                values.append(row[0])
-                return values
+            try :
+                db = self.__setupDB(strategy)
+                query = self.__buildQuery()
+                cursor = db.execute(query)
 
-            self.__pluginExit('OK',"0 critcal and 0 warning matches found.\n","matches=0 count=%dc" % (self.__checkFilter.startfrom()));
+                values = [0,0]
 
-        except SystemExit, e:
-            raise
-        except CheckStatusException, cs:
-            raise
-        except Exception, e:
-            self.__pluginExit('UNKNOWN', "",e)
+
+                for row in cursor:
+                    if(len(row) != 4):
+                        raise DatabaseException("SQL Query failed, returned wrong values")
+                    values = [row[0],row[1],row[2],row[3]]
+                if(values[1] == None):
+                    values[1] = 0
+                cursor = db.execute("SELECT message FROM %s WHERE id = %d" % (self.__options.db_table, values[1]))
+                for row in cursor:
+                    values.append(row[0])
+                    return values
+
+                self.__pluginExit('OK',"0 critcal and 0 warning matches found.\n","matches=0 count=%dc" % (self.__checkFilter.startfrom()));
+
+            except SystemExit, e:
+                raise
+            except CheckStatusException, cs:
+                raise
+            except Exception, e:
+                if strategy == self.__requestStrategies[-1]:
+                    self.__pluginExit('UNKNOWN', "",e)
 
 
     def __checkResult(self,warnings,criticals,count, last,msg = ""):
@@ -327,13 +309,13 @@ class EventDBPlugin():
         out += "\nmessage filter: %s" % self.__options.message
         out += "\nreset regexp: %s" % self.__options.resetregex
         out += chr(10)
-        if self.__isDaemon == False:
-            print(out)
+        
         if self.__noExit == False:
+            print out
             sys.exit(statusCode[status])
-        if status > 0 :
-            raise CheckStatusException(statusCode[status],str(text),str(perfdata))
-        return out
+        raise CheckStatusException(statusCode[status],str(text),str(perfdata))
+
+        
 
     def __parseArguments(self):
         parser = OptionParser()
@@ -363,9 +345,9 @@ class EventDBPlugin():
                         help="Name of the database table (usually event)",
                         default="event")
         parser.add_option("--dbuser",dest="db_user",
-                        help="User for db login",default="")
+                        help="User for db login",default="eventdb")
         parser.add_option("--dbpassword",dest="db_password",
-                        help="Password for db login",default="")
+                        help="Password for db login",default="eventdb")
         parser.add_option("--dbhost",dest="db_host",
                         help="DB Host", default="localhost")
         parser.add_option("--dbport",dest="db_port",type="int",
@@ -386,12 +368,13 @@ class EventDBPlugin():
                         help="returns the custom variable entry for this call (needed in order to use icinga-web cronk integration)")
         parser.add_option("--daemon_pid", dest="daemon_pid", default="False",
                         help="Location of eventdb_daemon.pid which will be used for connection pooling. If no daemon is currently running, the plugin will spawn one.")
-        parser.add_option("--daemonize", dest="daemonize", default=False)
-        parser.add_option("--daemon_log", dest="daemon_log", default=DAEMON_DEFAULT_LOG)
+        parser.add_option("--daemon_log", dest="daemon_log", default=DEFAULT_LOG)
         parser.add_option("--daemon_behaviour", dest="daemon_behaviour", choices=["Aggressive","Servile"], default="Aggressive",
                         help="Defines how this daemon behaves when another daemon is started at (exactly) the same time."+
                         "(Aggressive[=Default]: Other daemons will be removed"+
                         ",Servile: Abort daemonization when another daemon is encountered)")
+        parser.add_option("--daemon_lifetime", dest="daemon_lifetime", default=5,type="int",
+                        help="Defines how long daemonized connections life (in seconds) when there's no request")
         (options, args) = parser.parse_args()
         return options;
 

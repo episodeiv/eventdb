@@ -47,7 +47,10 @@ class argTpl:
          self.logtype = 'syslog'
          self.db_user = 'eventdb_test'
          self.db_host = 'localhost'
-         self.daemon_pid = False
+         self.daemon_pid = "/tmp/edb.pid"
+         self.daemon_log = "/tmp/test_edb.log"
+         self.daemon_lifetime = 5
+         self.daemon_behaviour = "Aggressive"
          self.critical = 10
 
 
@@ -61,7 +64,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl = argTpl()
         tpl.critical = -1
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail("Missing critical value wasn't detected")
         except CheckStatusException, e:
             self.assertEqual(e.status,3, "Wrong status returned")
@@ -71,7 +74,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl = argTpl()
         tpl.warning = -1
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail("Missing warning value wasn't detected")
         except CheckStatusException, e:
             self.assertEqual(e.status,3, "Wrong status returned")
@@ -84,7 +87,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl.critical = 3
 
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail("No regular plugin exit")
         except CheckStatusException, e:
             self.assertEqual(e.status,2, "Wrong status (%s) returned (Message %s)" %(e.status,e.perfdata))
@@ -99,7 +102,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl.warning = 1
         tpl.critical = 8162
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail("No regular plugin exit")
         except CheckStatusException, e:
             self.assertEqual(e.status,2, "Wrong status (%s) returned at uppermost critical threshold (Message %s)" %(e.status,e.perfdata))
@@ -110,7 +113,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl.warning = 1
         tpl.critical = 8163
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail("No regular plugin exit")
         except CheckStatusException, e:
             self.assertNotEqual(e.status,2, "Wrong status (%s) returned at uppermost critical threshold (Message %s)" %(e.status,e.perfdata))
@@ -122,7 +125,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl.critical = 99999
 
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail("No regular plugin exit")
         except CheckStatusException, e:
             self.assertEqual(e.status,1, "Wrong status (%s) returned (Message %s)" %(e.status,e.perfdata))
@@ -137,7 +140,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl.warning = 8162
         tpl.critical = 81600
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail("No regular plugin exit")
         except CheckStatusException, e:
             self.assertEqual(e.status,1, "Wrong status (%s) returned at uppermost critical threshold (Message %s)" %(e.status,e.perfdata))
@@ -148,7 +151,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl.warning = 8163
         tpl.critical = 816300
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail("No regular plugin exit")
         except CheckStatusException, e:
             self.assertNotEqual(e.status,1, "Wrong status (%s) returned at uppermost critical threshold (Message %s)" %(e.status,e.perfdata))
@@ -158,7 +161,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl = argTpl()
         tpl.message = 'Random %'
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail("No regular plugin exit")
         except CheckStatusException, e:
             matches = re.match(r"matches=(\d+) ",e.perfdata)
@@ -171,7 +174,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl = argTpl()
         tpl.logtype = 'snmptrap'
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail("No regular plugin exit")
         except CheckStatusException, e:
             matches = re.match(r"matches=(\d+) ",e.perfdata)
@@ -187,7 +190,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl.warning = 1000
         tpl.critical = 1000
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail('No regular plugin exit')
         except CheckStatusException, e:
             matches = re.match(r"(\d+) critical and (\d+) warning",e.output)
@@ -206,7 +209,7 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl.warning = 1000
         tpl.critical = 1000
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail('No regular plugin exit')
         except CheckStatusException, e:
             matches = re.match(r"(\d+) critical and (\d+) warning",e.output)
@@ -223,13 +226,13 @@ class  CheckEventDBTestCase(unittest.TestCase):
         tpl.critical = 2000
         tpl.resetregex = "Random test Event 17\d+"
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail('No regular plugin exit')
         except CheckStatusException, e:
             self.assertEquals(e.status, 0,"Reset regexp didn't catch message")
         tpl.resetregex = "Random test Event 11\d+"
         try :
-            EventDBPlugin(tpl,asDaemon=True,noExit=True)
+            EventDBPlugin(tpl,noExit=True)
             self.fail('No regular plugin exit')
         except CheckStatusException, e:
             self.assertEquals(e.status, 2,"Reset regexp catched non-matching message")
