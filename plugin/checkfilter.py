@@ -2,7 +2,7 @@
 Class that encapsulates the filters that affect the database check
 '''
 import  time, re
-class CheckFilter:
+class CheckFilter():
 
     def __init__(self):
         self.logtype = 0

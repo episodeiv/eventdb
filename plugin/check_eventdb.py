@@ -6,7 +6,8 @@ import getopt, pprint, sys, re, urllib
 from checkfilter import CheckFilter
 from dbhandler import DBHandler, DatabaseException
 from optparse import OptionParser
-from daemon import Daemon, DAEMON_DEFAULT_LOG
+from daemon import DAEMON_DEFAULT_LOG, DAEMON_CONCURRENCY_BEHAVIOURS
+from connPoolDaemon import ConnPoolDaemon
 
 class CheckStatusException(Exception):
     def __init__(self,status,output,perfdata = ""):
@@ -15,7 +16,7 @@ class CheckStatusException(Exception):
         self.perfdata = perfdata
 
 
-class EventDBPlugin:
+class EventDBPlugin():
     def __init__(self,arguments = None,noExit = False,asDaemon = False):
         self.__noExit = noExit;
         self.__isDaemon = asDaemon;
@@ -145,7 +146,7 @@ class EventDBPlugin:
             )
             if daemon == False:
                 return False
-            return daemon.__request(self.__options)
+            return daemon.request(self.__options)
         except CheckStatusException, cs:
             raise
         except Exception, e:
@@ -153,9 +154,16 @@ class EventDBPlugin:
 
     def __connectToDaemon(self,pid,spawnOnMissing):
 
-        daemon = Daemon(pid,spawnOnMissing,self.__options.daemon_log)
-        #if daemon.connect():
+        daemon = ConnPoolDaemon(
+            pid,
+            spawnOnMissing,
+            self.__options.daemon_log,
+            self.__options.daemon_behaviour
+        )
+        if daemon.connect():
+            return daemon
         return False
+
        # return False
 
         
@@ -380,6 +388,10 @@ class EventDBPlugin:
                         help="Location of eventdb_daemon.pid which will be used for connection pooling. If no daemon is currently running, the plugin will spawn one.")
         parser.add_option("--daemonize", dest="daemonize", default=False)
         parser.add_option("--daemon_log", dest="daemon_log", default=DAEMON_DEFAULT_LOG)
+        parser.add_option("--daemon_behaviour", dest="daemon_behaviour", choices=["Aggressive","Servile"], default="Aggressive",
+                        help="Defines how this daemon behaves when another daemon is started at (exactly) the same time."+
+                        "(Aggressive[=Default]: Other daemons will be removed"+
+                        ",Servile: Abort daemonization when another daemon is encountered)")
         (options, args) = parser.parse_args()
         return options;
 

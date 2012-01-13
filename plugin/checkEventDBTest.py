@@ -3,6 +3,7 @@
 
 from check_eventdb import CheckStatusException
 from check_eventdb import EventDBPlugin
+import re
 import unittest
 import check_eventdb
 
