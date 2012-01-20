@@ -176,7 +176,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
     	$vals = array();
     	
 		$selectDql = "SELECT  ".implode(',',$filter['columns']);
-		$countDql = "SELECT  COUNT(".$filter['count'].") as __count";
+		//$countDql = "SELECT  COUNT(".$filter['count'].") as __count";
 		$dql =" FROM EventDbEvent";
 		$wherePart = $this->buildWhereDql($filter['filter'],$vals);
  		if($wherePart)
@@ -188,7 +188,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
      	if($filter['order_by'] != false) {	
 			$dql .= " ORDER BY ".$filter['order_by']." ".($filter['dir'] == 'asc' ? 'asc' : 'desc');
 		}
-		$countDql .= $dql;
+		//$countDql .= $dql;
 		if ($limit != false) {
     		$dql .= " LIMIT ".$limit;
     	}  
@@ -198,14 +198,14 @@ class EventDB_EventDBModel extends EventDBBaseModel {
     	$dql = $selectDql.$dql;
 		
         if($filter['simple']) // required for host/program summary
-            return $this->getPlainQuery($dql,$countDql,$vals);
+            return $this->getPlainQuery($dql,"",$vals);
         
 		$r = $this->getReadConnection()->query($dql,$vals);
     	if (!$r->count()) {
     		return array("values" => $default, "count" => 0);
     	}
    		
-		$count = $this->getReadConnection()->query($countDql,$vals);
+		//count = $this->getReadConnection()->query($countDql,$vals);
 		
 		$realHosts = array();
     	$eventAdditional = array();
@@ -260,12 +260,14 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 	        	}
         	}
         }
+
+        /*
   		if($filter['group_by'])
 			$count = $count->count();
 		else
 			$count = $count->getFirst()->__count;
-
-        return array("values" => $r, "count" => $count);
+        */
+        return array("values" => $r/*, "count" => $count*/);
     }
    
 	public function getCount($field) {
@@ -296,14 +298,15 @@ class EventDB_EventDBModel extends EventDBBaseModel {
     }
     
     private function getPlainQuery($requestDQL,$countDQL,$vals) {
+        
         $r = $this->getReadConnection()->query($requestDQL,$vals,  Doctrine::HYDRATE_SCALAR);
         $r = $this->reHydrateScalarResult($r);
         if(!count($r))
             return array("values" => array(), "count" => 0);
-        
+        /*
         $count = $this->getReadConnection()->query($countDQL,$vals,  Doctrine::HYDRATE_SCALAR);
-        $count = $this->reHydrateScalarResult($count);  
-        return array("values" => $r, "count" => $count[0]["__count"]);
+        $count = $this->reHydrateScalarResult($count);  */
+        return array("values" => $r);
     }
     
     private function reHydrateScalarResult(array $r) {

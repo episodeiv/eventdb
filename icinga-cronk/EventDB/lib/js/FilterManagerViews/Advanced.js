@@ -13,6 +13,7 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
 
                     'columns[0]' : field,
                     'count' : field,
+                    'group_by': field,
                     'simple' :true
                 },
                 defaultParamNames: {
@@ -41,7 +42,7 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                 }
             });
             
-            var pBar = new Ext.PagingToolbar({
+            var pBar = new Cronk.EventDB.Components.OptimisticPagingToolbar({
                 store: store,
                 displayInfo: true,
                 pageSize:25,
