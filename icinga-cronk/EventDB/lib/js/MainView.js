@@ -17,7 +17,7 @@ Cronk.EventDB.MainView = function(cfg) {
 		listeners :  {
 			toggle: function(e,state) {
 				e.setIconClass('icinga-icon-'+(state ? 'cancel' : 'accept')); 
-				var desc = fm.getFilterDescriptor();
+				var desc = fm.getFilterObject();
 				if(!desc.misc) {
 					desc.misc = {};
 				}
@@ -45,25 +45,16 @@ Cronk.EventDB.MainView = function(cfg) {
 
 				var elem = e.findParentByType('buttongroup');
 				var btns = elem.findByType('button');
-				var vals = [];
-				Ext.iterate(btns,function(btn) {
-					if(!btn.pressed) {
-						vals.push(btn.value);
-					}
-				},elem);
-
-				var desc = fm.getFilterDescriptor();
-				desc.priorityExclusion = vals;
+                fm.togglePriority(e.value.toString(), e.pressed)
 				
-				eventStore.baseParams = {jsonFilter: Ext.encode(desc)}; 
-				eventGrid.store.ignoreBaseFilter = true;
 				eventGrid.refreshTask.delay(1500,null,eventGrid);
 			},
 			scope:this
 		},
 
 		syncWithFilter: function(f) {
-			var filter = f || fm.getFilterDescriptor();
+            
+			var filter = f || fm.getFilterObject();
 			var filterBtn
 			if(parentCmp.el)
 				filterBtn = Ext.DomQuery.selectNode('.filterBtn',parentCmp.el.dom);
@@ -71,6 +62,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				Ext.get(filterBtn).addClass('activeFilter');
 			} else if(filterBtn) {
 				Ext.get(filterBtn).removeClass('activeFilter');
+                
 			}
 			if((filter.misc || {}).hideAck) {
 				ackFilterBtn.toggle(true,true);
@@ -208,7 +200,8 @@ Cronk.EventDB.MainView = function(cfg) {
 		eventGrid.fireEvent('statechange');
 		eventGrid.setPageSize(filters.display.limit);
 		eventStore.baseParams = {"jsonFilter": Ext.encode(filters)};
-		Cronk.Registry.get(CE.id).params.FilterJSON = Ext.encode(fm.getFilterDescriptor());		
+        
+		Cronk.Registry.get(CE.id).params.FilterJSON = Ext.encode(fm.getFilterObject());
 		quickFilterBar.syncWithFilter();
 		eventGrid.refresh();
 	},this,{buffer:true});
@@ -468,35 +461,35 @@ Cronk.EventDB.MainView = function(cfg) {
 			});
 			Ext.grid.GridPanel.prototype.constructor.call(this);
 			this.store.on("beforeload",function() {
-				var f = fm.getFilterDescriptor();
-				var isEmpty = true;
-				for(var i in f) {
-					isEmpty = false;
-					break;
-				}
-				if(isEmpty) {
-					f = fm.getFilterDescriptor(true);
-				}
-				var sortState = this.getSortState();
-				if(Ext.isObject(sortState)) {
-					f.display.order =  
-					{
-						dir: sortState.direction.toLowerCase(),
-						field: sortState.field
-					}
-				}
-				if(!this.ignoreBaseFilter) {
-					try {
-						quickFilterBar.syncWithFilter();
-					this.setBaseParam('jsonFilter',Ext.encode(f));
-					} catch(e) {
-						AppKit.log(e);	
-					}
-				}
+
+                var f = fm.getFilterObject();
+                var isEmpty = true;
+                for(var i in f) {
+                    isEmpty = false;
+                    break;
+                }
+                if(isEmpty) {
+                    f = fm.getFilterObject(true);
+                }
+                var sortState = this.getSortState();
+                
+                if(Ext.isObject(sortState)) {
+                    f.display.order =
+                    {
+                        dir: sortState.direction.toLowerCase(),
+                        field: sortState.field
+                    }
+                }
+                if(!this.ignoreBaseFilter) {
+                    quickFilterBar.syncWithFilter();
+                }
+
+                this.setBaseParam('jsonFilter',Ext.encode(f));
+
 			},this.store);
 			this.store.on("load", function() {
 				this.buildInterGridLink();
-				this.updateSelected();	
+				this.updateSelected();
 			},this)
 			this.reenableTextSelection();
 		},
@@ -612,7 +605,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				height: this.getHeight(),
 				width: this.getWidth(),
 				storeParams: this.store.baseParams,
-				filters: fm.getFilterDescriptor()
+				filters: fm.getFilterObject()
 			};
 
 
@@ -627,11 +620,12 @@ Cronk.EventDB.MainView = function(cfg) {
 			this.setHeight(state.height);
 			this.setWidth(state.width);
 			this.store.baseParams = state.storeParams;
-			fm.defaultValues = state.filters || fm.getFilterDescriptor(); 
-			if(state.filters)
-				fm.stateApplied = true;  				
+			
+			if(state.filters) {
+                fm.setFilterObject(state.filters);
+            }
 		
-			this.setPageSize((fm.defaultValues.display || {limit:25}).limit);	
+			this.setPageSize(fm.getDisplayLimit());
 			quickFilterBar.syncWithFilter();
 		},
 		viewConfig: {
@@ -755,7 +749,7 @@ Cronk.EventDB.MainView = function(cfg) {
 			iconCls: 'icinga-icon-arrow-refresh',
 			text: _('Refresh'),
 			tooltip: _('Refresh the data in the grid'),
-			handler: function(oBtn, e) { eventGrid.refresh(); },
+			handler: function(oBtn, e) {eventGrid.refresh();},
 			scope: this
 		},{
 			iconCls: 'icinga-icon-cog',
@@ -831,6 +825,8 @@ Cronk.EventDB.MainView = function(cfg) {
 						fm.show(true);
 						fm.clearFilterFields();
 						eventStore.baseParams = {offset:0, limit:25};
+               			eventGrid.fireEvent("statechange");
+
 						eventGrid.refresh();
 					},
 					scope: this
@@ -860,7 +856,7 @@ Cronk.EventDB.MainView = function(cfg) {
 			tooltip:'Add comment to your acknoledgement',
 			iconCls:'icinga-icon-add',
 			ref: '../commentButton',
-			handler: function() { commentForm.show(); },
+			handler: function() {commentForm.show();},
 			disabled: true
 		}],
 		sm: false,		
@@ -976,11 +972,7 @@ Cronk.EventDB.MainView = function(cfg) {
 	if(CE.params.FilterJSON) {	
 		var params = Ext.decode(CE.params.FilterJSON);
 			
-		if(params.hostFilter) {
-			if(!fm.stateApplied)
-				fm.defaultValues = params;	
-			
-		}	
+
 		for(var i=0;i<params.priorityExclusion.length;i++) {
 			params.priorityExclusion[i] = parseInt(params.priorityExclusion[i],10);
 		}
@@ -990,12 +982,11 @@ Cronk.EventDB.MainView = function(cfg) {
 	
 		quickFilterBar.syncWithFilter(params);
 	
-		eventStore.baseParams = Ext.apply(eventStore.baseParams || {},{jsonFilter: fm.getFilterDescriptor()}); 
+		eventStore.baseParams = Ext.apply(eventStore.baseParams || {},{jsonFilter: fm.getFilterObject()});
 		eventGrid.fireEvent('hostFilterChanged', eventGrid);
 		
 	}
 	if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
 		Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
 	eventGrid.refreshTask.delay(1000);  
-
 }
