@@ -55,8 +55,8 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
 				switch(elem.name) {
 					case 'misc':
 						for(var i=0;i<val.length;i++) {
-							if(val[i].name.split('_')[1] == 'ack') {
-								this.toggleAcknowledged(val[i].checked);
+							if(val[i].name.split('_')[1] == 'noAck') {
+   								this.toggleAcknowledged(false);
                             }
 						}
 						break;

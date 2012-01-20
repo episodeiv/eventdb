@@ -17,14 +17,7 @@ Cronk.EventDB.MainView = function(cfg) {
 		listeners :  {
 			toggle: function(e,state) {
 				e.setIconClass('icinga-icon-'+(state ? 'cancel' : 'accept')); 
-				var desc = fm.getFilterObject();
-				if(!desc.misc) {
-					desc.misc = {};
-				}
-				desc.misc.hideAck = state;
-				
-				eventStore.baseParams = {jsonFilter: Ext.encode(desc)};
-				eventGrid.store.ignoreBaseFilter = true;
+				fm.toggleAcknowledged(!state);
 
 				eventGrid.refreshTask.delay(1500);		
 			}	
@@ -64,7 +57,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				Ext.get(filterBtn).removeClass('activeFilter');
                 
 			}
-			if((filter.misc || {}).hideAck) {
+            if(!fm.showsAcknowledged()) {
 				ackFilterBtn.toggle(true,true);
 				ackFilterBtn.setIconClass('icinga-icon-cancel');
 			} else {

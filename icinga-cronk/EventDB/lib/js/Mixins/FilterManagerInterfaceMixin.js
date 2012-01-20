@@ -168,7 +168,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
     }
 
     this.showsAcknowledged = function() {
-        return !this.hideAck;
+        return !this.currentFilterObject.misc.hideAck;
     }
 
     this.setFromTime = function(time) {
