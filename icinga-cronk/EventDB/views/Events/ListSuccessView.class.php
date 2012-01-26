@@ -29,14 +29,14 @@ class EventDB_Events_ListSuccessView extends EventDBBaseView {
 					'target' => $rd->getParameter('target', 'EventDbEvent'),
 				    'columns' => $rd->getParameter('columns', array('*')),
 				    'group_by' => $rd->getParameter('group_by', false),
-				    'filter' => $filter, 
-					'count' => $rd->getParameter('count','id')
+				    'filter' => $filter
+					//'count' => $rd->getParameter('count','id')
 				)
 			);
 		
 		return json_encode(array(
-			'events' => $db["values"],	
-			'count' => $db["count"]  
+			'events' => $db["values"]
+//			'count' => $db["count"]
 					
 		));
 	}
