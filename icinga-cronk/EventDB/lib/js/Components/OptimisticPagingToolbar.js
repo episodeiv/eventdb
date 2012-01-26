@@ -11,7 +11,6 @@ Ext.ns("Cronk.EventDB.Components").OptimisticPagingToolbar = (Ext.extend(Ext.Pag
 
         this.last.setDisabled(true);
         this.last.hide();
-        AppKit.log(this,arguments);
     },
 
     initComponent : function() {

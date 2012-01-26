@@ -1,5 +1,6 @@
 Ext.ns("Cronk.EventDB");
 
+
 Cronk.EventDB.MainView = function(cfg) {
 
 	var CE = cfg.CE;
@@ -7,9 +8,10 @@ Cronk.EventDB.MainView = function(cfg) {
 
 	var parentCmp = cfg.parentCmp;
 	var url = cfg.eventUrl;
-	var commentUrl = cfg.commentUrl;
-	var commentAddUrl = cfg.commentAddUrl;
-	var userName = cfg.userName;
+
+    var eventDetailPanel = new Cronk.EventDB.Components.EventDetailPanel(cfg);
+    var commentForm = new Cronk.EventDB.Components.CommentForm(cfg, eventDetailPanel);
+
 	var ackFilterBtn = new Ext.Button({
 		text: _('Ack'),
 		iconCls: 'icinga-icon-accept',
@@ -18,7 +20,6 @@ Cronk.EventDB.MainView = function(cfg) {
 			toggle: function(e,state) {
 				e.setIconClass('icinga-icon-'+(state ? 'cancel' : 'accept')); 
 				fm.toggleAcknowledged(!state);
-
 				eventGrid.refreshTask.delay(1500);		
 			}	
 		}
@@ -70,14 +71,12 @@ Cronk.EventDB.MainView = function(cfg) {
 			}
 			Ext.iterate(this.items.items,function(i) {
 				if(filter.indexOf(i.value.toString()) > -1 || filter.indexOf(i.value) > -1) {
-					
 					i.toggle(false,true);	
 				} else {	
 					i.toggle(true,true);	
 				}
-			
 			});
-	
+            return true;
 		},
 		items: [
 		{
@@ -163,28 +162,6 @@ Cronk.EventDB.MainView = function(cfg) {
 	]
 	});
 
-	var commentStore = new Ext.data.JsonStore({
-		autoLoad: false,
-		autoDestroy: true,
-		baseParams: {
-			offset:0,
-			limit:25,
-			count: 'id'
-		},
-		totalProperty: 'count',
-		paramNames: {
-			start: 'offset'
-		},
-		url: commentUrl,
-		root: 'comments',
-		fields: [
-			{name: 'id'},
-			{name: 'user'},
-			{name: 'message'},
-			{name: 'type'},
-			{name: 'created'}
-		]
-	});
 
 	var fm = new Cronk.EventDB.FilterManager({url: url, parentCmp: parentCmp});
 	
@@ -220,7 +197,7 @@ Cronk.EventDB.MainView = function(cfg) {
 		onMouseDown: function(e, t){
 			if(Ext.fly(t).hasClass(this.createId())){
 				e.stopEvent();
-				el = Ext.get(t);
+				var el = Ext.get(t);
 				var index = this.grid.getView().findRowIndex(t);
 				var record = this.grid.store.getAt(index);
 				if(!this.grid.selectedRecords) {
@@ -262,199 +239,36 @@ Cronk.EventDB.MainView = function(cfg) {
 		menuDisabled: true
 	});
 	
-	var _commentGrid = Ext.extend(Ext.grid.GridPanel, {
-		getState: function() {
-			var state = {
-				height: this.getHeight(),
-				width: this.getWidth(),
-				storeParams: this.store.baseParams
-			};
-		
-			this.resumeEvents();
-		},
-		applyState: function(state) {
-			this.setHeight(state.height);
-			this.setWidth(state.width);
-			this.store.baseParams = state.storeParams;
-		}
-	});
 	
-	var commentGrid = new _commentGrid({
-		store: commentStore,
-		stateId: 'db-commentGrid-' + this.id,
-		stateful: true,
-		stateEvents: ['sortchange','columnresize','columnmove'],
-		colModel: new Ext.grid.ColumnModel({
-			defaults: {
-				width: 80,
-				sortable: true
-			},
-			columns: [
-				{header: _('Type'), dataIndex: 'type',renderer: function(v) {
-					switch(v) {
-						case '0':
-							return '<div class="icon-16 icinga-icon-note" qtip="'+_('Comment')+'"></div>';
-						case '1':
-							return '<div class="icon-16 icinga-icon-accept" qtip="'+_('Acknowledge')+'"></div>';
-						case '2':
-							return '<div class="icon-16 icinga-icon-cancel" qtip="'+_('Revoke')+'"></div>';
-					}	
-				}},
-				{header: _('Author'), dataIndex: 'user'},
-				{header: _('Created'), dataIndex: 'created', width: 150},
-				{header: _('Message'), dataIndex: 'message', width: 200}
-			]
-		}),
-		bbar: new Ext.PagingToolbar({
-			pageSize: 25,
-			store: commentStore,
-			displayInfo: true,
-			displayMsg: _('Displaying comments {0} - {1} of {2}'),
-			emptyMsg: _('No comments to display')
-		}),
-		frame: true,
-		border: false
-	});
-	
-	var commentForm = (function() {
-		oWin = null;
-
-		return {
-			show : function() {
-				if(!oWin){
-					oWin = new Ext.Window({
-						title: _('Acknwoledge/Add comment'),
-						layout: 'fit',
-						region: 'center',
-						width: 500,
-						height: 320,
-						closeAction: 'hide',
-						plain: false,
-						modal: true,
-						items: new Ext.FormPanel({
-							labelAlign: 'top',
-							layout: 'form',
-							frame: true,
-							url: commentAddUrl,	
-							items: [{
-								xtype: 'textfield',
-								fieldLabel: _('Author'),
-								readOnly: true,
-								name: 'author',
-								allowBlank: false,
-								width: 460,
-								height: 20,
-								value: userName
-							},{
-								xtype: 'radiogroup',
-								showText:true,
-								defaults: {
-									xtype: 'radio'	
-								},
-								layout: 'form',
-								labelWidth: 120,
-								items: [{	
-									boxLabel: '<span  style="padding-left:18px;height:18px;" qtip="'+_('Comment')+'" class="icon-16 icinga-icon-note">'+_('Comment only')+'</span>',	
-									name: 'type',
-									checked: true,
-									inputValue: 'type_0'
-								},{	
-									boxLabel: '<span  style="padding-left:18px;height:18px;" qtip="'+_('Acknowledge')+'" class="icon-16 icinga-icon-accept">'+_('Acknowledge')+'</span>',	
-									name: 'type',
-									inputValue: 'type_1'
-								},{	
-									boxLabel: '<span style="padding-left:18px;height:18px;" qtip="'+_('Revoke')+'" class="icon-16 icinga-icon-cancel">'+_('Revoke ack')+'</span>',	
-									name: 'type',	
-									inputValue: 'type_2'
-								}]
-							},{
-								xtype: 'textarea',
-								fieldLabel: _('Comment'),
-								name: 'message',
-								width: 460,
-								height: 130,
-								allowBlank: true
-							}],
-							buttons: [{
-								text: 'Submit',
-								handler: function() {
-									oForm = this.findParentByType(Ext.FormPanel);
-									if (oForm.getForm().isValid()) {
-										var vals = oForm.getForm().getValues();
-										vals.type = vals.type.split('_')[1];
-										
-										var events = [];
-										var params = {};
-										
-										Ext.iterate(eventGrid.selectedRecords, function(r) {
-											var ignored = [];
-											if (vals.type == 0 ||
-												(vals.type == 1 && r.get('ack') != 1) ||
-												(vals.type == 2 && r.get('ack') == 1)) {
-											  
-												events.push(r.get('id'));
-											} else {
-												ignored.push({
-													host: r.get('host_name'),
-													msg: r.get('message'),
-													cr: r.get('created')
-												});	
-											}
-										});							
-										eventsJson = Ext.encode([Ext.apply(vals, {ids: events})]);
-										eventGrid.unselectAll();
-										oForm.getForm().submit({
-											params: Ext.apply({'comments': eventsJson}, params),
-											success: function(oForm, action) {
-												AppKit.notifyMessage(_('Request successful'), action.result.message);
-												// TODO: Reload only if selected.
-												eventGrid.refresh();
-												if ('event' in commentStore.baseParams) {
-													commentStore.load();
-												}
-											}
-										});
-										oWin.hide();
-									}
-								}
-							},{
-								text: 'Close',
-								handler: function() {
-									oWin.hide();
-								}
-							}]
-						})
-					});
-					parentCmp.add(Ext.clean(oWin));
-					parentCmp.doLayout();
-				}
-				oWin.show(this);
-			}
-		}
-	})();
 
 	var _eventGrid = Ext.extend(Ext.grid.GridPanel, {
 		setPageSize: function(size) {
 			this.bottomToolbar.pageSize = size;
 		},
+        rendered: false,
+        
+        setPagingBar: function() {
+            this.bbar = new Cronk.EventDB.Components.OptimisticPagingToolbar({
+                pageSize: 25,
+                id: 'pager_'+this.id,
+                store: eventStore,
+                afterPageText: '',
+                displayInfo: true,
+                displayMsg: _('Displaying events {0} - {1}'),
+                emptyMsg: _('No events to display')
+            });
+        },
+
 		constructor: function(cfg) {
 			Ext.apply(this,cfg);
-			this.bbar = new Ext.PagingToolbar({
-				pageSize: 25,
-				id: 'pager_'+this.id,
-				store: eventStore,
-				displayInfo: true,
-				displayMsg: _('Displaying events {0} - {1} of {2}'),
-				emptyMsg: _('No events to display')	
-			});
-
+			this.setPagingBar();
 			this.addEvents({
 				'statechange': true,
 				'hostFilterChanged': true
 			});
 			Ext.grid.GridPanel.prototype.constructor.call(this);
 			this.store.on("beforeload",function() {
-
+                
                 var f = fm.getFilterObject();
                 var isEmpty = true;
                 for(var i in f) {
@@ -507,6 +321,7 @@ Cronk.EventDB.MainView = function(cfg) {
 					filter["f[host_name-operator]"] = 50;
 
 					Cronk.util.InterGridUtil.gridFilterLink(cronk, filter);
+                    return true;
 				});
 			});
 		},
@@ -557,12 +372,14 @@ Cronk.EventDB.MainView = function(cfg) {
 		*/
 		reenableTextSelection : function(){
 			var grid = this;
+
 			if(Ext.isIE){
 				grid.store.on("load", function(){
 					var elems=Ext.DomQuery.select("div[unselectable=on]", parentCmp.el.dom);
 					for(var i=0, len=elems.length; i<len; i++){
 						elems[i].unselectable = "off";
 					}
+
 				});
 			}
 		},
@@ -580,16 +397,7 @@ Cronk.EventDB.MainView = function(cfg) {
 			this.refreshTask.delay(1000,null,this);
 		},
 		resolveType: function(v) {	
-			switch(v) {
-				case '0':
-					return 'Syslog';	
-				case '1':
-					return 'SNMP';
-				case '2':
-					return 'Mail';
-				default:
-					return 'Unknown';	
-			}	
+			return Cronk.EventDB.Helper.resolveTypeNr(v);
 		},
 		
 		getState: function() {
@@ -638,13 +446,15 @@ Cronk.EventDB.MainView = function(cfg) {
 				fixed:true,
 				menuDisabled: true,
 				dataIndex: 'type',
-				renderer: function(v,cell,record) {
-					var t = eventGrid.resolveType(v);
-					var qtip = '<b>'+t+' - '+record.get('priority')+' :</b> <br/> ';
-					qtip += Ext.util.Format.htmlEncode(record.get('message'));
-					return '<div style="margin-left:-16px" class="eventdb-type '+t.toLowerCase()+'">'+ 
-						'<div qtip="'+qtip+'" class="icon-16"></div></div>';
-				}
+                xtype: 'templatecolumn',
+                tpl: new Ext.XTemplate(
+                    '<div class="eventdb-type {[Cronk.EventDB.Helper.resolveTypeNr(values.type).toLowerCase()]}" style="margin-left:-16px">',
+                        '<div ext:qtip="<b> {type} - {priority} : </b><br/> {[fm.htmlEncode(values.message)]}" class="icon-16">',
+                        '</div>',
+                    '</div>',{
+                        eventGrid: eventGrid
+                    }
+                )
 			},ack,{
 				dataIndex: 'id',
 				id: 'id',
@@ -676,16 +486,16 @@ Cronk.EventDB.MainView = function(cfg) {
 				header: _('Host'),
 				sortable: true,
 				width: 100,
-				renderer: function(v,meta,rec) {
-					var host_name = "";
-					var style = "";
-					if(rec.get('real_host')) {
-						host_name = "hostName='"+v+"'";
-						style = "style='color:blue;text-decoration:underline;cursor:pointer'";
-					}
-					return '<span isHostField="true" '+host_name+' '+style+' class="eventdb-host '+v.toLowerCase()+'">'+ 
-						'<div style="float:left" class="icon-16"></div>'+v+'</span>';
-				}
+                xtype:'templatecolumn',
+                tpl: new Ext.XTemplate(
+                  '<span isHostField="true"',
+                  ' hostName="{real_host}" ',
+                  ' style="color:blue;text:decoration:underline;cursor:pointer" ',
+                  'class="eventdb-host {host_name}">',
+                    '<div style="float:left" class="icon-16 icinga-icon-host"></div>',
+                    '{host_name}',
+                  '</span>'
+                )
 			},{
 				dataIndex: 'address',
 				header: _('Address'),
@@ -704,9 +514,16 @@ Cronk.EventDB.MainView = function(cfg) {
 				header: _('Message'),
 				sortable: true,
 				width: 200,
-				renderer: function(v) {
-					return '<div qtip="'+Ext.util.Format.htmlEncode(v)+'">'+Ext.util.Format.htmlEncode(v)+'</div>';	
-				}
+                xtype:'templatecolumn',
+                css: 'cursor: pointer',
+				tpl: new Ext.XTemplate(
+                    '<div ext:qtip="{[fm.htmlEncode(values.message)]}">',
+                        '{[fm.htmlEncode(values.message)]}',
+                    '</div>'
+				),
+                listeners: {
+
+                }
 			},{
 				dataIndex: 'program',
 				header: _('Program'),
@@ -765,6 +582,7 @@ Cronk.EventDB.MainView = function(cfg) {
 											if(eventGrid.getStore().proxy.getConnection().isLoading())
 												return true;
 									eventGrid.getStore().load();
+                                    return true;
 								},
 								interval:  20000,
 								scope: this
@@ -849,7 +667,7 @@ Cronk.EventDB.MainView = function(cfg) {
 			tooltip:'Add comment to your acknoledgement',
 			iconCls:'icinga-icon-add',
 			ref: '../commentButton',
-			handler: function() {commentForm.show();},
+			handler: function() {commentForm.show(eventGrid);},
 			disabled: true
 		}],
 		sm: false,		
@@ -861,10 +679,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				scope: this
 			},
 			rowclick: function(grid, rowIndex, e) {
-				commentStore.baseParams = {event: grid.getStore().getAt(rowIndex).get('id'), offset: 0, limit: 25};
-				commentStore.load();
-				commentGrid.findParentByType('panel').show();
-				commentGrid.findParentByType('panel').expand();		
+                eventDetailPanel.displayComments(grid.getStore().getAt(rowIndex));
 			},
 			keydown: function(ev) {
 				if(ev.keyCode == 32) {
@@ -896,7 +711,9 @@ Cronk.EventDB.MainView = function(cfg) {
 					this.updateCommentButton();
 					ev.preventDefault();
 					return false;
-				}
+				} else {
+                    return false;
+                }
 			},	
 			beforerender: function(_this) {
 				_this.fireEvent('hostFilterChanged', _this, true);
@@ -904,7 +721,7 @@ Cronk.EventDB.MainView = function(cfg) {
 			show: function(_this) {
 				_this.store.load();
 				_this.updateSelected();	
-
+                _this.renderer = true;
 			},
 			hostFilterChanged: function(_this, fromrender) {	
 		
@@ -951,7 +768,7 @@ Cronk.EventDB.MainView = function(cfg) {
 			hidden: true,
 			layout: 'fit',
 			border: false,
-			items: commentGrid
+			items: eventDetailPanel
 		}]
 	});
 	
@@ -982,4 +799,18 @@ Cronk.EventDB.MainView = function(cfg) {
 	if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
 		Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
 	eventGrid.refreshTask.delay(1000);  
+}
+
+// must be available from xtemplate
+Ext.ns("Cronk.EventDB.Helper").resolveTypeNr = function(v) {
+    switch(v) {
+        case '0':
+            return 'Syslog';
+        case '1':
+            return 'SNMP';
+        case '2':
+            return 'Mail';
+        default:
+            return 'Unknown';
+    }
 }
