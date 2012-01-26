@@ -137,7 +137,8 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
             title: _('Details'),
             layout: 'fit',
             region:'east',
-            width:"20%",
+            width:"50%",
+            padding: 4,
             items: cmp
         });
     },
