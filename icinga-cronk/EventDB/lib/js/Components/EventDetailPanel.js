@@ -99,9 +99,9 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                      "</tr><tr colspan='2'>",
                        "<td><b>Message:</b></td>",
                      "</tr><tr colspan='2' rowspan='2'>",
-                       "<td>",
+                       "<td  colspan='2'>",
                            "<div style='word-wrap:break-word;width:100%;height:40px;overflow:auto'>",
-                               "{message}",
+                               "{[Cronk.EventDB.Helper.messageFormatter(values.message)]}",
                            "</div>",
                        "</td>",
                     "</tr><tr>",
@@ -124,9 +124,11 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
         this.detailTable.lazyUpdate = function(event) {
             if(cmp.rendered) {    
                 cmp.update(event.data);
+                Cronk.EventDB.Helper.initCronkLinks(cmp.el.dom);
             } else {
                 cmp.on("afterrender",function() {
                     cmp.update(event.data);
+                    Cronk.EventDB.Helper.initCronkLinks(cmp.el.dom);
                 },this,{single:true});
             }
             
