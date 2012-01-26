@@ -51,8 +51,11 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
         return this.currentFilterObject;
     }
 
-    this.resetFilterObject = function() {
+    this.resetFilterObject = function(keepDefaults) {
         this.currentFilterObject = this.getDefaultFilter();
+        if(keepDefaults !== true)
+            this.defaultOverwrites = {};
+
     }
 
     this.hasActiveFilter = function() {
@@ -80,9 +83,13 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
 
         return false;
     }
+    this.defaultOverwrites = {};
 
     this.getDefaultFilter = function() {
-        return getDefaultFilter();
+        var defaults = getDefaultFilter();
+        if(typeof this.defaultOverwrites === "object")
+            Ext.apply(defaults,this.defaultOverwrites);
+        return defaults;
     }
 
     this.isValidDescriptor = function(descriptor) {
@@ -313,6 +320,13 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
 
     this.getGroupBy = function() {
         return this.currentFilterObject.display.group.field;
+    }
+
+    this.overwriteDefaults = function(params) {
+        if(typeof params !== "object")
+            return;
+        this.defaultOverwrites = params;
+        this.resetFilterObject(true);
     }
 
 }

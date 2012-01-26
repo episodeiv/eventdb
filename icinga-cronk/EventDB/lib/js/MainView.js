@@ -306,7 +306,7 @@ Cronk.EventDB.MainView = function(cfg) {
 			Ext.iterate(elems,function(elem) {
 				Ext.get(elem).on("click",function(ev,e) {
 					var host_name = e.getAttribute('hostName');	
-					if(!host_name)
+					if(!host_name || host_name == "false")
 						return true;
 					var cronk = {
 						parentid: Ext.id(),
@@ -781,20 +781,7 @@ Cronk.EventDB.MainView = function(cfg) {
 	}
 	if(CE.params.FilterJSON) {	
 		var params = Ext.decode(CE.params.FilterJSON);
-			
-
-		for(var i=0;i<params.priorityExclusion.length;i++) {
-			params.priorityExclusion[i] = parseInt(params.priorityExclusion[i],10);
-		}
-		for(var i=0;i<params.facilityExclusion.length;i++) {
-			params.facilityExclusion[i] = parseInt(params.facilityExclusion[i],10);
-		}
-	
-		quickFilterBar.syncWithFilter(params);
-	
-		eventStore.baseParams = Ext.apply(eventStore.baseParams || {},{jsonFilter: fm.getFilterObject()});
-		eventGrid.fireEvent('hostFilterChanged', eventGrid);
-		
+        fm.overwriteDefaults(params);
 	}
 	if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
 		Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
