@@ -70,8 +70,8 @@ class EventDBPlugin():
             raise
         except SystemExit, s:
             raise
-     #   except Exception, e:
-     #       self.__pluginExit("UNKNOWN","An error occured",e)
+        except Exception, e:
+            self.__pluginExit("UNKNOWN","An error occured",e)
 
 
     def __handleArguments(self):
@@ -180,9 +180,9 @@ class EventDBPlugin():
                 raise
             except CheckStatusException, cs:
                 raise
-           # except Exception, e:
-           #     if strategy == self.__requestStrategies[-1]:
-           #         self.__pluginExit('UNKNOWN', "",e)
+            except Exception, e:
+                if strategy == self.__requestStrategies[-1]:
+                    self.__pluginExit('UNKNOWN', "",e)
 
 
     def __checkResult(self,warnings,criticals,count, last,msg = ""):

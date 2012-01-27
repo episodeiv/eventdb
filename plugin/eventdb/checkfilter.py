@@ -16,6 +16,7 @@ class CheckFilter():
         self.message = ""
         self.startTimestamp = None
         self.program = ""
+        self.ipaddress = ""
         self.host = ""
 
     def setLogtype(self,type):
@@ -28,7 +29,9 @@ class CheckFilter():
             raise Exception("Invalid type provided for log-source")
         self.logtype = typemap[type]
 
-   
+    def setIpAddress(self,address):
+        self.ipaddress = address
+
     def setFacility(self,facility):
         if facility == "":
             return
