@@ -1,10 +1,11 @@
 Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
     currentId: null,
     layout: 'border',
-    
+    showCopyPaste: false,
     
     constructor: function(cfg) {
         cfg = cfg || {}
+        this.showCopyPaste = cfg.showCopyPaste || false;
         this.setupCommentStore(cfg);
         Ext.grid.GridPanel.prototype.constructor.apply(this,arguments);
     },
@@ -122,6 +123,7 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
         this.detailTable = cmp;
         // wrap the update function to catch updates before DOM is rendererd
         this.detailTable.lazyUpdate = function(event) {
+            cmp.currentEvent = event;
             if(cmp.rendered) {    
                 cmp.update(event.data);
                 Cronk.EventDB.Helper.initCronkLinks(cmp.el.dom);
@@ -133,14 +135,42 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
             }
             
         }
+
+
         return new Ext.Panel({
             title: _('Details'),
             layout: 'fit',
             region:'east',
             width:"50%",
             padding: 4,
+            tbar: this.showCopyPaste ?[this.getClipboardButton(cmp)] : null,
             items: cmp
         });
+    },
+
+    getClipboardButton: function(cmp) {
+
+        var clipboardBtnMessage = "";
+        if(typeof window.clipboardData !== "undefined") {
+            clipboardBtnMessage = _("Copy message to clipboard");
+        } else {
+            clipboardBtnMessage = _("Open popup for copying");
+        }
+        return {
+            label: clipboardBtnMessage,
+            iconCls: 'icinga-icon-note',
+            text: clipboardBtnMessage,
+            handler: function() {
+                if(!cmp.currentEvent)
+                    return;
+                Cronk.EventDB.Helper.clipboardHandler(
+                    Ext.util.Format.htmlEncode(
+                        cmp.currentEvent.get("message")
+                    )
+                );
+            },
+            scope:this
+        }
     },
 
     getGridLayout: function() {

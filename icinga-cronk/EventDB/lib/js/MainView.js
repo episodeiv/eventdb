@@ -5,7 +5,7 @@ Cronk.EventDB.MainView = function(cfg) {
 
 	var CE = cfg.CE;
 	this.id = CE.id;
-
+    var showCopyPaste = cfg.showCopyPaste;
 	var parentCmp = cfg.parentCmp;
 	var url = cfg.eventUrl;
 
@@ -409,10 +409,10 @@ Cronk.EventDB.MainView = function(cfg) {
 			var state = {
 				height: this.getHeight(),
 				width: this.getWidth(),
-				storeParams: this.store.baseParams,
+				//storeParams: this.store.baseParams,
 				filters: fm.getFilterObject()
 			};
-
+            AppKit.log(state);
 
 
 
@@ -424,7 +424,7 @@ Cronk.EventDB.MainView = function(cfg) {
 				this.getColumnModel().setConfig(Ext.decode(state.colModel))
 			this.setHeight(state.height);
 			this.setWidth(state.width);
-			this.store.baseParams = state.storeParams;
+			//this.store.baseParams = state.storeParams;
 			
 			if(state.filters) {
                 fm.setFilterObject(state.filters);
@@ -514,6 +514,30 @@ Cronk.EventDB.MainView = function(cfg) {
 					return '<div class="tag '+v.toLowerCase()+'">'+v+'</div>';
 				}
 			},{
+                dataIndex: 'message',
+                xtype: 'actioncolumn',
+                width: 25,
+                hidden: !showCopyPaste,
+                items: [{
+                    getClass: function(v,meta,rec) {
+                        var useNativeCopy = false;
+                        if(typeof window.clipboardData !== "undefined") {
+                            useNativeCopy = true;
+                        }
+                        
+                        this.items[0].tooltip = useNativeCopy ?
+                            _("Copy message to clipboard") :
+                            _("Open popup for copying");
+
+                        return 'icon-16 icinga-icon-note';
+                    },
+                    handler: function(cmp,rowidx) {
+                        var msg = eventStore.getAt(rowidx).get("message");
+                        Cronk.EventDB.Helper.clipboardHandler(msg);
+                    }
+                }]
+
+            },{
 				dataIndex: 'message',
 				header: _('Message'),
 				sortable: true,
@@ -524,10 +548,8 @@ Cronk.EventDB.MainView = function(cfg) {
                     '<div ext:qtip="{[fm.htmlEncode(values.message)]}">',
                         '{[Cronk.EventDB.Helper.messageFormatter(values.message)]}',
                     '</div>'
-				),
-                listeners: {
-
-                }
+				)
+               
 			},{
 				dataIndex: 'program',
 				header: _('Program'),
@@ -639,7 +661,7 @@ Cronk.EventDB.MainView = function(cfg) {
 					handler: function() {
 						fm.show(true);
 						fm.clearFilterFields();
-						eventStore.baseParams = {offset:0, limit:25};
+                        eventStore.baseParams = {offset:0, limit:25};
                			eventGrid.fireEvent("statechange");
 
 						eventGrid.refresh();
@@ -840,4 +862,23 @@ Ext.ns("Cronk.EventDB.Helper").initCronkLinks = function(startDOM) {
             return true;
         });
     });
+}
+
+Ext.ns("Cronk.EventDB.Helper").clipboardHandler = function(text) {
+    if(typeof window.clipboardData !== "undefined") {
+        window.clipboardData.clearData();
+        window.clipboardData.setData("Text",text);
+        AppKit.notifyMessage(_("Message copied to clipboard"));
+    }
+    else {
+        new Ext.Window({
+            width:400,
+            height:300,
+            title: _('Copy this to your clipboard'),
+            html: "<textarea style='width:90%;height:90%' >"+Ext.util.Format.htmlEncode(text)+"</textarea>",
+            padding:5,
+            closeAction: 'close',
+            autoDestroy:true
+        }).show(Ext.getBody());
+    }
 }
