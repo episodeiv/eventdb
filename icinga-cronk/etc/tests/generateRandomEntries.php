@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 /*require_once '/usr/local/icinga-web/lib/doctrine/lib/Doctrine.php';
 
@@ -42,14 +43,16 @@ if(!is_numeric($nr)) {
 }
 $nr *= 10;
 $event;
-$conn_r = $ctx->getDatabaseManager()->getDatabase("eventdb_r")->getConnection();
+$conn_r = $ctx->getDatabaseManager()->getDatabase("eventdb_w")->getConnection();
+$conn_r->connect();
 
 $dql = "SELECT DISTINCT * FROM EventDbEvent e WHERE (NOT (e.prival & 16)) AND (host_name IN ('host 1') OR host_name LIKE '%oracle%') ORDER BY e.prionr desc LIMIT 200 OFFSET 200)"; 
 $count = "SELECT COUNT(id) as __c FROM EventDbEvent";
+
 for($i = 0;$i<$nr;$i++) {
   
 	$event = new EventDbEvent();
-		$event->ip_address = getRandomIP();
+		$event->ip_address = "127.0.0.1";//getRandomIP();
 		$event->priority = rand(0,7);
 		$event->facility = rand(0,23);
 		$event->host_name =getRandomHost();;
@@ -60,6 +63,7 @@ for($i = 0;$i<$nr;$i++) {
 		$event->save();
 	$event->free();
 	unset($event);
+
 /*
 	if($i%1000 == 0) {
 		$start = microtime();
