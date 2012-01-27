@@ -60,11 +60,21 @@ while (1) {
 							  'host_address, '.
                               'facility, priority, ' . 
                               'created, modified, ' .
-                              'program, message) VALUES (?,?,utl_raw.cast_to_raw(?),?,?,?,?,?,?)');
+                              'program, message) VALUES (?,?,?,?,?,?,?,?,?)');
  
-               my $datetime = $date . " " . $time ;
-
-                $db_insert->execute($type, $host,$host_address, $facility, $priority,
+                my $datetime = $date . " " . $time ;
+                # Create padded binary string that can be feeded to Oracle's RAW fields
+                my @array = unpack("C*", $host_address);
+                my $raw_address = "";
+                foreach my $byte (@array) { 
+                    if($byte < 0x10) {
+                        $raw_address = $raw_address.sprintf("0%x",$byte);
+                    } else {
+                        $raw_address = $raw_address.sprintf("%x",$byte);
+                    }
+                } 
+                
+                $db_insert->execute($type, $host,$raw_address, $facility, $priority,
                             $datetime, $datetime, $prg, $msg
                            ) or warn $DBI::errstr;
 		    } else {
