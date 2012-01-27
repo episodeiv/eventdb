@@ -1,5 +1,8 @@
+import struct
+import socket
 #! /usr/bin/python
 
+from twisted.python.compat import inet_pton
 import os.path
 
 import getopt, pprint, sys, re, urllib
@@ -67,9 +70,8 @@ class EventDBPlugin():
             raise
         except SystemExit, s:
             raise
-        except Exception, e:
-
-            self.__pluginExit("UNKNOWN","An error occured",e)
+     #   except Exception, e:
+     #       self.__pluginExit("UNKNOWN","An error occured",e)
 
 
     def __handleArguments(self):
@@ -84,7 +86,7 @@ class EventDBPlugin():
         self.__checkFilter.program = options.program
         self.__checkFilter.message = options.message
         self.__checkFilter.host = options.host
-        
+        self.__checkFilter.ipaddress = options.ipaddress
         if(self.__options.facility):
             self.__options.facility = self.__options.facility.split(",")
         if(self.__options.priority):
@@ -154,15 +156,17 @@ class EventDBPlugin():
             try :
                 db = self.__setupDB(strategy)
                 query = self.__buildQuery()
+
                 cursor = db.execute(query)
 
                 values = [0,0]
 
-
+                
                 for row in cursor:
                     if(len(row) != 4):
                         raise DatabaseException("SQL Query failed, returned wrong values")
                     values = [row[0],row[1],row[2],row[3]]
+                
                 if(values[1] == None):
                     values[1] = 0
                 cursor = db.execute("SELECT message FROM %s WHERE id = %d" % (self.__options.db_table, values[1]))
@@ -170,15 +174,15 @@ class EventDBPlugin():
                     values.append(row[0])
                     return values
 
-                self.__pluginExit('OK',"0 critcal and 0 warning matches found.\n","matches=0 count=%dc" % (self.__checkFilter.startfrom()));
+                self.__pluginExit('OK',"0 critcal and 0 warning matches found.\n","matches=0 count=%dc" % (self.__checkFilter.startfrom));
 
             except SystemExit, e:
                 raise
             except CheckStatusException, cs:
                 raise
-            except Exception, e:
-                if strategy == self.__requestStrategies[-1]:
-                    self.__pluginExit('UNKNOWN', "",e)
+           # except Exception, e:
+           #     if strategy == self.__requestStrategies[-1]:
+           #         self.__pluginExit('UNKNOWN', "",e)
 
 
     def __checkResult(self,warnings,criticals,count, last,msg = ""):
@@ -261,11 +265,31 @@ class EventDBPlugin():
             queryBase += self.__getWherePart("program",filter.program)
             urlParams["program[]"] = filter.program
 
+        if(filter.ipaddress != ""):
+            queryBase += self.__getWherePart("host_address",self.__convertIp(filter.ipaddress))
+            urlParams["address[]"] = filter.ipaddress
+
         queryBase += self.__getWherePart("ack",0)
         urlParams["ack"] = "0"
         o.urlParams = urlParams
 
         return queryBase;
+    
+    def __convertIp(self,address):
+        p = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+        if p.search(address) != None :
+            address = "::ffff:"+address
+        
+        address = inet_pton(socket.AF_INET6, address)
+        
+        if self.__options.db_type == "oracle":
+            imedAddress = ""
+            for byte in address :
+                imedAddress += "%0.2X" % ord(byte)
+            print imedAddress
+            return imedAddress
+        return address
+
 
     def __getCountField(self,values, field):
         if(values == ""):
@@ -275,7 +299,7 @@ class EventDBPlugin():
 
 
     def __getWherePart(self,field,value,op = "=",agg = "AND"):
-
+        
         if(isinstance(value,list)):
             op = "IN"
             value = "("+",".join(value)+")"
@@ -363,6 +387,7 @@ class EventDBPlugin():
                         help="Regular Expression for message entry in eventdb to change each state back to OK", default="")
         parser.add_option("--perfdata",dest="perfdata",
                         help="Performance data from the last check (e.g. \$SERVICEPERFDATA\$)", default="")
+        parser.add_option("--ip",dest="ipaddress", help="Filter by ip address", default="")
         parser.add_option("-w","--warning",dest="warning",type="int",help="Number of matches to result in warning state",default="-1")
         parser.add_option("-c","--critical",dest="critical",type="int",help="Number of matches to result in critical state",default="-1")
         parser.add_option("--cventry",dest="print_cv", default=False,action="store_true",

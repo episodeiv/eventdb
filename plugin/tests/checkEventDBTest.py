@@ -1,11 +1,10 @@
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
 
-from check_eventdb import CheckStatusException
-from check_eventdb import EventDBPlugin
+from eventdb.bin.check_eventdb import CheckStatusException
+from eventdb.bin.check_eventdb import EventDBPlugin
 import re
 import unittest
-import check_eventdb
 
 
 DBSETTINGS = {
@@ -48,10 +47,11 @@ class argTpl:
          self.db_user = 'eventdb_test'
          self.db_host = 'localhost'
          self.daemon_pid = "/tmp/edb.pid"
-         self.daemon_log = "/tmp/test_edb.log"
+         self.daemon_log = "/tmp/netbeans_edb.log"
          self.daemon_lifetime = 5
          self.daemon_behaviour = "Aggressive"
          self.critical = 10
+         self.ipaddress = ""
 
 
 class  CheckEventDBTestCase(unittest.TestCase):
@@ -237,6 +237,18 @@ class  CheckEventDBTestCase(unittest.TestCase):
         except CheckStatusException, e:
             self.assertEquals(e.status, 2,"Reset regexp catched non-matching message")
 
+    def test_ipfilter(self):
+        tpl = argTpl()
+        tpl.ipaddress = "127.0.0.1"
+        tpl.db_user = "eventdb"
+        tpl.db_password = "eventdb"
+        try :
+            EventDBPlugin(tpl,noExit=True)
+            self.fail('No regular plugin exit')
+        except CheckStatusException, e:
+            print e.status, e.perfdata
+     
+            
 if __name__ == '__main__':
     unittest.main()
 
