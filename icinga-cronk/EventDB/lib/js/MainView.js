@@ -868,7 +868,7 @@ Ext.ns("Cronk.EventDB.Helper").clipboardHandler = function(text) {
     if(typeof window.clipboardData !== "undefined") {
         window.clipboardData.clearData();
         window.clipboardData.setData("Text",text);
-        AppKit.notifyMessage(_("Message copied to clipboard"));
+        AppKit.notifyMessage("EventDB",_("Message copied to clipboard"));
     }
     else {
         new Ext.Window({
