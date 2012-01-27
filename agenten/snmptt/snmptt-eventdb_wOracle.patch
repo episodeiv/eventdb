@@ -1,5 +1,5 @@
 --- snmptt	2009-11-07 22:39:49.000000000 +0100
-+++ snmptt_oracle	2012-01-26 18:56:39.762475904 +0100
++++ snmptt_oracle	2012-01-27 14:16:58.373583920 +0100
 @@ -286,6 +286,22 @@
  my $sql_win32_odbc_username;
  my $sql_win32_odbc_password;
@@ -318,8 +318,8 @@
 +      }
 +    }
 +
-+    $dbh_oracle->prepare('ALTER SESSION SET NLS_DATE_FORMAT = "DY MON DD HH24:MI:SS YYYY"')->execute();
-+ 
++    $dbh_oracle->prepare('ALTER SESSION SET NLS_DATE_FORMAT = "'.$oracle_dbi_timeformat.'"')->execute();
++  } 
 +}
 +
 +
