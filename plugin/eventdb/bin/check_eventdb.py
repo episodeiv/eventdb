@@ -20,7 +20,7 @@ class CheckStatusException(Exception):
         self.perfdata = perfdata
 
 
-class EventDBPlugin():
+class EventDBPlugin(object):
     def __init__(self,arguments = None,noExit = False):
         self.__noExit = noExit;
         self.__requestStrategies = [DBHandler()]

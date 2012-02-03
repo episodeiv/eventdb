@@ -18,7 +18,6 @@ setup(
       keywords="eventdb nagios icinga monitoring netways",
       url="http://www.netways.org/projects/eventdb",
       packages=['eventdb','eventdb.bin'],
-      requires=['sqlalchemy (>=0.6.3)'],
       long_description=read('../doc/README'),
       entry_points={
         'console_scripts': ['check_eventdb = eventdb.bin.check_eventdb:main']

@@ -42,7 +42,7 @@ DAEMON_CONCURRENCY_BEHAVIOURS = {
 Defines which logs to show. Change for debugging
 """
 DEBUG_SEVERITIES = {
-    "DEBUG" : False,
+    "DEBUG" : True,
     "INFO" : True,
     "WARNING" : True,
     "ERROR" : True

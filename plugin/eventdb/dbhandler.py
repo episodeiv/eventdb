@@ -7,7 +7,7 @@ class DatabaseException(Exception):
         self.message = m
 
 __all__ = ['DatabaseException', 'DBHandler']
-class DBHandler:
+class DBHandler(object):
 
     def __init__(self):
         self.__cursor = False

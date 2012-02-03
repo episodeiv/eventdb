@@ -5,7 +5,7 @@ import  time, re
 
 __all__ = ['CheckFilter']
 
-class CheckFilter():
+class CheckFilter(object):
 
     def __init__(self):
         self.logtype = 0
