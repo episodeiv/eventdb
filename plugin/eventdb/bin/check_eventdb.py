@@ -2,7 +2,6 @@ import struct
 import socket
 #! /usr/bin/python
 
-from twisted.python.compat import inet_pton
 import os.path
 
 import getopt, pprint, sys, re, urllib
