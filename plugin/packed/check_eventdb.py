@@ -1009,12 +1009,16 @@ class EventDBPlugin():
             link = '<a href="%s?%s">%s</a>' % (self.__options.url,params,text)
             out += "%s: %s %s" % (status, self.__options.label, link)
         else:
-            out += "%s %s %s" % (status,self.__options.label,text)
+             try:
+                 text = text.replace('|', '')
+                 text = text.replace('\n', ' ')
+             except Exception:
+                pass
+             out += "%s %s %s" % (status,self.__options.label,text)
 
         out += '|%s' % perfdata
         out += "\nmessage filter: %s" % self.__options.message
         out += "\nreset regexp: %s" % self.__options.resetregex
-        out += chr(10)
 
         if self.__noExit == False:
             print out
