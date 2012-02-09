@@ -386,7 +386,7 @@ class EventDBPlugin(object):
                         help="Regular Expression for message entry in eventdb to change each state back to OK", default="")
         parser.add_option("--perfdata",dest="perfdata",
                         help="Performance data from the last check (e.g. \$SERVICEPERFDATA\$)", default="")
-        parser.add_option("--ip",dest="ipaddress", help="Filter by ip address", default="")
+        parser.add_option("-I","--ip",dest="ipaddress", help="Filter by ip address", default="")
         parser.add_option("-w","--warning",dest="warning",type="int",help="Number of matches to result in warning state",default="-1")
         parser.add_option("-c","--critical",dest="critical",type="int",help="Number of matches to result in critical state",default="-1")
         parser.add_option("--cventry",dest="print_cv", default=False,action="store_true",

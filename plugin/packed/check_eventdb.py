@@ -604,7 +604,7 @@ class DBHandler(object):
             self.__connection.close()
 
 
-class CheckFilter(object):
+class CheckFilter():
 
     def __init__(self):
         self.logtype = 0
@@ -666,7 +666,7 @@ class CheckFilter(object):
         curTime = time.time()
         matches = re.match(r"(\d*?)(d|h|m)",maxage)
         matchGroups = matches.groups()
-       if(len(matchGroups) != 2):
+        if(len(matchGroups) != 2):
             raise Exception("Invalid maxage format")
 
         timeOffset = int(matchGroups[0])
@@ -701,7 +701,7 @@ class CheckStatusException(Exception):
         self.perfdata = perfdata
 
 
-class EventDBPlugin(object):
+class EventDBPlugin():
     def __init__(self,arguments = None,noExit = False):
         self.__noExit = noExit;
         self.__requestStrategies = [DBHandler()]
@@ -1068,7 +1068,7 @@ class EventDBPlugin(object):
                         help="Regular Expression for message entry in eventdb to change each state back to OK", default="")
         parser.add_option("--perfdata",dest="perfdata",
                         help="Performance data from the last check (e.g. \$SERVICEPERFDATA\$)", default="")
-        parser.add_option("--ip",dest="ipaddress", help="Filter by ip address", default="")
+        parser.add_option("-I", "--ip",dest="ipaddress", help="Filter by ip address", default="")
         parser.add_option("-w","--warning",dest="warning",type="int",help="Number of matches to result in warning state",default="-1")
         parser.add_option("-c","--critical",dest="critical",type="int",help="Number of matches to result in critical state",default="-1")
         parser.add_option("--cventry",dest="print_cv", default=False,action="store_true",
