@@ -1,3 +1,4 @@
+#! /usr/bin/python
 # eventdb (https://www.netways.org/projects/eventdb)
 # Copyright (C) 2011 NETWAYS GmbH
 #
@@ -17,7 +18,7 @@
 
 import struct
 import socket
-#! /usr/bin/python
+
 
 import os.path
 import  time, re
@@ -603,7 +604,7 @@ class DBHandler(object):
             self.__connection.close()
 
 
-class CheckFilter():
+class CheckFilter(object):
 
     def __init__(self):
         self.logtype = 0
@@ -665,7 +666,7 @@ class CheckFilter():
         curTime = time.time()
         matches = re.match(r"(\d*?)(d|h|m)",maxage)
         matchGroups = matches.groups()
-        if(len(matchGroups) != 2):
+       if(len(matchGroups) != 2):
             raise Exception("Invalid maxage format")
 
         timeOffset = int(matchGroups[0])
@@ -700,7 +701,7 @@ class CheckStatusException(Exception):
         self.perfdata = perfdata
 
 
-class EventDBPlugin():
+class EventDBPlugin(object):
     def __init__(self,arguments = None,noExit = False):
         self.__noExit = noExit;
         self.__requestStrategies = [DBHandler()]
