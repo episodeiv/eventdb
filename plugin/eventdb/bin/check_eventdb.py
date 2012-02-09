@@ -328,11 +328,11 @@ class EventDBPlugin(object):
             out += "%s: %s %s" % (status, self.__options.label, link)
         else:
             try:
-                 text = text.replace('|', '')
-                 text = text.replace('\n', ' ')
-             except Exception:
+                text = text.replace('|', '')
+                text = text.replace('\n', ' ')
+            except Exception:
                 pass
-             out += "%s %s %s" % (status,self.__options.label,text)
+            out += "%s %s %s" % (status,self.__options.label,text)
 
         out += '|%s' % perfdata
         out += "\nmessage filter: %s" % self.__options.message
