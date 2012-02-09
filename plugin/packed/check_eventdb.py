@@ -230,8 +230,8 @@ class ConnPoolDaemon(object):
         return
 
     def __openSocket(self):
-
-        self.__socketName = tempfile.mktemp(".sock","edb_")
+        #".sock","edb_",os.path.dirname(self.__pidName)
+        self.__socketName = tempfile.mktemp(".sock","edb_",os.path.dirname(self.__pidName))
         self.__log("Creating socket at %s "% (self.__socketName), "Info")
 
         try:
@@ -249,7 +249,9 @@ class ConnPoolDaemon(object):
         pid = os.getpid()
         self.__log("Attempting to create PID file at %s" % (self.__pidName))
         try:
-            tmpFileName = tempfile.mktemp();
+            #".tmp","edb_",os.path.dirname(self.__pidName)
+            tmpFileName = tempfile.mktemp(".tmp","edb_",os.path.dirname(self.__pidName));
+
             self.__log("Temporary file created at %s " % tmpFileName)
 
             pidFile = open(tmpFileName,"w+")
