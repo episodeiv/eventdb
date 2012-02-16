@@ -27,12 +27,11 @@ class EventDbEventListener extends Doctrine_Record_Listener {
             $str = "";
         
             foreach($addr as $char) {
-                $str .= dechex(ord($char));
+                $str .= str_pad(dechex(ord($char)),2,0,STR_PAD_LEFT);
             }
-
             $record->host_address = $str;
       
-	}
+        }
 		$record->created = date('Y-m-d H:i:s',time());
 
 	}
@@ -50,7 +49,6 @@ class EventDbEventListener extends Doctrine_Record_Listener {
 		$record = $event->getInvoker();	
 		$record->prepareWrite();
 		$record->modified = date('Y-m-d H:i:s',time());
-
 		$record->host_address = $record->resolveAddress($record->ip_address);
 		
 	}
@@ -88,30 +86,30 @@ class EventDbEvent extends BaseEventDbEvent
 		7 =>	'DEBUG'
 	);
 	static public $FACILITIES = array(
-		0 => 'kernel messages',
-		1 => 'user-level messages',
-		2 => 'mail system',
-		3 => 'system daemons',
-		4 => 'security/authorization messages',
-		5 => 'messages generated internally by syslogd',
-		6 => 'line printer subsystem',
-		7 => 'network news subsystem',
-		8 => 'UUCP subsystem',
-		9 => 'clock daemon',
-		10 => 'security/authorization messages',
-		11 => 'FTP daemon',
-		12 => 'NTP subsystem',
-		13 => 'log audit',
-		14 => 'log alert',
-		15 => 'clock daemon',
-		16 => 'local use 0',
-		17 => 'local use 1',
-		18 => 'local use 2',
-		19 => 'local use 3',
-		20 => 'local use 4',
-		21 => 'local use 5',
-		22 => 'local use 6',
-		23 => 'local use 7'
+		0 => '0 - kernel messages',
+		1 => '1 - user-level messages',
+		2 => '2 - mail system',
+		3 => '3 - system daemons',
+		4 => '4 - security/authorization messages',
+		5 => '5 - messages generated internally by syslogd',
+		6 => '6 - line printer subsystem',
+		7 => '7 - network news subsystem',
+		8 => '8 - UUCP subsystem',
+		9 => '9 - clock daemon',
+		10 => '10 - security/authorization messages',
+		11 => '11 - FTP daemon',
+		12 => '12 - NTP subsystem',
+		13 => '13 - log audit',
+		14 => '14 - log alert',
+		15 => '15 - clock daemon',
+		16 => '16 - local use 0',
+		17 => '17 - local use 1',
+		18 => '18 - local use 2',
+		19 => '19 - local use 3',
+		20 => '20 - local use 4',
+		21 => '21 - local use 5',
+		22 => '22 - local use 6',
+		23 => '23 - local use 7'
 	);	
 	static public $EVENT_TYPES = array(
 		0 => 'syslog',

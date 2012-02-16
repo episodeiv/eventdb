@@ -563,6 +563,20 @@ class DBHandler(object):
 
     @staticmethod
     def getURLString(self,driver,host="localhost",user=None,password=None,database=None,port=None):
+        #Some versions of sqlalchemy didn't work, so we'll do it by hand
+        url = str(driver)+"://"
+        if(user != None):
+            url += str(user)
+        if(password != None):
+            url += ":"+str(password)
+        url += "@"+str(host)
+
+        if port != None:
+            url += ":"+str(port)
+        if database != None:
+            url += "/"+str(database)
+        return url
+    '''
         url = sqlalchemy.engine.url.URL(
             driver,
             user,
@@ -571,7 +585,7 @@ class DBHandler(object):
             port,
             database
         );
-        return sqlalchemy.engine.url.make_url(url)
+        return sqlalchemy.engine.url.make_url(url)'''
 
     def __connectWithEngine(self):
         url =  sqlalchemy.engine.url.URL(
@@ -963,13 +977,12 @@ class EventDBPlugin():
         if p.search(address) != None :
             address = "::ffff:"+address
 
-        address = inet_pton(socket.AF_INET6, address)
+        address = socket.inet_pton(socket.AF_INET6, address)
 
         if self.__options.db_type == "oracle":
             imedAddress = ""
             for byte in address :
                 imedAddress += "%0.2X" % ord(byte)
-            print imedAddress
             return imedAddress
         return address
 

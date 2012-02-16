@@ -279,13 +279,13 @@ class EventDBPlugin(object):
         if p.search(address) != None :
             address = "::ffff:"+address
         
-        address = inet_pton(socket.AF_INET6, address)
+        address = socket.inet_pton(socket.AF_INET6, address)
         
         if self.__options.db_type == "oracle":
             imedAddress = ""
             for byte in address :
                 imedAddress += "%0.2X" % ord(byte)
-            print imedAddress
+
             return imedAddress
         return address
 
