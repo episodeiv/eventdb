@@ -23,7 +23,32 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 		},this);
 		requestEdbElements(idsToCheck,cfg,drawLinks,this);
 	});
-		
+
+    var buildFilter = function(cfg) {
+        var cv = {
+            "type": 'atom',
+            "field": [cfg.type+'_CUSTOMVARIABLE_NAME'],
+            "method": ['='],
+            "value": ['EDB_FILTER']
+        };
+        if(cfg.cv_filter) {
+            cv = {
+                "type": 'OR',
+                'field' : [
+                    cv,
+                    {
+                        "type": 'atom',
+                        "field": [cfg.type+'_CUSTOMVARIABLE_NAME'],
+                        "method": ["="],
+                        "value" : [cfg.cv_filter]
+                    }
+                ]
+            }
+        }
+        return cv;
+
+    }
+
 	/**
 	 * Requests EventDB customvariables for the shown hosts/services in order to draw the links
 	 * into the grid
@@ -45,6 +70,8 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 		Ext.iterate(ids,function(id){
 			idJSON.field.push({type:'atom',field: [cfg.type+'_ID'],method:['='],value: [id]});
 		});
+        var filter = buildFilter(cfg);
+
 		Ext.Ajax.request({
 			url: AppKit.c.path+"/web/api/json",
 			params: {
@@ -53,16 +80,12 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 				'columns[0]': cfg.type+'_ID',
 				'columns[1]': cfg.type+'_NAME',
 				'columns[2]': 'HOST_NAME',
-				'columns[3]': cfg.type+'_CUSTOMVARIABLE_VALUE',
+                'columns[3]': 'HOST_ADDRESS',
+				'columns[4]': cfg.type+'_CUSTOMVARIABLE_VALUE',
 				filters_json : Ext.encode({
 					"type": "AND",
 					"field": [
-						idJSON,{
-								"type": 'atom',
-								"field": [cfg.type+'_CUSTOMVARIABLE_NAME'],
-								"method": ['='],
-								"value": ['EDB_FILTER']
-						}]
+						idJSON,filter]
 				}),
 				target_field: cfg.type+'_ID'
 			},
@@ -101,17 +124,19 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	
 				map[elem[cfg.type+'_ID']] = Ext.decode(elem[cfg.type+'_CUSTOMVARIABLE_VALUE']); 
 				map[elem[cfg.type+'_ID']].host = elem.HOST_NAME;
+                map[elem[cfg.type+'_ID']].address = elem.HOST_ADDRESS;
 				map[elem[cfg.type+'_ID']].service = elem[cfg.type+'_NAME'];
 
 		});
+        AppKit.log(cfg);
 		// Add host/service as a filter per default
 		Ext.iterate(objects,function(DOMNode) {
 			var id = DOMNode.getAttribute('edb_val');
 			var elem = Ext.get(DOMNode);
 			if(map[id])
 				return true;
-
-			map[id] = {host: DOMNode.getAttribute('host'), service: DOMNode.getAttribute('service')}
+            else if(!cfg.cv_filter)
+    			map[id] = {host: DOMNode.getAttribute('host'), service: DOMNode.getAttribute('service')}
 		});
 		
 		Ext.iterate(objects,function(DOMNode) {

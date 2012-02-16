@@ -34,7 +34,10 @@
 							<parameter name="base">icinga-web</parameter>
 							<parameter name="target">service</parameter>
 							<parameter name="type">SERVICE</parameter>
-							
+							<!-- only show items that contain the following cv -->	
+							<!--
+							<parameter name="cv_filter>_EDB</parameter>
+							-->						
 							<parameter name="attr">
 								<parameter name="qtip">Click here for the host</parameter>
 							</parameter>
