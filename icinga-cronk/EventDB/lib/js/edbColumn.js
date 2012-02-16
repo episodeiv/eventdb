@@ -121,8 +121,10 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 		}
 		// create a service->filter map for easier access
 		Ext.iterate(data.edb.result || [], function(elem) {
-	
-				map[elem[cfg.type+'_ID']] = Ext.decode(elem[cfg.type+'_CUSTOMVARIABLE_VALUE']); 
+                var baseFilter = Ext.decode(elem[cfg.type+'_CUSTOMVARIABLE_VALUE']);
+                map[elem[cfg.type+'_ID']] = {};
+                if(Ext.isObject(baseFilter))
+                    map[elem[cfg.type+'_ID']] = baseFilter;
 				map[elem[cfg.type+'_ID']].host = elem.HOST_NAME;
                 map[elem[cfg.type+'_ID']].address = elem.HOST_ADDRESS;
 				map[elem[cfg.type+'_ID']].service = elem[cfg.type+'_NAME'];
@@ -164,7 +166,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	 * @author jmosshammer<jannis.mosshammer@netways.de>
 	 */
 	var buildLink = function(elem,data) {
-		
+		AppKit.log(data);
 		var cronk = {
 			parentid: Ext.id(),
 			title: 'EventDB: '+(data.service != "undefined" ? (data.host+" : "+data.service) : data.host),
