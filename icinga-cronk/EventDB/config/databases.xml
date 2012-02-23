@@ -4,26 +4,36 @@
 	<ae:configuration>
         <databases>
             <database xmlns="http://agavi.org/agavi/config/parts/databases/1.0" name="eventdb_w" class="AgaviDoctrineDatabase">
-                <ae:parameter name="dsn">oracle://eventdb:eventdb@localhost:1521/XE</ae:parameter>
+                
+                <ae:parameter name="dsn">mysql://eventdb:eventdb@localhost:3306/eventdb</ae:parameter> 
+                <!-- Example for oracle-db -->
+                <!-- <ae:parameter name="dsn">oracle://eventdb:eventdb@localhost:1521/XE</ae:parameter> -->
                 <ae:parameter name="charset">utf8</ae:parameter>
                 <ae:parameter name="date_format"><![CDATA[YYYY-MM-DD HH24:MI:SS]]></ae:parameter>
                 <ae:parameter name="persistent">true</ae:parameter>
                 <ae:parameter name="manager_attributes">
                     <ae:parameter name="Doctrine_Core::ATTR_MODEL_LOADING">CONSERVATIVE</ae:parameter>
                 </ae:parameter>
-                <ae:parameter name="load_models">%core.module_dir%/EventDB/lib/database/generated/oracle</ae:parameter>
+                <!-- if you are using oracle, uncomment the following line -->
+                <!-- <ae:parameter name="load_models">%core.module_dir%/EventDB/lib/database/generated/oracle</ae:parameter> -->
+                <ae:parameter name="load_models">%core.module_dir%/EventDB/lib/database/generated/</ae:parameter> 
                 <ae:parameter name="models_directory">%core.module_dir%/EventDB/lib/database</ae:parameter>	
             </database>
 
             <database xmlns="http://agavi.org/agavi/config/parts/databases/1.0" name="eventdb_r" class="AgaviDoctrineDatabase">
-                <ae:parameter name="dsn">oracle://eventdb:eventdb@localhost:1521/XE</ae:parameter>
+                <!-- Example for oracle-db -->
+                <!-- <ae:parameter name="dsn">oracle://eventdb:eventdb@localhost:1521/XE</ae:parameter> -->
+                <ae:parameter name="dsn">mysql://eventdb:eventdb@localhost:3306/eventdb</ae:parameter> 
+
                 <ae:parameter name="charset">utf8</ae:parameter>
                 <ae:parameter name="persistent">true</ae:parameter>
                 <ae:parameter name="date_format"><![CDATA[YYYY-MM-DD HH24:MI:SS]]></ae:parameter>
                 <ae:parameter name="manager_attributes">
                     <ae:parameter name="Doctrine_Core::ATTR_MODEL_LOADING">CONSERVATIVE</ae:parameter>
                 </ae:parameter>
-                <ae:parameter name="load_models">%core.module_dir%/EventDB/lib/database/generated/oracle</ae:parameter>
+                <!-- if you are using oracle, uncomment the following line -->
+                <!-- <ae:parameter name="load_models">%core.module_dir%/EventDB/lib/database/generated/oracle</ae:parameter> -->
+                <ae:parameter name="load_models">%core.module_dir%/EventDB/lib/database/generated/</ae:parameter>
                 <ae:parameter name="models_directory">%core.module_dir%/EventDB/lib/database</ae:parameter>	
             </database>
         </databases>
