@@ -306,7 +306,8 @@ class EventDBPlugin(object):
             value = str(value)
             if(re.search(r"\*|\%",value) != None):
                 op = "LIKE"
-                value = re.sub(r"(\*)","%",value)
+                value = re.sub(r"(\%)","%%",value)
+                value = re.sub(r"(\*)","%%",value)
         tpl = agg+" "+field+" "+op+" "
         if(value.isdigit()):
             value = str(int(value))

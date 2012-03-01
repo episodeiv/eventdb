@@ -746,23 +746,23 @@ class EventDBPlugin():
     def __runCheck(self):
         options = self.__options
         result = False
+        if options.daemon_pid != False:
+            self.__requestStrategies.insert(
+                0,
+                ConnPoolDaemonProxy(
+                    options.daemon_pid,
+                    options.daemon_log,
+                    options.daemon_behaviour,
+                    options.daemon_lifetime
+                )
+            )
+        if result == False :
+            result = self.__dbQuery()
+        if(result):
+            self.__checkResult(result[2],result[3],result[0],result[1],result[4])
 
         try:
-            if options.daemon_pid != False:
-                self.__requestStrategies.insert(
-                    0,
-                    ConnPoolDaemonProxy(
-                        options.daemon_pid,
-                        options.daemon_log,
-                        options.daemon_behaviour,
-                        options.daemon_lifetime
-                    )
-                )
-            if result == False :
-                result = self.__dbQuery()
-            if(result):
-                self.__checkResult(result[2],result[3],result[0],result[1],result[4])
-
+           pass
         except CheckStatusException, cs:
             raise
         except SystemExit, s:
@@ -849,30 +849,30 @@ class EventDBPlugin():
 
     def __dbQuery(self):
         for strategy in self.__requestStrategies:
+            db = self.__setupDB(strategy)
+            query = self.__buildQuery()
+
+            cursor = db.execute(query)
+
+            values = [0,0]
+
+
+            for row in cursor:
+                if(len(row) != 4):
+                    raise DatabaseException("SQL Query failed, returned wrong values")
+                values = [row[0],row[1],row[2],row[3]]
+
+            if(values[1] == None):
+                values[1] = 0
+            cursor = db.execute("SELECT message FROM %s WHERE id = %d" % (self.__options.db_table, values[1]))
+            for row in cursor:
+                values.append(row[0])
+                return values
+
+            self.__pluginExit('OK',"0 critcal and 0 warning matches found.\n","matches=0 count=%dc" % (self.__checkFilter.startfrom));
 
             try :
-                db = self.__setupDB(strategy)
-                query = self.__buildQuery()
-
-                cursor = db.execute(query)
-
-                values = [0,0]
-
-
-                for row in cursor:
-                    if(len(row) != 4):
-                        raise DatabaseException("SQL Query failed, returned wrong values")
-                    values = [row[0],row[1],row[2],row[3]]
-
-                if(values[1] == None):
-                    values[1] = 0
-                cursor = db.execute("SELECT message FROM %s WHERE id = %d" % (self.__options.db_table, values[1]))
-                for row in cursor:
-                    values.append(row[0])
-                    return values
-
-                self.__pluginExit('OK',"0 critcal and 0 warning matches found.\n","matches=0 count=%dc" % (self.__checkFilter.startfrom));
-
+                pass
             except SystemExit, e:
                 raise
             except CheckStatusException, cs:
@@ -1003,7 +1003,9 @@ class EventDBPlugin():
             value = str(value)
             if(re.search(r"\*|\%",value) != None):
                 op = "LIKE"
-                value = re.sub(r"(\*)","%",value)
+                value = re.sub(r"(\%)","%%",value)
+                value = re.sub(r"(\*)","%%",value)
+
         tpl = agg+" "+field+" "+op+" "
         if(value.isdigit()):
             value = str(int(value))
