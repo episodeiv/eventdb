@@ -21,6 +21,7 @@ import socket
 
 
 import os.path
+import fcntl
 import  time, re
 import getopt, pprint, sys, re, urllib
 import pickle
@@ -33,6 +34,7 @@ import signal
 import os.path
 import os
 import sys
+import random
 from optparse import OptionParser
 
 
@@ -58,8 +60,8 @@ CONCURRENCY_BEHAVIOURS = DAEMON_CONCURRENCY_BEHAVIOURS
 Defines which logs to show. Change for debugging
 """
 DEBUG_SEVERITIES = {
-    "DEBUG" : True,
-    "INFO" : True,
+    "DEBUG" : False,
+    "INFO" : False,
     "WARNING" : True,
     "ERROR" : True
 }
@@ -122,7 +124,7 @@ class ConnPoolDaemon(object):
     Returns a boolean that indicates whether connection succeed
     """
     def connect(self):
-        if self.__socketName == False or os.path.exists(self.__socketName) == False:
+        if self.__socketName == None or os.path.exists(self.__socketName) == False:
             return False
         try :
             self.__log("Connecting to daemon")
@@ -143,6 +145,8 @@ class ConnPoolDaemon(object):
     the daemon and socket location) into the objects attributes
     """
     def __checkPIDFile(self):
+        fileopen = False
+        fd = None
         try :
             self.__log("Checking for existing pid-file at %s " % self.__pidName)
             pid = self.__pidName
@@ -153,33 +157,40 @@ class ConnPoolDaemon(object):
                 return False
 
             self.__log("PID file found, opening")
-            fd = open(pid);
 
+            fd = open(pid,"r");
+            fileopen = True
             self.__log("Reading process id of already running daemon")
-            self.__daemonPid = int(fd.readline())
-            self.__log("Daemon pid is %i" % self.__daemonPid)
+            self.__daemonPid = fd.readline()
+
+            self.__log("Daemon pid is %s" % self.__daemonPid)
 
             self.__log("Reading socket location of already running daemon")
 
             self.__socketName = str(fd.readline())
             self.__log("Daemon communication socket location is %s" % self.__socketName)
-
+            fd.close()
+            fileopen = False
             #check PID existence
-            self.__log("Checking if pid %i is running " % self.__daemonPid)
-            os.kill(self.__daemonPid, 0)
+            self.__log("Checking if pid %s is running " % self.__daemonPid)
+            os.kill(int(self.__daemonPid), 0)
             self.__pidExists = True
 
             #PID exists but no socket, remove pid file
             self.__log("Daemon is still running, checking for socket")
             if os.path.exists(self.__socketName) == False:
-                self.__log("Socket is not existing")
-                os.unlink(pid)
+                self.__log("Socket %s is not existing",self.__socketName)
+                
                 return False
             return True
         except OSError, o: #PID does not exist,
+            if fileopen == True:
+                fd.close()
             self.__log("OS Exception occured (looks like pid doesn't exist): %s " % (o))
             return False
         except TypeError, t:
+            if fileopen == True:
+                fd.close()
             self.__log("TypeError occured: %s" % (t) )
             return False
 
@@ -187,6 +198,7 @@ class ConnPoolDaemon(object):
     Spawns a new daemon which can accept connections from check-plugins
     """
     def __spawn(self):
+        
         # important, because file descriptors will be closed on daemonization and
         # the log method must reopen it again on first log entry
         self.__closeLog()
@@ -197,28 +209,29 @@ class ConnPoolDaemon(object):
                 try:
                     # daemonize
                     self.__createDaemon()
+                    
+                    lockFile = open(self.__pidName+".lock","w+")
+                    fcntl.lockf(lockFile.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+                    self.__pidFile = open(self.__pidName,"w+")
+                    self.__writePIDFile()
 
                     # from here on, we're in the daemon process
                     self.__log("Daemon spawned")
                     self.__openSocket()
-                    self.__writePIDFile()
+                    self.__pidFile.close()
                     self.__main(parentPID)
-
+                    os.unlink(self.__pidName+".lock")
                 except Exception, e:
-                    try :
-                        # Notify the parent process (the check plugin) that daemonization is finished (or failed)
-                        os.kill(parentPID,signal.SIGUSR1)
-                    except Exception, e:
-                        pass
-                    self.__log(e,"Error")
+                    pass
+                    #self.__log(e,"Error")
 
                 self.__cleanup()
+                
+
                 self.__log("Daemon finished", "info")
             else:
-                # Wait until the daemon is ready
-                signal.signal(signal.SIGUSR1, self.__onDaemonReadySignal)
-                signal.pause()
-                return self.__checkPIDFile()
+                return False
         except OSError, o:
             return False
 
@@ -231,6 +244,7 @@ class ConnPoolDaemon(object):
 
     def __openSocket(self):
         #".sock","edb_",os.path.dirname(self.__pidName)
+
         self.__socketName = tempfile.mktemp(".sock","edb_",os.path.dirname(self.__pidName))
         self.__log("Creating socket at %s "% (self.__socketName), "Info")
 
@@ -238,6 +252,8 @@ class ConnPoolDaemon(object):
             self.__socket = socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
             self.__socket.bind(self.__socketName)
             os.chmod(self.__socketName, 0600)
+            self.__pidFile.write("%s" % self.__socketName)
+
         except OSError, _os:
             self.__log("Couldn't create socket: "+str(_os),"Error")
             raise
@@ -245,37 +261,18 @@ class ConnPoolDaemon(object):
     """
         Writes socket location and process id to the pid file
     """
+    """
+        Writes socket location and process id to the pid file
+    """
     def __writePIDFile(self):
-        pid = os.getpid()
+
+        
         self.__log("Attempting to create PID file at %s" % (self.__pidName))
-        try:
-            #".tmp","edb_",os.path.dirname(self.__pidName)
-            tmpFileName = tempfile.mktemp(".tmp","edb_",os.path.dirname(self.__pidName));
 
-            self.__log("Temporary file created at %s " % tmpFileName)
-
-            pidFile = open(tmpFileName,"w+")
-            pidFile.write("%i\n" % pid)
-            pidFile.write("%s" % self.__socketName)
-            pidFile.close()
-            self.__log("Wrote socket and pid to temporary file")
-
-            # Check if another daemon was created during startup
-            if os.path.isfile(self.__pidName) == True:
-                if self.__behaviour == DAEMON_CONCURRENCY_BEHAVIOURS["Aggressive"]:
-                    self.__log("Encountered other daemon, removing foreign PID file (aggressive behaviour)","Warning")
-                    os.unlink(self.__pidName)
-                else :
-                    self.__log("Encountered other daemon, aborting (servile behaviour)","Error")
-                    os.unlink(tmpFileName)
-                    return False
-
-            self.__log("Moving temporary PID file %s to PID location %s " % (tmpFileName, self.__pidName))
-            os.rename(tmpFileName,self.__pidName)
-        except Exception, e :
-            os.unlink(tmpFileName)
-            raise e
-
+        pid = os.getpid()
+        self.__pidFile.write("%i\n" % pid)
+       
+        self.__log("Wrote socket and pid to pidfile")
         self.__log("PID file created successfully")
 
 
@@ -345,12 +342,6 @@ class ConnPoolDaemon(object):
         self.__clients = [self.__socket]
         self.__socket.listen(1)
 
-        try:
-            # Notify the parent process (the check plugin) that daemonization is finished
-            os.kill(parentPID,signal.SIGUSR1)
-        except Exception, e:
-            # Don't care if the process isn't alive anymore
-            pass
 
         finished = False
         try :
@@ -411,20 +402,35 @@ class ConnPoolDaemon(object):
         if result["success"] == True:
             return result["result"]
         elif "exception" in result:
-            raise Exception(result["exception"])
+             Exception(result["exception"])
         return False
 
     """
         Will be executed by the daemon when a request comes in
     """
     def __onRequest(self,data,socket):
-
         try:
+
             reqObj = pickle.loads(data)
             self.__log("Got db request %s " %reqObj)
             handler = self.__getConnectionFromPool(reqObj["options"])
+
+            if handler == False:
+                socket.send(pickle.dumps({
+                    "success" : False,
+                    "result" : "DB Connection failed"
+                }))
             result = []
             resultProxy = handler.execute(reqObj["query"])
+
+
+            if resultProxy == False:
+                socket.send(pickle.dumps({
+                    "success": False,
+                    "exception": "Could not connect"
+                }))
+                return True
+
             # make it pickleable
             for row in resultProxy:
                 entry = []
@@ -438,6 +444,7 @@ class ConnPoolDaemon(object):
                 "success" : True,
                 "result" : result
             }))
+            return False
 
         except Exception , e:
             self.__log("Exception occured in _onRequest() : %s " % e, "Error")
@@ -445,7 +452,7 @@ class ConnPoolDaemon(object):
                 "success": False,
                 "exception": str(e)
             }))
-        return
+        return False
 
     """
         Returns (and if necessary allocates) a database connection in the daemon
@@ -468,6 +475,7 @@ class ConnPoolDaemon(object):
             self.__log("Connection not yet established, creating one", "Info")
             self.__connectionPool[uri] = DBHandler()
             self.__log("Connecting")
+
             self.__connectionPool[uri].connect(
                 driver = reqObj["driver"],
                 user = reqObj["user"],
@@ -477,6 +485,8 @@ class ConnPoolDaemon(object):
                 database = reqObj["database"],
                 poolsize = 3
             )
+              
+
             self.__log("Connection created", "Info")
             return self.__connectionPool[uri]
 
@@ -496,22 +506,25 @@ class ConnPoolDaemonProxy(object):
 
 
     def execute(self,query):
-        result = self.__daemon.request(
-            {
-                "query" : query,
-                "options" : {
-                    "driver" : self.__driver,
-                    "host" : self.__host,
-                    "port" : self.__port,
-                    "database" : self.__database,
-                    "user" : self.__user,
-                    "password" : self.__password
+        try :
+            result = self.__daemon.request(
+                {
+                    "query" : query,
+                    "options" : {
+                        "driver" : self.__driver,
+                        "host" : self.__host,
+                        "port" : self.__port,
+                        "database" : self.__database,
+                        "user" : self.__user,
+                        "password" : self.__password
+                    }
                 }
-            }
-        )
-        if result == False:
-            raise Exception("Requesting daemon failed")
-        return result
+            )
+            return result
+        except:
+        #if result == False:
+        #    raise Exception("Requesting daemon failed")
+            return False
 
     def connect(self,driver,host="localhost",user=None,password=None,database=None,port=None,poolsize=3):
         self.__daemon = ConnPoolDaemon(
@@ -560,6 +573,7 @@ class DBHandler(object):
 
         if(self.__cursor == None):
             raise DatabaseException("Couldn't connect to db")
+        return self.__connection
 
     @staticmethod
     def getURLString(self,driver,host="localhost",user=None,password=None,database=None,port=None):
@@ -603,7 +617,8 @@ class DBHandler(object):
             self.__engine = create_engine(url,pool_size = self.__poolsize)
 
         self.__connection = self.__engine.connect()
-        self.__executeDriverQuirks()
+        if self.__connection:
+            self.__executeDriverQuirks()
 
     def __executeDriverQuirks(self):
         if self.__driver == "oracle":
@@ -612,6 +627,9 @@ class DBHandler(object):
     def execute(self,query):
         if(DEBUG):
             print query
+        if self.__connection == False:
+            return False
+
         return self.__connection.execute(query)
 
 
@@ -848,31 +866,39 @@ class EventDBPlugin():
 
 
     def __dbQuery(self):
+
         for strategy in self.__requestStrategies:
-            db = self.__setupDB(strategy)
-            query = self.__buildQuery()
-
-            cursor = db.execute(query)
-
-            values = [0,0]
-
-
-            for row in cursor:
-                if(len(row) != 4):
-                    raise DatabaseException("SQL Query failed, returned wrong values")
-                values = [row[0],row[1],row[2],row[3]]
-
-            if(values[1] == None):
-                values[1] = 0
-            cursor = db.execute("SELECT message FROM %s WHERE id = %d" % (self.__options.db_table, values[1]))
-            for row in cursor:
-                values.append(row[0])
-                return values
-
-            self.__pluginExit('OK',"0 critcal and 0 warning matches found.\n","matches=0 count=%dc" % (self.__checkFilter.startfrom));
-
             try :
-                pass
+                db = self.__setupDB(strategy)
+                query = self.__buildQuery()
+
+                cursor = db.execute(query)
+
+                values = [0,0]
+
+                if cursor == False:
+                    raise DatabaseException("Query failed")
+
+                for row in cursor:
+                    if(len(row) != 4):
+                        raise DatabaseException("SQL Query failed, returned wrong values")
+                    values = [row[0],row[1],row[2],row[3]]
+
+                if(values[1] == None):
+                    values[1] = 0
+
+                cursor = db.execute("SELECT message FROM %s WHERE id = %d" % (self.__options.db_table, values[1]))
+
+                if cursor == False:
+                    raise DatabaseException("Query failed")
+
+                for row in cursor:
+                    values.append(row[0])
+                    return values
+
+                self.__pluginExit('OK',"0 critcal and 0 warning matches found.\n","matches=0 count=%dc" % (self.__checkFilter.startfrom));
+
+
             except SystemExit, e:
                 raise
             except CheckStatusException, cs:
