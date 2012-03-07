@@ -638,7 +638,7 @@ class DBHandler(object):
             self.__connection.close()
 
 
-class CheckFilter():
+class CheckFilter(object):
 
     def __init__(self):
         self.logtype = 0
@@ -735,7 +735,7 @@ class CheckStatusException(Exception):
         self.perfdata = perfdata
 
 
-class EventDBPlugin():
+class EventDBPlugin(object):
     def __init__(self,arguments = None,noExit = False):
         self.__noExit = noExit;
         self.__requestStrategies = [DBHandler()]
