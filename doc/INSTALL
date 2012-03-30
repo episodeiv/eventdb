@@ -25,7 +25,7 @@ syslogng2mysl:
 check_eventdb plugin:
 	
 	- Python 2.4+ 
-
+    - SQLAlchemy
 
 Installation:
 
