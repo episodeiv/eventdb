@@ -211,25 +211,28 @@ class ConnPoolDaemon(object):
                     self.__createDaemon()
                     
                     lockFile = open(self.__pidName+".lock","w+")
+                    self.__log("Locking .lock file", "info")
                     fcntl.lockf(lockFile.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-
+                    self.__log("Locking succeeded", "info")
                     self.__pidFile = open(self.__pidName,"w+")
+                    self.__log("Creating pid file", "info")
+                    fcntl.lockf(self.__pidFile.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    self.__log("Pid file locked", "info")
                     self.__writePIDFile()
 
                     # from here on, we're in the daemon process
                     self.__log("Daemon spawned")
                     self.__openSocket()
                     self.__pidFile.close()
+
                     self.__main(parentPID)
-                    os.unlink(self.__pidName+".lock")
                 except Exception, e:
                     pass
                     #self.__log(e,"Error")
 
                 self.__cleanup()
-                
-
                 self.__log("Daemon finished", "info")
+                os.unlink(self.__pidName+".lock")
             else:
                 return False
         except OSError, o:
@@ -324,12 +327,7 @@ class ConnPoolDaemon(object):
        return(0)
 
     def __cleanup(self):
-        # Remove pid file
-        try :
-            if self.__pidName != None:
-                os.unlink(self.__pidName)
-        except Exception:
-            pass
+        
         # Remove socket
         try :
             if self.__socketName != None:
@@ -1024,13 +1022,13 @@ class EventDBPlugin(object):
 
         if(isinstance(value,list)):
             op = "IN"
-            value = "("+",".join(value)+")"
+            value = "('"+"','".join(value)+"')"
         else:
             value = str(value)
             if(re.search(r"\*|\%",value) != None):
                 op = "LIKE"
-                value = re.sub(r"(\%)","%%",value)
-                value = re.sub(r"(\*)","%%",value)
+                value = re.sub(r"(\%)","%",value)
+                value = re.sub(r"(\*)","%",value)
 
         tpl = agg+" "+field+" "+op+" "
         if(value.isdigit()):

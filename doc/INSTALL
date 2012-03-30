@@ -1,5 +1,5 @@
 #
-#	EventDB v2.0.2
+#	EventDB v2.0.4
 #	
 #	Quick installation guide for Web interfaces
 #	
@@ -16,7 +16,7 @@ Classic UI:
 
 Additional prerequisites for Icinga-web cronk:
 
-	- Icinga-Web 1.3+ 
+	- Icinga-Web 1.5+ 
 
 syslogng2mysl:
 

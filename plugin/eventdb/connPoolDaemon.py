@@ -308,12 +308,6 @@ class ConnPoolDaemon(object):
        return(0)
 
     def __cleanup(self):
-        # Remove pid file
-        try :
-            if self.__pidName != None:
-                os.unlink(self.__pidName)
-        except Exception:
-            pass
         # Remove socket
         try :
             if self.__socketName != None:

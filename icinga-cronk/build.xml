@@ -5,7 +5,6 @@
 *************************  Icinga Module Toolkit   ************************ 
 Available targets: 
 	- install-cronk:	Installs the current module	
-	- rollback:		Restores files that we're altered by install-module
 
 ***************************************************************************
 		</echo>
@@ -26,7 +25,7 @@ Available targets:
 		<icingaManifest id="manifest" file="manifest.xml" />
 		<moduleMetaPrinter refid="manifest" />
 		<!--  Confirmations -->
-		<input propertyname="confirm" promptChar="?" defaultValue="y" validArgs="y,n">Do you want to install this cronk?</input>
+		<input propertyname="confirm" promptChar="?" defaultValue="y" validArgs="y,n">Do you want to install this module?</input>
 		<if>
 			<equals arg1="${confirm}" arg2="n" />
 			<then>
