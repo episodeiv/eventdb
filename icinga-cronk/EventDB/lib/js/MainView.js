@@ -494,7 +494,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 tpl: new Ext.XTemplate(
                   '<span isHostField="true"',
                   ' hostName="{real_host}" ',
-                  ' style="color:blue;text:decoration:underline;cursor:pointer" ',
+                  ' style="color:blue;text-decoration:underline;cursor:pointer" ',
                   'class="eventdb-host {host_name}">',
                     '<div style="float:left" class="icon-16 icinga-icon-host"></div>',
                     '{host_name}',
