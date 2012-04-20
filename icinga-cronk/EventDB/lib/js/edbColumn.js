@@ -169,7 +169,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 		AppKit.log(data);
 		var cronk = {
 			parentid: Ext.id(),
-			title: 'EventDB: '+(data.service != "undefined" ? (data.host+" : "+data.service) : data.host),
+			title: 'EventDB: '+(data.service != "undefined" ? (data.host+" : "+data.service) : data.host),
 			crname: 'icingaEventDB',
 			closable: true,
 			params: {
