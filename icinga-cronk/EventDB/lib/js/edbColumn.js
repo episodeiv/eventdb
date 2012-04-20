@@ -190,8 +190,8 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 						"include_pattern_type":"disabled",
 						"exclude_pattern":false,
 						"exclude_pattern_type":"disabled",
-						"include_set":[],
-						"exclude_set":[]
+						"include_set":data.programInclusion || [],
+						"exclude_set":data.programExclusion || []
 					},
 					"messageFilter":{
 						"items": [data.msg] || []
