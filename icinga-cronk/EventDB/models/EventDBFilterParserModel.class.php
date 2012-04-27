@@ -15,7 +15,7 @@ class EventDB_EventDBFilterParserModel extends EventDBBaseModel {
 			"isGroup" => true, 
 			"filter" => array()
 		);
-	
+
 		$this->parsePatterns("host_name",$filter["hostFilter"],$hostFilterGroup["filter"]);
 		$this->parsePatterns("program",$filter["programFilter"],$programFilterGroup["filter"]);
 		$def[] = $hostFilterGroup;
@@ -95,11 +95,17 @@ class EventDB_EventDBFilterParserModel extends EventDBBaseModel {
 			"filter" => array(),
 			"operator" => "OR"
 		);
-		$this->getFilterForPattern($subgroup1["filter"],$field,$filter["include_pattern_type"],$filter["include_pattern"]);
-		$this->getFilterForPattern($subgroup2["filter"],$field,$filter["exclude_pattern_type"],$filter["exclude_pattern"],true);
-		$this->parseSet($subgroup1["filter"],$field,$filter["include_set"]);
-		$this->parseSet($subgroup2["filter"],$field,$filter["exclude_set"],true);
-		$def[] = $subgroup1;
+
+        if(isset($filter["include_pattern_type"]) && isset($filter["include_pattern"]))
+    		$this->getFilterForPattern($subgroup1["filter"],$field,$filter["include_pattern_type"],$filter["include_pattern"]);
+        if(isset($filter["exclude_pattern_type"]) && isset($filter["exclude_pattern"]))
+            $this->getFilterForPattern($subgroup2["filter"],$field,$filter["exclude_pattern_type"],$filter["exclude_pattern"],true);
+        if(isset($filter["include_set"]))
+            $this->parseSet($subgroup1["filter"],$field,$filter["include_set"]);
+		if(isset($filter["exclude_set"]))
+            $this->parseSet($subgroup2["filter"],$field,$filter["exclude_set"],true);
+
+        $def[] = $subgroup1;
 		$def[] = $subgroup2;
 	}
 
