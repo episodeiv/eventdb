@@ -82,6 +82,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 				'columns[2]': 'HOST_NAME',
                 'columns[3]': 'HOST_ADDRESS',
 				'columns[4]': cfg.type+'_CUSTOMVARIABLE_VALUE',
+				'columns[5]': cfg.type+'_CUSTOMVARIABLE_NAME',
 				filters_json : Ext.encode({
 					"type": "AND",
 					"field": [
@@ -121,8 +122,11 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 		}
 		// create a service->filter map for easier access
 		Ext.iterate(data.edb.result || [], function(elem) {
-                var baseFilter = Ext.decode(elem[cfg.type+'_CUSTOMVARIABLE_VALUE']);
-                map[elem[cfg.type+'_ID']] = {};
+                if(typeof map[elem[cfg.type+'_ID']] !== 'object')
+                    map[elem[cfg.type+'_ID']] = {};
+                if(elem[cfg.type+'_CUSTOMVARIABLE_NAME'].toLowerCase() != 'edb_filter') 
+                    return true;
+                var baseFilter = Ext.decode(elem[cfg.type+'_CUSTOMVARIABLE_VALUE']); 
                 if(Ext.isObject(baseFilter))
                     map[elem[cfg.type+'_ID']] = baseFilter;
 				map[elem[cfg.type+'_ID']].host = elem.HOST_NAME;
