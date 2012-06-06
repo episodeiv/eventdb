@@ -830,8 +830,8 @@ Ext.ns("Cronk.EventDB.Helper").resolveTypeNr = function(v) {
 // detects URLs in messages
 Ext.ns("Cronk.EventDB.Helper").messageFormatter = function(v) {
     v = Ext.util.Format.htmlEncode(v);
-    var reg = /((?:http(?:s)?|www\.|[\w\.]+\.(?:de|com|net|org|fr|it|co.uk|ru|ro)\/)[^ ]*?)(?: .*)?$/i;
-   
+	 var reg = /((?:http(?:s)?|www\.|[\w\.]+\.(?:de|com|net|org|fr|it|co.uk|ru|ro)\/)[^ ]*?)(?: .*)?[$;| ]/i;
+
     var matches = v.match(reg);
     if(!Ext.isArray(matches))
         return v;
