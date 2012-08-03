@@ -21,7 +21,6 @@ class EventDbCommentListener extends Doctrine_Record_Listener {
 	public function preInsert(Doctrine_Event $event) {		
 		$record = $event->getInvoker();
 		$this->preUpdate($event);
-		$record->created = date('Y-m-d H:i:s',time());
 	}
 
 	public function preSave(Doctrine_Event $event) {
@@ -36,12 +35,9 @@ class EventDbCommentListener extends Doctrine_Record_Listener {
 	public function preUpdate(Doctrine_Event $event) {
 		$record = $event->getInvoker();
 		$record->prepareWrite();
-		$record->modified = date('Y-m-d H:i:s',time());
-		$record->created = date('Y-m-d H:i:s',time());
 	}
 	public function finalize(Doctrine_Event $event) {	
 		$record = $event->getInvoker();
-		$ev = $event->EventDbEvent;
 		$record->prepareRead();
 	}
 	public function postSave(Doctrine_Event $event) {

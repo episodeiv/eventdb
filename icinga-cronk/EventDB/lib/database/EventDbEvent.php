@@ -1,9 +1,12 @@
 <?php
+
 try {
-	Doctrine_Manager::getInstance()->getConnection('eventdb_r');
-	Doctrine_Manager::getInstance()->bindComponent('EventDbEvent','eventdb_r');
-} catch(Exception $e) {
+    Doctrine_Manager::getInstance()->getConnection('eventdb_r');
+    Doctrine_Manager::getInstance()->bindComponent('EventDbEvent', 'eventdb_r');
+} catch (Exception $e) {
+    
 }
+
 /**
  * EventDbEvent
  * 
@@ -16,246 +19,252 @@ try {
  */
 class EventDbEventListener extends Doctrine_Record_Listener {
 
-	public function preInsert(Doctrine_Event $event) {		
-	
-	$record = $event->getInvoker();
-	$this->preUpdate($event);
+    public function preInsert(Doctrine_Event $event) {
 
-        if(Doctrine_Manager::getInstance()->getConnection("eventdb_w") != "mysql") {
-  	
+        $record = $event->getInvoker();
+        $this->preUpdate($event);
+
+        if (Doctrine_Manager::getInstance()->getConnection("eventdb_w") != "mysql") {
+
             $addr = str_split($record->host_address);
             $str = "";
-        
-            foreach($addr as $char) {
-                $str .= str_pad(dechex(ord($char)),2,0,STR_PAD_LEFT);
+
+            foreach ($addr as $char) {
+                $str .= str_pad(dechex(ord($char)), 2, 0, STR_PAD_LEFT);
             }
             $record->host_address = $str;
-      
         }
-		$record->created = date('Y-m-d H:i:s',time());
+        $record->created = date('Y-m-d H:i:s', time());
+    }
 
-	}
-	
-	public function preSave(Doctrine_Event $event) {
-		$this->preUpdate($event);	
-	}	
-	
-	public function preDelete(Doctrine_Event $event) {
-		$record = $event->getInvoker();
-		$record->prepareWrite();
-	}
-	
-	public function preUpdate(Doctrine_Event $event) {
-		$record = $event->getInvoker();	
-		$record->prepareWrite();
-		$record->modified = date('Y-m-d H:i:s',time());
-		$record->host_address = $record->resolveAddress($record->ip_address);
-		
-	}
+    public function preSave(Doctrine_Event $event) {
+        $this->preUpdate($event);
+    }
 
-	public function switchRead(Doctrine_Event $event) {	
-		$record = $event->getInvoker();
-		Doctrine_Manager::getInstance()->bindComponent("EventDbEvent","eventdb_r");
-		$record->prepareRead();
-	}
-	public function postSave(Doctrine_Event $event) {
-		$this->switchRead($event);	
-	}
-	public function postDelete(Doctrine_Event $event) {
-		$this->switchRead($event);	
-	}
-	public function postUpdate(Doctrine_Event $event) {
-		$this->switchRead($event);	
-	}
-	public function postInsert(Doctrine_Event $event) {
-		$this->switchRead($event);	
-	}
+    public function preDelete(Doctrine_Event $event) {
+        $record = $event->getInvoker();
+        $record->prepareWrite();
+    }
+
+    public function preUpdate(Doctrine_Event $event) {
+        $record = $event->getInvoker();
+        $record->prepareWrite();
+        $record->modified = date('Y-m-d H:i:s', time());
+        $record->host_address = $record->resolveAddress($record->ip_address);
+    }
+
+    public function switchRead(Doctrine_Event $event) {
+        $record = $event->getInvoker();
+        Doctrine_Manager::getInstance()->bindComponent("EventDbEvent", "eventdb_r");
+        $record->prepareRead();
+    }
+
+    public function postSave(Doctrine_Event $event) {
+        $this->switchRead($event);
+    }
+
+    public function postDelete(Doctrine_Event $event) {
+        $this->switchRead($event);
+    }
+
+    public function postUpdate(Doctrine_Event $event) {
+        $this->switchRead($event);
+    }
+
+    public function postInsert(Doctrine_Event $event) {
+        $this->switchRead($event);
+    }
+
 }
 
-class EventDbEvent extends BaseEventDbEvent
-{
+class EventDbEvent extends BaseEventDbEvent {
 
-	static public $PRIORITIES = array(
-		0 =>	'EMERGENCY',
-		1 =>	'ALERT',
-		2 => 	'CRITICAL',
-		3 =>	'ERROR',
-		4 =>	'WARNING',
-		5 =>	'NOTICE',
-		6 =>	'INFORMATION',
-		7 =>	'DEBUG'
-	);
-	static public $FACILITIES = array(
-		0 => '0 - kernel messages',
-		1 => '1 - user-level messages',
-		2 => '2 - mail system',
-		3 => '3 - system daemons',
-		4 => '4 - security/authorization messages',
-		5 => '5 - messages generated internally by syslogd',
-		6 => '6 - line printer subsystem',
-		7 => '7 - network news subsystem',
-		8 => '8 - UUCP subsystem',
-		9 => '9 - clock daemon',
-		10 => '10 - security/authorization messages',
-		11 => '11 - FTP daemon',
-		12 => '12 - NTP subsystem',
-		13 => '13 - log audit',
-		14 => '14 - log alert',
-		15 => '15 - clock daemon',
-		16 => '16 - local use 0',
-		17 => '17 - local use 1',
-		18 => '18 - local use 2',
-		19 => '19 - local use 3',
-		20 => '20 - local use 4',
-		21 => '21 - local use 5',
-		22 => '22 - local use 6',
-		23 => '23 - local use 7'
-	);	
-	static public $EVENT_TYPES = array(
-		0 => 'syslog',
-		1 => 'smnp',
-		2 => 'mail'
-	);	
-	private $dynamicProperties = array(
-		"ip_address" => null
-	);
-	public $helper;
-	public function __get($field) {
-		if(!$this->helper)
-			$this->helper = AgaviContext::getInstance()->getModel("EventDBHelper","EventDB");
+    static public $PRIORITIES = array(
+        0 => 'EMERGENCY',
+        1 => 'ALERT',
+        2 => 'CRITICAL',
+        3 => 'ERROR',
+        4 => 'WARNING',
+        5 => 'NOTICE',
+        6 => 'INFORMATION',
+        7 => 'DEBUG'
+    );
+    static public $FACILITIES = array(
+        0 => '0 - kernel messages',
+        1 => '1 - user-level messages',
+        2 => '2 - mail system',
+        3 => '3 - system daemons',
+        4 => '4 - security/authorization messages',
+        5 => '5 - messages generated internally by syslogd',
+        6 => '6 - line printer subsystem',
+        7 => '7 - network news subsystem',
+        8 => '8 - UUCP subsystem',
+        9 => '9 - clock daemon',
+        10 => '10 - security/authorization messages',
+        11 => '11 - FTP daemon',
+        12 => '12 - NTP subsystem',
+        13 => '13 - log audit',
+        14 => '14 - log alert',
+        15 => '15 - clock daemon',
+        16 => '16 - local use 0',
+        17 => '17 - local use 1',
+        18 => '18 - local use 2',
+        19 => '19 - local use 3',
+        20 => '20 - local use 4',
+        21 => '21 - local use 5',
+        22 => '22 - local use 6',
+        23 => '23 - local use 7'
+    );
+    static public $EVENT_TYPES = array(
+        0 => 'syslog',
+        1 => 'smnp',
+        2 => 'mail'
+    );
+    private $dynamicProperties = array(
+        "ip_address" => null
+    );
+    public $helper;
 
-		switch($field) {
-			case 'ip_address':
-				if(!$this->dynamicProperties["ip_address"]) {
-					$this->dynamicProperties["ip_address"] =
-						$this->helper->getAddressFromBinary($this->host_address);
-				}
-				return $this->dynamicProperties["ip_address"];	
-		}
-	
-		return parent::__get($field);
-	}
-	
-	public function hasAddress($address) {
-		$myIp = unpack("C*",$this->host_address);
-		$checkIp = unpack("C*",$this->helper->resolveAddress($address));
-		return $myIp == $checkIp;
-	}
+    public function __get($field) {
+        if (!$this->helper)
+            $this->helper = AgaviContext::getInstance()->getModel("EventDBHelper", "EventDB");
 
-	public function __set($field,$value) {
-		if(!$this->helper)
-			$this->helper = AgaviContext::getInstance()->getModel("EventDBHelper","EventDB");
-		switch($field) {
-			case 'ip_address':
-				$this->dynamicProperties["ip_address"] = $value;
-				return true;	
-		}
-		$this->prepareRead();
-		return parent::__set($field,$value);
+        switch ($field) {
+            case 'ip_address':
+                if (!$this->dynamicProperties["ip_address"]) {
+                    $this->dynamicProperties["ip_address"] =
+                            $this->helper->getAddressFromBinary($this->host_address);
+                }
+                return $this->dynamicProperties["ip_address"];
+        }
 
-	}
+        return parent::__get($field);
+    }
 
-	public static function resolveAddress($address) {
-		return AgaviContext::getInstance()->getModel("EventDBHelper","EventDB")->resolveAddress($address);;
-	}
+    public function hasAddress($address) {
+        $myIp = unpack("C*", $this->host_address);
+        $checkIp = unpack("C*", $this->helper->resolveAddress($address));
+        return $myIp == $checkIp;
+    }
 
-	public function getAddressFromBinary($bin) {
-		return AgaviContext::getInstance()->getModel("EventDBHelper","EventDB")->getAddressFromBinary($bin);;
-	}
-	public function addComment($msg,$user,$type = 0) {
-		if($type == 1) {
-			$this->ack = 1;
-			$msg = "[ACK] ".$msg;
-		}
+    public function __set($field, $value) {
+        if (!$this->helper)
+            $this->helper = AgaviContext::getInstance()->getModel("EventDBHelper", "EventDB");
+        switch ($field) {
+            case 'ip_address':
+                $this->dynamicProperties["ip_address"] = $value;
+                return true;
+        }
+        $this->prepareRead();
+        return parent::__set($field, $value);
+    }
 
-		if($type == 2) {
-			$this->ack = 0;
-			$msg = "[REVOKE] ".$msg;
-		}
+    public static function resolveAddress($address) {
+        return AgaviContext::getInstance()->getModel("EventDBHelper", "EventDB")->resolveAddress($address);
+        ;
+    }
 
-		$comment = new EventDbComments();
-			$comment->type = $type;
-			$comment->message = $msg;
-			$comment->user = strtolower($user);
-			
-		$this->comments[] = $comment;
-		
-		$this->modified = date('Y-m-d H:i:s',time());	
-		$this->save();
-	}
+    public function getAddressFromBinary($bin) {
+        return AgaviContext::getInstance()->getModel("EventDBHelper", "EventDB")->getAddressFromBinary($bin);
+        ;
+    }
 
-	public function deleteComment(EventDbComments $c) {
-		foreach($this->comments as $key=>$comment) {
-			if($comment == $c)
-				unset($this->comments[$key]);
-		}
-		$this->save();
-	}
+    public function addComment($msg, $user, $type = 0) {
+        if ($type == 1) {
+            $this->ack = 1;
+            $msg = "[ACK] " . $msg;
+        }
 
-	public function acknowledge($user, $comment = "No comment") {
-		$this->addComment($user,$comment,1);	
-	}
+        if ($type == 2) {
+            $this->ack = 0;
+            $msg = "[REVOKE] " . $msg;
+        }
 
-	public function revoke($user,$comment = "No comment") {
-		$this->addComment($user,$comment,2);
-	}
+        $comment = new EventDbComments();
+        $comment->type = $type;
+        $comment->message = $msg;
+        $comment->user = strtolower($user);
+        $comment->modified = date('Y-m-d H:i:s', time());
+        $comment->created = date('Y-m-d H:i:s', time());
 
-	public static function prepareWrite() {	
-		Doctrine_Manager::getInstance()->bindComponent('EventDbEvent','eventdb_w');
-	}
-	
-	public static function prepareRead() {
-		Doctrine_Manager::getInstance()->bindComponent('EventDbEvent','eventdb_r');
-	}
+        
+        $this->comments[] = $comment;
+        
+        $this->modified = date('Y-m-d H:i:s', time());
+        $this->save();
+    }
 
-	public function setUp()	
-    {
-		if(class_exists('AgaviContext')) {
-			$this->helper = AgaviContext::getInstance()->getModel("EventDBHelper","EventDB");
-			$this->prepareRead();	
-			parent::setUp();
-			$this->addListener(new EventDbEventListener());
-    		if(ini_get('apc.enabled') == 1) {
-				$this->setupCaching();	
-			}
-		}
+    public function deleteComment(EventDbComments $c) {
+        foreach ($this->comments as $key => $comment) {
+            if ($comment == $c)
+                unset($this->comments[$key]);
+        }
+        $this->save();
+    }
 
-	}
-	protected static $__cached = false;
-	
-	protected function setupCaching() {
-		if(self::$__cached == false) {
-			Doctrine_Manager::getInstance()->getConnection('eventdb_r')->setAttribute(Doctrine_Core::ATTR_QUERY_CACHE,new Doctrine_Cache_Apc());
-			Doctrine_Manager::getInstance()->getConnection('eventdb_w')->setAttribute(Doctrine_Core::ATTR_QUERY_CACHE,new Doctrine_Cache_Apc());
-			self::$__cached = true;
-		} 
-	}
+    public function acknowledge($user, $comment = "No comment") {
+        $this->addComment($user, $comment, 1);
+    }
 
+    public function revoke($user, $comment = "No comment") {
+        $this->addComment($user, $comment, 2);
+    }
 
-	public static function getEventByIds(array $ids = array()) {
-		$conn = AgaviContext::getInstance()->getDatabaseManager()->getDatabase('eventdb_r')->getConnection();
-		$q = Doctrine_Query::create($conn)->select('*')->from('EventDbEvent e')->whereIn("id",$ids);
-		return $q->execute();		
-	}
+    public static function prepareWrite() {
+        Doctrine_Manager::getInstance()->bindComponent('EventDbEvent', 'eventdb_w');
+    }
 
-	public static function getEventByHostnames(array $hostnames = array()) {
-		$conn = AgaviContext::getInstance()->getDatabaseManager()->getDatabase('eventdb_r')->getConnection();
-		$q = Doctrine_Query::create($conn)->select('*')->from('EventDbEvent e')->whereIn("host_name",$hostnames);
-		return $q->execute();	
-	}
-	
-	public static function getEventByAddresses(array $addresses = array()) {
-		foreach($addresses as &$address) {
-			$address = AgaviContext::getInstance()->getModel("EventDBHelper","EventDB")->resolveAddress($address);	
-		}
-		$conn = AgaviContext::getInstance()->getDatabaseManager()->getDatabase('eventdb_r')->getConnection();
-		$q = Doctrine_Query::create($conn)->select('*')->from('EventDbEvent e')->whereIn("host_address",$hostnames);
-		return $q->execute();	
-	}
-	
-	public static function getCommentsForEventids(array $ids = array()) {
-		$conn = AgaviContext::getInstance()->getDatabaseManager()->getDatabase('eventdb_r')->getConnection();
-		$q = Doctrine_Query::create($conn)->select('*')->from('EventDbComments e')->whereIn("event_id",$ids);
-		return $q->execute();
-	}
+    public static function prepareRead() {
+        Doctrine_Manager::getInstance()->bindComponent('EventDbEvent', 'eventdb_r');
+    }
+
+    public function setUp() {
+        if (class_exists('AgaviContext')) {
+            $this->helper = AgaviContext::getInstance()->getModel("EventDBHelper", "EventDB");
+            $this->prepareRead();
+            parent::setUp();
+            $this->addListener(new EventDbEventListener());
+            if (ini_get('apc.enabled') == 1) {
+                $this->setupCaching();
+            }
+        }
+    }
+
+    protected static $__cached = false;
+
+    protected function setupCaching() {
+        if (self::$__cached == false) {
+            Doctrine_Manager::getInstance()->getConnection('eventdb_r')->setAttribute(Doctrine_Core::ATTR_QUERY_CACHE, new Doctrine_Cache_Apc());
+            Doctrine_Manager::getInstance()->getConnection('eventdb_w')->setAttribute(Doctrine_Core::ATTR_QUERY_CACHE, new Doctrine_Cache_Apc());
+            self::$__cached = true;
+        }
+    }
+
+    public static function getEventByIds(array $ids = array()) {
+        $conn = AgaviContext::getInstance()->getDatabaseManager()->getDatabase('eventdb_r')->getConnection();
+        $q = Doctrine_Query::create($conn)->select('*')->from('EventDbEvent e')->whereIn("id", $ids);
+        return $q->execute();
+    }
+
+    public static function getEventByHostnames(array $hostnames = array()) {
+        $conn = AgaviContext::getInstance()->getDatabaseManager()->getDatabase('eventdb_r')->getConnection();
+        $q = Doctrine_Query::create($conn)->select('*')->from('EventDbEvent e')->whereIn("host_name", $hostnames);
+        return $q->execute();
+    }
+
+    public static function getEventByAddresses(array $addresses = array()) {
+        foreach ($addresses as &$address) {
+            $address = AgaviContext::getInstance()->getModel("EventDBHelper", "EventDB")->resolveAddress($address);
+        }
+        $conn = AgaviContext::getInstance()->getDatabaseManager()->getDatabase('eventdb_r')->getConnection();
+        $q = Doctrine_Query::create($conn)->select('*')->from('EventDbEvent e')->whereIn("host_address", $hostnames);
+        return $q->execute();
+    }
+
+    public static function getCommentsForEventids(array $ids = array()) {
+        $conn = AgaviContext::getInstance()->getDatabaseManager()->getDatabase('eventdb_r')->getConnection();
+        $q = Doctrine_Query::create($conn)->select('*')->from('EventDbComments e')->whereIn("event_id", $ids);
+        return $q->execute();
+    }
+
 }
