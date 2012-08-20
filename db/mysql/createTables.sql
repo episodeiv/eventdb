@@ -33,5 +33,5 @@ CREATE TABLE `comment` (
   KEY `fk_event_id` (`event_id`),
   KEY `idx_all` (`id`,`event_id`,`user`),
   CONSTRAINT `db_comments_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `event` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB
+) ENGINE=InnoDB;
 
