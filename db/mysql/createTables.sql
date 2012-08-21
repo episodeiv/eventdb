@@ -1,6 +1,6 @@
 CREATE TABLE `event` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
-  `host_name` varchar(255) character set ascii collate ascii_bin NOT NULL,
+  `host_name` varchar(255) NOT NULL,
   `host_address` binary(16) NOT NULL,
   `type` int(11) NOT NULL,
   `facility` int(11) ,
