@@ -112,7 +112,6 @@ cset('page.fields', Array (
   'facility'		=> 'Facility',
   'priority'		=> 'Priority',
   'created'			=> 'Created',
-  'modified'		=> 'Modified',
   'program'			=> 'Program',
   'message'			=> 'Message'
 ));
