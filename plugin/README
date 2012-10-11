@@ -1,3 +1,0 @@
-check_eventdb.py
-
-The check plugin can be installed via easy_install, but a packed version (everything in one file) can be found under packed/check_eventdb.py
