@@ -5,7 +5,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
     var parentCmp = cfg.parentCmp;
     
     return {
-        show : function(eventGrid) {
+        show : function(eventGrid,forall) {
             if(!oWin){ // only create the window once
                 oWin = new Ext.Window({
                     title: _('Acknwoledge/Add comment'),
@@ -86,18 +86,31 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                                             });
                                         }
                                     });
-                                    var eventsJson = Ext.encode([Ext.apply(vals, {ids: events})]);
-                                    eventGrid.unselectAll();
-                                    oForm.getForm().submit({
-                                        params: Ext.apply({'comments': eventsJson}, params),
-                                        success: function(oForm, action) {
-                                            AppKit.notifyMessage(_('Request successful'), action.result.message);
-                                            // TODO: Reload only if selected.
-                                            eventGrid.refresh();
-                                            detailPanel.update();
+                                    if(!this.ownerCt.ownerCt.ownerCt.forall) {
+                                        var eventsJson = Ext.encode([Ext.apply(vals, {ids: events})]);
+                                        eventGrid.unselectAll();
+                                        oForm.getForm().submit({
+                                            params: Ext.apply({'comments': eventsJson}, params),
+                                            success: function(oForm, action) {
+                                                // TODO: Reload only if selected.
+                                                eventGrid.refresh();
+                                                detailPanel.update();
 
-                                        }
-                                    });
+                                            }
+                                        });
+                                    } else {
+                                        var eventsJson = Ext.encode([Ext.apply(vals, {filter: eventGrid.getStore().baseParams.jsonFilter})]);
+                                        eventGrid.unselectAll();
+                                        oForm.getForm().submit({
+                                            params: Ext.apply({'comments': eventsJson}, params),
+                                            success: function(oForm, action) {
+                                                // TODO: Reload only if selected.
+                                                eventGrid.refresh();
+                                                detailPanel.update();
+
+                                            }
+                                        });
+                                    }
                                     oWin.hide();
                                 }
                             }
@@ -112,6 +125,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                 parentCmp.add(Ext.clean(oWin));
                 parentCmp.doLayout();
             }
+            oWin.forall = forall || false;
             oWin.show(this);
         }
     }

@@ -7,7 +7,9 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                 url: url,
                 root: 'events',
                 fields: [
-                    {name: field}
+                {
+                    name: field
+                }
                 ],
                 baseParams: {
 
@@ -68,7 +70,7 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
             })
             
             var tBar = [
-                'Contains'
+            'Contains'
             ,{
                 xtype: 'textfield',
                 fieldLabel: _('Contains'),
@@ -94,7 +96,8 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                 items: new Ext.grid.GridPanel({
                     store: store,
                     columns: [{
-                        header: field, dataIndex: field
+                        header: field, 
+                        dataIndex: field
                     }],
                     
                     bbar: pBar,
@@ -209,13 +212,23 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
 
             var incgrid = new Ext.grid.GridPanel({
                 store: incstore,
-                columns: [{header: name,dataIndex:fieldname}],
-                viewConfig: {forceFit: true}
+                columns: [{
+                    header: name,
+                    dataIndex:fieldname
+                }],
+                viewConfig: {
+                    forceFit: true
+                }
             });
             var excgrid = new Ext.grid.GridPanel({
                 store: excstore,
-                columns: [{header: name,dataIndex:fieldname}],
-                viewConfig: {forceFit: true}
+                columns: [{
+                    header: name,
+                    dataIndex:fieldname
+                }],
+                viewConfig: {
+                    forceFit: true
+                }
             });
             incgrid.reset = function() {
                 incstore.removeAll();
@@ -263,7 +276,9 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                 xtype: 'panel',
                 tools: [{
                     id: 'plus',
-                    handler: function() {handler.addPopup.call(this,fieldname,incstore,excstore)},
+                    handler: function() {
+                        handler.addPopup.call(this,fieldname,incstore,excstore)
+                        },
                     scope: this
                 },{
                     id: 'minus',
@@ -426,9 +441,15 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                     case 'programFilter':
                         var target;
                         if(i == "hostFilter")
-                            target = {p: hostPatternField, i:hostIncludeExcludeField}
+                            target = {
+                                p: hostPatternField, 
+                                i:hostIncludeExcludeField
+                            }
                         else
-                            target = {p: programPatternField, i:programIncludeExcludeField}
+                            target = {
+                                p: programPatternField, 
+                                i:programIncludeExcludeField
+                            }
                         tmp = vals[i];
                         target.p.setIncludeValue(tmp.include_pattern,tmp.include_pattern_type);
                         target.p.setExcludeValue(tmp.exclude_pattern,tmp.exclude_pattern_type);

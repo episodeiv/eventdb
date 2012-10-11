@@ -2,47 +2,47 @@
 Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
     var getDefaultFilter = function() {
         return {
-			hostFilter: {
-				include_pattern: false,
-				include_pattern_type: 'disabled',
-				exclude_pattern_type: 'disabled',
-				exclude_pattern: false,
-				include_set: [],
-				exclude_set: []
-			},
-			programFilter: {
-				include_pattern: false,
-				include_pattern_type: 'disabled',
-				exclude_pattern: false,
-				exclude_pattern_type: 'disabled',
-				include_set: [],
-				exclude_set: []
-			},
-			messageFilter: {
-				items: []
-			},
-			misc: {
-				hideAck: false
-			},
-			sourceExclusion: [],
-			priorityExclusion: [],
-			facilityExclusion: [],
-			timespan: {
-				from: -1,
-				to: -1
-			},
-			display: {
-				order: {
-					field: 'created',
-					dir: 'desc'
-				},
-				group: {
-					field: null
-				},
-				count: 'id',
-				limit: 25
-			}
-		}
+            hostFilter: {
+                include_pattern: false,
+                include_pattern_type: 'disabled',
+                exclude_pattern_type: 'disabled',
+                exclude_pattern: false,
+                include_set: [],
+                exclude_set: []
+            },
+            programFilter: {
+                include_pattern: false,
+                include_pattern_type: 'disabled',
+                exclude_pattern: false,
+                exclude_pattern_type: 'disabled',
+                include_set: [],
+                exclude_set: []
+            },
+            messageFilter: {
+                items: []
+            },
+            misc: {
+                hideAck: false
+            },
+            sourceExclusion: [],
+            priorityExclusion: [],
+            facilityExclusion: [],
+            timespan: {
+                from: -1,
+                to: -1
+            },
+            display: {
+                order: {
+                    field: 'created',
+                    dir: 'desc'
+                },
+                group: {
+                    field: null
+                },
+                count: 'id',
+                limit: 25
+            }
+        }
     }
 
     this.currentFilterObject = getDefaultFilter(); // statically set to default filter at first time
@@ -59,23 +59,23 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
     }
 
     this.hasActiveFilter = function() {
-		if(this.getHostIncludePatternMatchType() != 'disabled')
-			return true;
+        if(this.getHostIncludePatternMatchType() != 'disabled')
+            return true;
         if(this.getHostExcludePatternMatchType() != 'disabled')
-			return true;
-		if(this.getProgramIncludePatternMatchType() != 'disabled')
-			return true;
+            return true;
+        if(this.getProgramIncludePatternMatchType() != 'disabled')
+            return true;
         if(this.getProgramExcludePatternMatchType() != 'disabled')
-			return true;
+            return true;
 
-		if(this.getMessageFilter().length > 0)
-			return true;
-		if(this.getExcludedEventSources().length > 0)
-			return true;
+        if(this.getMessageFilter().length > 0)
+            return true;
+        if(this.getExcludedEventSources().length > 0)
+            return true;
         if(this.getExcludedPriorities().length > 0)
             return true;
         if(this.getExcludedFacilities().length >0)
-			return true;
+            return true;
         if(this.showsAcknowledged())
             return false;
         if(this.getFromTime() > -1 || this.getToTime() > 1)
@@ -167,7 +167,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
         return this.currentFilterObject.sourceExclusion;
     }
 
-	this.toggleAcknowledged = function(show) {
+    this.toggleAcknowledged = function(show) {
         if(typeof show === "undefined")
             this.currentFilterObject.misc.hideAck = !this.currentFilterObject.misc.hideAck;
         else
@@ -191,10 +191,10 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
     }
 
     this.getToTime = function() {
-        return this.currentFilterObject.timepan.to;
+        return this.currentFilterObject.timespan.to;
     }
 
-	this.setHostIncludes = function(includeArray) {
+    this.setHostIncludes = function(includeArray) {
         this.currentFilterObject.hostFilter.include_set = includeArray;
     }
 
@@ -287,7 +287,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
         return this.currentFilterObject.messageFilter.items;
     }
 
-   	this.setDisplayLimit = function(limit) {
+    this.setDisplayLimit = function(limit) {
         if(!isNaN(limit))
             this.currentFilterObject.display.limit = limit;
         else

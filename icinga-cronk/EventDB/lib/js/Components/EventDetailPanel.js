@@ -23,7 +23,11 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
             id = this.currentId;
         }
 
-        this.commentStore.baseParams = {event:id, offset: 0, limit: 25};
+        this.commentStore.baseParams = {
+            event:id, 
+            offset: 0, 
+            limit: 25
+        };
         this.commentStore.load();
         this.currentId = id;
     },
@@ -44,11 +48,25 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
             url: cfg.commentUrl,
             root: 'comments',
             fields: [
-                {name: 'id'},
-                {name: 'user'},
-                {name: 'message'},
-                {name: 'type'},
-                {name: 'created'}
+            {
+                name: 'id'
+            },
+
+            {
+                name: 'user'
+            },
+
+            {
+                name: 'message'
+            },
+
+            {
+                name: 'type'
+            },
+
+            {
+                name: 'created'
+            }
             ]
         });
     },
@@ -70,7 +88,7 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
         this.ownerCt.expand();
         this.ownerCt.show();
     },
-/*
+    /*
  * 			{name: 'id'},
 			{name: 'host_name'},
 			{name: 'address'},
@@ -88,36 +106,45 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
     getDetailTable: function() {
 
         var cmp = new Ext.Container({
-            data: {type: '0',host:'None',message:'none',facility:0,priority:0,program:'None',created: '0',address:'0.0.0.0'},
+            data: {
+                type: '0',
+                host:'None',
+                message:'none',
+                facility:0,
+                priority:0,
+                program:'None',
+                created: '0',
+                address:'0.0.0.0'
+            },
             autoScroll:true,
             layout: 'fit',
             tpl: new Ext.XTemplate(
                 "<table style='font-size:12px'>",
-                    "<tr>",
-                       "<td><b>Type</b></td><td>{[Cronk.EventDB.Helper.resolveTypeNr(values.type)]}</td>",
-                     "</tr><tr>",
-                        "<td><b>Host:</b></td><td>{host_name}</td>",
-                     "</tr><tr colspan='2'>",
-                       "<td><b>Message:</b></td>",
-                     "</tr><tr colspan='2' rowspan='2'>",
-                       "<td  colspan='2'>",
-                           "<div style='word-wrap:break-word;width:100%;height:40px;overflow:auto'>",
-                               "{[Cronk.EventDB.Helper.messageFormatter(values.message)]}",
-                           "</div>",
-                       "</td>",
-                    "</tr><tr>",
-                       "<td><b>Address:</b></td><td>{address}</td>",
-                    "</tr><tr>",
-                       "<td><b>Facility:</b></td><td>{facility}</td>",
-                    "</tr><tr>",
-                       "<td><b>Priority:</b></td><td>{priority}</td>",
-                    "</tr><tr>",
-                       "<td><b>Program:</b></td><td>{program}</td>",
-                    "</tr><tr>",
-                       "<td><b>Created:</b></td><td>{created}</td>",
-                    "</tr>",
+                "<tr>",
+                "<td><b>Type</b></td><td>{[Cronk.EventDB.Helper.resolveTypeNr(values.type)]}</td>",
+                "</tr><tr>",
+                "<td><b>Host:</b></td><td>{host_name}</td>",
+                "</tr><tr colspan='2'>",
+                "<td><b>Message:</b></td>",
+                "</tr><tr colspan='2' rowspan='2'>",
+                "<td  colspan='2'>",
+                "<div style='word-wrap:break-word;width:100%;height:40px;overflow:auto'>",
+                "{[Cronk.EventDB.Helper.messageFormatter(values.message)]}",
+                "</div>",
+                "</td>",
+                "</tr><tr>",
+                "<td><b>Address:</b></td><td>{address}</td>",
+                "</tr><tr>",
+                "<td><b>Facility:</b></td><td>{facility}</td>",
+                "</tr><tr>",
+                "<td><b>Priority:</b></td><td>{priority}</td>",
+                "</tr><tr>",
+                "<td><b>Program:</b></td><td>{program}</td>",
+                "</tr><tr>",
+                "<td><b>Created:</b></td><td>{created}</td>",
+                "</tr>",
                 "</table>"
-            )
+                )
         });
 
         this.detailTable = cmp;
@@ -131,7 +158,9 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                 cmp.on("afterrender",function() {
                     cmp.update(event.data);
                     Cronk.EventDB.Helper.initCronkLinks(cmp.el.dom);
-                },this,{single:true});
+                },this,{
+                    single:true
+                });
             }
             
         }
@@ -166,8 +195,8 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                 Cronk.EventDB.Helper.clipboardHandler(
                     Ext.util.Format.htmlEncode(
                         cmp.currentEvent.get("message")
-                    )
-                );
+                        )
+                    );
             },
             scope:this
         }
@@ -184,7 +213,9 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                     sortable: true
                 },
                 columns: [{
-                    header: _('Type'), dataIndex: 'type',renderer: function(v) {
+                    header: _('Type'), 
+                    dataIndex: 'type',
+                    renderer: function(v) {
                         switch(v) {
                             case '0':
                                 return '<div class="icon-16 icinga-icon-note" qwidth="200px" qtip="'+_('Comment')+'"></div>';
@@ -193,22 +224,37 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                             case '2':
                                 return '<div class="icon-16 icinga-icon-cancel" qwidth="200px" qtip="'+_('Revoke')+'"></div>';
                         }
-                    }},
-                    {header: _('Author'), dataIndex: 'user'},
-                    {header: _('Created'), dataIndex: 'created', width: 150},
-                    {header: _('Message'), dataIndex: 'message', width: 200}
-                ]
+                    }
+                },
+
+                {
+                header: _('Author'), 
+                dataIndex: 'user'
+            },
+
+            {
+                header: _('Created'), 
+                dataIndex: 'created', 
+                width: 150
+            },
+
+            {
+                header: _('Message'), 
+                dataIndex: 'message', 
+                width: 200
+            }
+            ]
             }),
-            bbar: new Ext.PagingToolbar({
-                pageSize: 25,
-                store: this.commentStore,
-                displayInfo: true,
-                displayMsg: _('Displaying comments {0} - {1} of {2}'),
-                emptyMsg: _('No comments to display')
-            }),
-            frame: true,
-            border: false
-        }
+        bbar: new Ext.PagingToolbar({
+            pageSize: 25,
+            store: this.commentStore,
+            displayInfo: true,
+            displayMsg: _('Displaying comments {0} - {1} of {2}'),
+            emptyMsg: _('No comments to display')
+        }),
+        frame: true,
+        border: false
     }
+}
 });
 	
