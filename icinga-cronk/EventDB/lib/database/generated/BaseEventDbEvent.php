@@ -99,6 +99,15 @@ abstract class BaseEventDbEvent extends Doctrine_Record
              'notnull' => false,
              'autoincrement' => false,
              ));
+        $this->hasColumn('alternative_message', 'string', 4096, array(
+             'type' => 'string',
+             'length' => 4096,
+             'fixed' => false,
+             'unsigned' => false,
+             'primary' => false,
+             'notnull' => false,
+             'autoincrement' => false,
+             ));
         $this->hasColumn('ack', 'integer', 1, array(
              'type' => 'integer',
              'length' => 1,
@@ -125,7 +134,42 @@ abstract class BaseEventDbEvent extends Doctrine_Record
              'notnull' => false,
              'autoincrement' => false,
              ));
-
+        $this->hasColumn('group_leader', 'integer', 8, array(
+             'type' => 'integer',
+             'length' => 8,
+             'fixed' => false,
+             'unsigned' => true,
+             'primary' => false,
+             'autoincrement' => false,
+             ));
+        $this->hasColumn('group_count', 'integer', 8, array(
+             'type' => 'integer',
+             'length' => 8,
+             'fixed' => false,
+             'unsigned' => true,
+             'primary' => false,
+             'autoincrement' => false,
+             ));
+        $this->hasColumn('group_id', 'string', 16, array(
+             'type' => 'string',
+             'fixed' => false,
+			 'length' => 16,
+             'unsigned' => false,
+             'primary' => false,
+             'notnull' => true,
+             'autoincrement' => false,
+             ));
+        $this->hasColumn('group_active', 'integer', 1, array(
+             'type' => 'integer',
+             'length' => 1,
+             'fixed' => false,
+             'unsigned' => false,
+             'primary' => false,
+             'default' => '0',
+             'notnull' => false,
+             'autoincrement' => false,
+             ));
+        
 		$this->index('idx_main',array(
 			'fields' => array('program','created','modified','priority','facility','ack','host_name','host_address','id')
 		));

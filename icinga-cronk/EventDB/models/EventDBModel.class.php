@@ -176,8 +176,9 @@ class EventDB_EventDBModel extends EventDBBaseModel {
         //$countDql = "SELECT  COUNT(".$filter['count'].") as __count";
         $dql = " FROM EventDbEvent";
         $wherePart = $this->buildWhereDql($filter['filter'], $vals);
+        $dql .= " WHERE group_leader IS NULL OR group_leader = -1 ";
         if ($wherePart)
-            $dql .= " WHERE " . $wherePart;
+            $dql .=  "AND ".$wherePart;
 
         if ($filter['group_by'] != false) {
             $dql .= " GROUP BY " . $filter['group_by'];
@@ -222,6 +223,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
                 $eventHosts[] = array("host" => $event->host_name, "addr" => $event->ip_address);
             }
             $event->host_address = null;
+            $event->group_id = base64_encode($event->group_id);
         }
 
         $API = $this->getContext()->getModel('Icinga.ApiContainer', 'Web');
@@ -258,8 +260,12 @@ class EventDB_EventDBModel extends EventDBBaseModel {
                     break;
                 }
             }
+            if($event['group_count'] > 1) {
+                $event["message"] = str_replace('$_COUNT',$event['group_count'],$event["alternative_message"]);
+                
+            }
         }
-
+        
         /*
           if($filter['group_by'])
           $count = $count->count();
