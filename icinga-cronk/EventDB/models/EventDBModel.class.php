@@ -84,13 +84,14 @@ class EventDB_EventDBModel extends EventDBBaseModel {
             return false;
         $isFirst = true;
         $dql = "";
+        $filterObj = new ArrayObject($filterCollection);
+        $it = $filterObj->getIterator();
 
-        foreach ($filterCollection as $filter) {
-
+        foreach ($it as $key=>$filter) {
             $isNegative = false;
             if (!isset($filter["isGroup"])) {
                 $isNegative = $this->getOperator($filter['operator'], $filter['value']);
-                if ($filter['value'] === '' || is_null($filter['value']))
+                if ($filter['value'] === '' || $filter['value'] === NULL)
                     continue;
             }
             $chain = strtoupper($type);
@@ -99,6 +100,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 
             if ($isNegative === true)
                 $chain = $chain . " NOT ";
+
 
             if (!isset($filter["isGroup"])) {
                 if ($filter["operator"] == "REGEXP_LIKE") {
@@ -133,9 +135,6 @@ class EventDB_EventDBModel extends EventDBBaseModel {
                     }
                 }
             } else {
-
-
-
                 $subDql = $this->buildWhereDql($filter["filter"], $values, $filter["operator"]);
                 if ($subDql)
                     $dql .= " " . $chain . " (" . $subDql . ")";
@@ -143,6 +142,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
             if ($dql != "")
                 $isFirst = false;
         }
+        
         return $dql;
     }
 
@@ -159,7 +159,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
     public function getEvents($default = array(), $offset = 0, $limit = false, $filter = array(
         'simple' => false,
         'target' => 'EventDbEvent',
-        'order_by' => false,
+        'order_by' => 'modified',
         'dir' => 'desc',
         'columns' => array('*'),
         'group_by' => false,
@@ -176,7 +176,8 @@ class EventDB_EventDBModel extends EventDBBaseModel {
         //$countDql = "SELECT  COUNT(".$filter['count'].") as __count";
         $dql = " FROM EventDbEvent";
         $wherePart = $this->buildWhereDql($filter['filter'], $vals);
-        $dql .= " WHERE group_leader IS NULL OR group_leader = -1 ";
+        $dql .= " WHERE (group_leader IS NULL OR group_leader = -1) ";
+        
         if ($wherePart)
             $dql .=  "AND ".$wherePart;
 
@@ -194,7 +195,6 @@ class EventDB_EventDBModel extends EventDBBaseModel {
             $dql .= " OFFSET " . $offset;
         }
         $dql = $selectDql . $dql;
-
         if ($filter['simple']) // required for host/program summary
             return $this->getPlainQuery($dql, "", $vals);
 
@@ -227,7 +227,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
         }
 
         $API = $this->getContext()->getModel('Icinga.ApiContainer', 'Web');
-
+        
         $search = @$API->createSearch()->setSearchTarget(IcingaApiConstants::TARGET_HOST);
         $search->setResultColumns(array('HOST_NAME', 'HOST_ADDRESS'));
         $search->setSearchGroup(array('HOST_NAME', 'HOST_OBJECT_ID', 'HOST_ADDRESS'));
@@ -261,8 +261,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
                 }
             }
             if($event['group_count'] > 1) {
-                $event["message"] = str_replace('$_COUNT',$event['group_count'],$event["alternative_message"]);
-                
+                $this->showLastEvent($event); 
             }
         }
         
@@ -273,6 +272,15 @@ class EventDB_EventDBModel extends EventDBBaseModel {
           $count = $count->getFirst()->__count;
          */
         return array("values" => $r/* , "count" => $count */);
+    }
+
+    public function showLastEvent(&$event) {
+        $q = Doctrine_Query::create($this->getReadConnection())
+            ->select('message,priority')->from('EventDBEvent')->where('group_leader='.$event["id"])
+            ->orderBy('id desc')->limit(1)->execute();
+        $r = $q->getFirst()->toArray(true);
+        $event["message"] = $q["message"]." (".$event["group_count"].")";
+        $event["priority"] = $q["priority"];
     }
 
     public function getCount($field) {
