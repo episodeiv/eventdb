@@ -250,15 +250,14 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 
             $event['real_host'] = false;
             $event = array_merge($event, $eventAdditional[$event['id']]);
-            foreach ($res as $host) {
-                $hostname = $host['HOST_NAME'];
-                $ipAddress = $host['HOST_ADDRESS'];
-                if ($event['host_name'] == $hostname || $event['ip_address'] = $ipAddress) {
-                    $event['real_host'] = $hostname;
-                    break;
-                }
-            }
-        }
+            if ($event['host_name'] == $hostname) {
+                $event['real_host'] = $hostname;
+                break;
+            } else if (isset($event['ip_address']) && $event['ip_address'] == $ipAddress) {
+                $event['real_host'] = $hostname;
+            }   
+        }   
+
 
         /*
           if($filter['group_by'])
