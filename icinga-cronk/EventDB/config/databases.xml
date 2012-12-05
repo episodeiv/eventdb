@@ -36,6 +36,9 @@
                 <ae:parameter name="load_models">%core.module_dir%/EventDB/lib/database/generated/</ae:parameter>
                 <ae:parameter name="models_directory">%core.module_dir%/EventDB/lib/database</ae:parameter>	
             </database>
+			   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="@web_conf_dir@/databases.xml#xpointer(databases/node())">
+                <xi:fallback></xi:fallback>
+			   </xi:include>
         </databases>
     </ae:configuration>
 
