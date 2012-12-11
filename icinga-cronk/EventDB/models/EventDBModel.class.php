@@ -255,6 +255,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
                 break;
             } else if (isset($event['ip_address']) && $event['ip_address'] == $ipAddress) {
                 $event['real_host'] = $hostname;
+            
             }   
         }   
 
