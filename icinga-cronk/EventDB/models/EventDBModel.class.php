@@ -245,19 +245,22 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 
         $r = $q->toArray(true);
 
-        $q->free();
-        foreach ($r as &$event) {
-
+        $q->free(); 
+        foreach ($r as &$event) { 
             $event['real_host'] = false;
             $event = array_merge($event, $eventAdditional[$event['id']]);
-            if ($event['host_name'] == $hostname) {
-                $event['real_host'] = $hostname;
-                break;
-            } else if (isset($event['ip_address']) && $event['ip_address'] == $ipAddress) {
-                $event['real_host'] = $hostname;
-            
+            foreach($res as $host) {
+                $hostname = $host['HOST_NAME'];
+                $ipAddress = $host['HOST_ADDRESS'];
+                if ($event['host_name'] == $hostname) {
+                    $event['real_host'] = $hostname;
+                    break;
+                } else if (isset($event['ip_address']) && $event['ip_address'] == $ipAddress) {
+                    $event['real_host'] = $hostname;
+                
+                }
             }   
-        }   
+        } 
 
 
         /*
