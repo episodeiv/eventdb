@@ -1,0 +1,25 @@
+README for RHEL Package
+
+eventdb2 			main package
+eventdb2-www 			Classic Web Interface
+eventdb2-syslog-ng2mysql	Syslog-NG Adapter incl Daemon
+eventdb2-rsyslog-mysql		RSyslog Config for direct MySQL Inserts
+eventdb2-plugin			Check plugin for Icinga/Nagios
+eventdb2-icinga-web		Icinga Web Module Integration
+
+Plugin Config
+
+Within the docs there are sample configs in check_eventdb_cmd.cfg and check_eventdb_service.cfg
+
+Database Setup
+
+The database schema script is located in the documenation dir.
+
+# mysql -u root -p
+mysql> CREATE DATABASE eventdb;
+mysql> GRANT SELECT, INSERT, UPDATE, CREATE, DELETE, ON eventdb.* TO 'eventdb'@'localhost' IDENTIFIED BY 'eventdb';
+mysql> FLUSH PRIVILEGES;
+
+# mysql -u root -p eventdb < mysql/createTables.sql
+
+
