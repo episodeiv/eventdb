@@ -531,4 +531,4 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
             colspan: 2
         }]
     })
-}
+};

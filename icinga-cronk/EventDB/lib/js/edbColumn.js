@@ -237,4 +237,4 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	}
 		
 
-})()
+})();

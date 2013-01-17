@@ -329,4 +329,4 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
         this.resetFilterObject(true);
     }
 
-}
+};

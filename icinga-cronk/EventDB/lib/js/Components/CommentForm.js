@@ -129,4 +129,4 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
             oWin.show(this);
         }
     }
-}
+};
