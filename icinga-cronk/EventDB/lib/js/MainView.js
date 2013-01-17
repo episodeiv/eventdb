@@ -855,7 +855,7 @@ Cronk.EventDB.MainView = function(cfg) {
     if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
         Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
     eventGrid.refreshTask.delay(1000);  
-}
+};
 
 // must be available from xtemplate
 Ext.ns("Cronk.EventDB.Helper").resolveTypeNr = function(v) {
@@ -869,7 +869,7 @@ Ext.ns("Cronk.EventDB.Helper").resolveTypeNr = function(v) {
         default:
             return 'Unknown';
     }
-}
+};
 // detects URLs in messages
 Ext.ns("Cronk.EventDB.Helper").messageFormatter = function(v) {
     v = Ext.util.Format.htmlEncode(v);
@@ -889,7 +889,7 @@ Ext.ns("Cronk.EventDB.Helper").messageFormatter = function(v) {
     }
 
     return v;
-}
+};
 
 Ext.ns("Cronk.EventDB.Helper").initCronkLinks = function(startDOM) {
     var elems = Ext.DomQuery.select('a[cronk_href]',startDOM);
@@ -905,7 +905,7 @@ Ext.ns("Cronk.EventDB.Helper").initCronkLinks = function(startDOM) {
             return true;
         });
     });
-}
+};
 
 Ext.ns("Cronk.EventDB.Helper").clipboardHandler = function(text) {
     if(typeof window.clipboardData !== "undefined") {
@@ -924,4 +924,4 @@ Ext.ns("Cronk.EventDB.Helper").clipboardHandler = function(text) {
             autoDestroy:true
         }).show(Ext.getBody());
     }
-}
+};
