@@ -10,7 +10,7 @@
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itsels
 
-Name:           eventdb2
+Name:           eventdb
 Summary:        Manage and administrate recipient events for Icinga and Nagios
 Version:        2.0.4rc
 Release:        1
