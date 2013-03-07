@@ -59,12 +59,25 @@ Available targets:
  			</then>
 		</if>
 -->		
-		<input propertyname="rdbms" promptChar="?" defaultValue="mysql" validArgs="mysql,oracle">Which db backend do you want to use?</input>
+		<input propertyname="rdbms" promptChar="?" defaultValue="mysql" validArgs="mysql,oracle,postgresql">Which db backend do you want to use?</input>
 		<if>
-			<equals arg1="${rdbms}" arg2="mysql" />
+			<equals arg1="${rdbms}" arg2="oracle" />
 			<then>
 				<delete dir="${PATH_Icinga}/app/modules/EventDB/lib/database/generated/oracle" />
  			</then>
+		    <elseif>	
+                <equals arg1="${rdbms}" arg2="postgresql" />
+			    <then>
+				    <delete dir="${PATH_Icinga}/app/modules/EventDB/lib/database/generated/postgresql" />
+ 			    </then>
+			</elseif>
+            <elseif>
+                <equals arg1="${rdbms}" arg2="mysql" />
+			    <then>
+				    <delete dir="${PATH_Icinga}/app/modules/EventDB/lib/database/generated/oracle" />
+				    <delete dir="${PATH_Icinga}/app/modules/EventDB/lib/database/generated/postgresql" />
+ 			    </then>
+            </elseif>
 		</if>
 		
 

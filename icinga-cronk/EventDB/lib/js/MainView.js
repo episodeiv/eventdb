@@ -861,10 +861,13 @@ Cronk.EventDB.MainView = function(cfg) {
 Ext.ns("Cronk.EventDB.Helper").resolveTypeNr = function(v) {
     switch(v) {
         case '0':
+        case 0:
             return 'Syslog';
         case '1':
+        case 1:
             return 'SNMP';
         case '2':
+        case 2:
             return 'Mail';
         default:
             return 'Unknown';

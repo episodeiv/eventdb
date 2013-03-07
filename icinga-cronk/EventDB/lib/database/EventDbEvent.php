@@ -23,8 +23,8 @@ class EventDbEventListener extends Doctrine_Record_Listener {
 
         $record = $event->getInvoker();
         $this->preUpdate($event);
-
-        if (Doctrine_Manager::getInstance()->getConnection("eventdb_w") != "mysql") {
+        
+        if (Doctrine_Manager::getInstance()->getConnection("eventdb_w") == "oracle") {
 
             $addr = str_split($record->host_address);
             $str = "";
@@ -50,7 +50,10 @@ class EventDbEventListener extends Doctrine_Record_Listener {
         $record = $event->getInvoker();
         $record->prepareWrite();
         $record->modified = date('Y-m-d H:i:s', time());
-        $record->host_address = $record->resolveAddress($record->ip_address);
+        if(!property_exists("BaseEventDBEvent","IS_POSTGRESQL"))
+            $record->host_address = $record->resolveAddress($record->ip_address);
+        else
+            $record->host_address = $record->ip_address;
     }
 
     public function switchRead(Doctrine_Event $event) {
@@ -160,13 +163,19 @@ class EventDbEvent extends BaseEventDbEvent {
     }
 
     public static function resolveAddress($address) {
+        if(property_exists("BaseEventDBEvent","IS_POSTGRESQL")) {
+            return $address;
+        }
         return AgaviContext::getInstance()->getModel("EventDBHelper", "EventDB")->resolveAddress($address);
         ;
     }
 
     public function getAddressFromBinary($bin) {
+        if(property_exists("BaseEventDBEvent","IS_POSTGRESQL")) {
+            return $bin;
+        }
+
         return AgaviContext::getInstance()->getModel("EventDBHelper", "EventDB")->getAddressFromBinary($bin);
-        ;
     }
 
     public function addComment($msg, $user, $type = 0) {
