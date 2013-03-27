@@ -18,9 +18,6 @@ Url:            https://www.netways.org/projects/show/eventdb
 License:        GPL v2 or later
 Group:          System/Monitoring
 Source0:        eventdb-%version.tar.gz
-%if "%{_vendor}" == "suse"
-Source1:        syslog-ng-ng2mysql.init
-%endif
 Requires:       mysql
 %if "%{_vendor}" == "suse"
 BuildRequires:  apache2
@@ -157,9 +154,6 @@ EOF
 #
 # install syslog-ng2mysql.pl
 pushd agenten/syslog-ng
-%if "%{_vendor}" == "suse"
-install -Dm755 %{SOURCE1} %buildroot/%{_sysconfdir}/init.d/syslog-ng2mysql
-%endif
 install -m644 syslog-ng.conf %{buildroot}/%{_defaultdocdir}/%{name}/
 mkdir -p %{buildroot}/%{_defaultdocdir}/%{name}/agent-examples/
 cp -r ../not_supported_yet/* %{buildroot}/%{_defaultdocdir}/%{name}/agent-examples/
