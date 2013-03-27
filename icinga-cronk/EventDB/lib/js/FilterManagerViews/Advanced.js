@@ -115,10 +115,12 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
         },
 
         addFilterMsgRow: function(elem,values) {
+            AppKit.log("Filter message ",elem,values);
             var presets = values || {};
 
             var ct = elem.add ? elem :  elem.ownerCt.ownerCt; //toolbar->panel
             var id = Ext.id('row');
+            AppKit.log(presets['type'] == 'exc');
             var row = new Ext.form.CompositeField({
                 xtype: 'compositefield',
                 width: 600,
@@ -130,11 +132,11 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                     xtype: 'cycle',
                     id: 'type_'+id,
                     items: [{
-                        selected:  presets['type'] == 'inc',
+                        checked:  presets['type'] == 'inc',
                         text: _('Include'),
                         value: 'inc'
                     }, {
-                        selected:  presets['type'] == 'exc',
+                        checked:  presets['type'] == 'exc',
                         text: _('Exclude'),
                         value: 'exc'
                     }]
@@ -177,14 +179,13 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                 g = ct.getValue;
             ct.getValue = function(set) {
                 set = set || [];
-
                 if(!row.hidden) {
                     set.push(row.getValue());
                 }
-
                 if(g)
                     return g(set);
             }
+
             ct.reset = function() {
                 if(row) {
                     ct.remove(row);
