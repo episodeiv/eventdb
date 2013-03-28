@@ -8,7 +8,7 @@ Cronk.EventDB.MainView = function(cfg) {
     var showCopyPaste = cfg.showCopyPaste;
     var parentCmp = cfg.parentCmp;
     var url = cfg.eventUrl;
-
+    Cronk.EventDB.BaseURL = url;
     var eventDetailPanel = new Cronk.EventDB.Components.EventDetailPanel(cfg);
     var commentForm = new Cronk.EventDB.Components.CommentForm(cfg, eventDetailPanel);
 
@@ -460,7 +460,7 @@ Cronk.EventDB.MainView = function(cfg) {
             }
         }
     });
-
+    Ext.ns("Cronk.EventDB").EventGrid = _eventGrid;
     var eventGrid = new _eventGrid({
         id: "evGrid_"+this.id,
 		

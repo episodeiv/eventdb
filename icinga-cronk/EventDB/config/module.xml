@@ -33,7 +33,7 @@
                     <ae:parameter>%core.module_dir%/EventDB/config/routing.xml</ae:parameter>
                 </setting>
 
-
+                <setting name="use_edbc">true</setting>
 
                 <setting name="agavi.include.templateExtensions">
                     <ae:parameter>%core.module_dir%/EventDB/config/templateExtensions/EventDBServiceExtension.xml</ae:parameter>

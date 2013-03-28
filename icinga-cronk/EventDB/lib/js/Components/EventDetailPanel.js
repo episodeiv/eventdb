@@ -2,7 +2,7 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
     currentId: null,
     layout: 'border',
     showCopyPaste: false,
-    
+
     constructor: function(cfg) {
         cfg = cfg || {}
         this.showCopyPaste = cfg.showCopyPaste || false;
@@ -24,8 +24,8 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
         }
 
         this.commentStore.baseParams = {
-            event:id, 
-            offset: 0, 
+            event:id,
+            offset: 0,
             limit: 25
         };
         this.commentStore.load();
@@ -148,32 +148,45 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
         });
 
         this.detailTable = cmp;
+        var subGrid = new Cronks.EventDB.Components.SubGridFactory();
         // wrap the update function to catch updates before DOM is rendererd
         this.detailTable.lazyUpdate = function(event) {
+
             cmp.currentEvent = event;
-            if(cmp.rendered) {    
+            if(cmp.rendered) {
                 cmp.update(event.data);
                 Cronk.EventDB.Helper.initCronkLinks(cmp.el.dom);
+                subGrid.grid.getStore().setBaseParam("group_leader",event.data.id);
             } else {
                 cmp.on("afterrender",function() {
                     cmp.update(event.data);
+                    subGrid.grid.getStore().setBaseParam("group_leader",event.data.id);
                     Cronk.EventDB.Helper.initCronkLinks(cmp.el.dom);
                 },this,{
                     single:true
                 });
             }
-            
+            subGrid.grid.getStore().load();
         }
 
 
-        return new Ext.Panel({
-            title: _('Details'),
-            layout: 'fit',
+        return new Ext.TabPanel({
+            activeTab:0,
             region:'east',
             width:"50%",
-            padding: 4,
-            tbar: this.showCopyPaste ?[this.getClipboardButton(cmp)] : null,
-            items: cmp
+            defaults: {
+                padding: 4
+            },
+            items: [{
+                title: _('Details'),
+                layout: 'fit',
+                tbar: this.showCopyPaste ?[this.getClipboardButton(cmp)] : null,
+                items: cmp
+            },{
+                title: _('Event group'),
+                layout: 'fit',
+                items: subGrid.grid
+            }]
         });
     },
 
@@ -213,7 +226,7 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                     sortable: true
                 },
                 columns: [{
-                    header: _('Type'), 
+                    header: _('Type'),
                     dataIndex: 'type',
                     renderer: function(v) {
                         switch(v) {
@@ -228,19 +241,19 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                 },
 
                 {
-                header: _('Author'), 
+                header: _('Author'),
                 dataIndex: 'user'
             },
 
             {
-                header: _('Created'), 
-                dataIndex: 'created', 
+                header: _('Created'),
+                dataIndex: 'created',
                 width: 150
             },
 
             {
-                header: _('Message'), 
-                dataIndex: 'message', 
+                header: _('Message'),
+                dataIndex: 'message',
                 width: 200
             }
             ]
@@ -257,4 +270,3 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
     }
 }
 });
-	

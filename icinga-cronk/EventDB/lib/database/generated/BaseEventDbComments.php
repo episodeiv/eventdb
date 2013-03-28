@@ -21,6 +21,7 @@ abstract class BaseEventDbComments extends Doctrine_Record
 {
     public function setTableDefinition()
     {
+        $connection = AgaviContext::getInstance()->getDatabaseManager()->getDatabase('eventdb_r')->getConnection();
         $this->setTableName('comment');
         $this->hasColumn('id', 'integer', 4, array(
              'type' => 'integer',
@@ -74,15 +75,39 @@ abstract class BaseEventDbComments extends Doctrine_Record
              'notnull' => false,
              'autoincrement' => false,
              ));
-        $this->hasColumn('user', 'string', 64, array(
-             'type' => 'string',
-             'length' => 64,
-             'fixed' => false,
-             'unsigned' => false,
-             'primary' => false,
-             'notnull' => true,
-             'autoincrement' => false,
-             ));
+        if ($connection->getDriverName() == "pgsql") {
+            $this->hasColumn('username as user', 'string', 64, array(
+                'type' => 'string',
+                'length' => 64,
+                'fixed' => false,
+                'unsigned' => false,
+                'primary' => false,
+                'notnull' => true,
+                'autoincrement' => false,
+            ));
+        } else if ($connection->getDriverName() == "oracle") {
+            $this->setTableName('event_comment');
+            $this->hasColumn('comment_user as user', 'string', 64, array(
+                'type' => 'string',
+                'length' => 64,
+                'fixed' => false,
+                'unsigned' => false,
+                'primary' => false,
+                'notnull' => true,
+                'autoincrement' => false,
+            ));
+        } else {
+            $this->hasColumn('user', 'string', 64, array(
+                'type' => 'string',
+                'length' => 64,
+                'fixed' => false,
+                'unsigned' => false,
+                'primary' => false,
+                'notnull' => true,
+                'autoincrement' => false,
+            ));
+        }
+
     }
 
     public function setUp()

@@ -164,9 +164,11 @@ class EventDB_EventDBModel extends EventDBBaseModel {
         'columns' => array('*'),
         'group_by' => false,
         'filter' => false,
-        'count' => 'id'
+        'count' => 'id',
+        'expanded' => false,
+        'group_leader'  => false
     )) {
-
+        $useEDBC = AgaviConfig::get("modules.eventdb.use_edbc");
 
         if (!is_array($filter['columns']))
             $filter['columns'] = array('*');
@@ -176,6 +178,15 @@ class EventDB_EventDBModel extends EventDBBaseModel {
         //$countDql = "SELECT  COUNT(".$filter['count'].") as __count";
         $dql = " FROM EventDbEvent";
         $wherePart = $this->buildWhereDql($filter['filter'], $vals);
+        if ($useEDBC == true) {
+            if (!isset($filter["group_leader"]) || $filter["group_leader"]  === false) {
+                $wherePart .= ($wherePart ? " AND " : "")."  (group_id IS NULL OR group_leader = -1)";
+            } else {
+                $id = intval($filter["group_leader"]);
+                $wherePart .= ($wherePart ? " AND " : "")."  (group_leader = $id )";
+            }
+        }
+
         if ($wherePart)
             $dql .= " WHERE " . $wherePart;
 
@@ -328,7 +339,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 
         if (!$this->getContext()->getUser()->isAuthenticated())
             return false;
-        $username;
+
         try {
             $username = $this->getContext()->getUser()->getNsmUser()->user_name;
         } catch (AppKitDoctrineException $e) {

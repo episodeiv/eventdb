@@ -163,15 +163,14 @@ class EventDbEvent extends BaseEventDbEvent {
     }
 
     public static function resolveAddress($address) {
-        if(property_exists("BaseEventDBEvent","IS_POSTGRESQL")) {
+        if(self::$IS_POSTGRESQL) {
             return $address;
         }
         return AgaviContext::getInstance()->getModel("EventDBHelper", "EventDB")->resolveAddress($address);
-        ;
     }
 
     public function getAddressFromBinary($bin) {
-        if(property_exists("BaseEventDBEvent","IS_POSTGRESQL")) {
+        if(self::$IS_POSTGRESQL) {
             return $bin;
         }
 
@@ -179,14 +178,29 @@ class EventDbEvent extends BaseEventDbEvent {
     }
 
     public function addComment($msg, $user, $type = 0) {
+        $useEDBC = AgaviConfig::get("modules.eventdb.use_edbc");
         if ($type == 1) {
             $this->ack = 1;
             $msg = "[ACK] " . $msg;
+            if ($useEDBC) {
+                AgaviContext::getInstance()
+                    ->getDatabaseManager()
+                    ->getDatabase('eventdb_w')
+                    ->getConnection()
+                    ->query("UPDATE EventDbEvent SET ack = 1 WHERE group_leader = {$this->id}");
+            }
         }
 
         if ($type == 2) {
             $this->ack = 0;
             $msg = "[REVOKE] " . $msg;
+            if ($useEDBC) {
+                AgaviContext::getInstance()
+                    ->getDatabaseManager()
+                    ->getDatabase('eventdb_w')
+                    ->getConnection()
+                    ->query("UPDATE EventDbEvent SET ack = 0 WHERE group_leader = {$this->id}");
+            }
         }
 
         $comment = new EventDbComments();
