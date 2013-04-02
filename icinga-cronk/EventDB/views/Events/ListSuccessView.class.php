@@ -29,16 +29,27 @@ class EventDB_Events_ListSuccessView extends EventDBBaseView {
 					'target' => $rd->getParameter('target', 'EventDbEvent'),
 				    'columns' => $rd->getParameter('columns', array('*')),
 				    'group_by' => $rd->getParameter('group_by', false),
-				    'filter' => $filter
+				    'filter' => $filter,
+                    'group_leader' => $rd->getParameter('group_leader',false)
 					//'count' => $rd->getParameter('count','id')
 				)
 			);
-		
-		return json_encode(array(
+
+		return json_encode($this->recursiveUTF8Encode(array(
 			'events' => $db["values"]
 //			'count' => $db["count"]
-					
-		));
+		)));
 	}
 
+    public function recursiveUTF8Encode($val)
+    {
+        foreach ($val as &$value) {
+            if (is_array($value)) {
+                $value = $this->recursiveUTF8Encode($value);
+            } else {
+                $value = utf8_encode($value);
+            }
+        }
+        return $val;
+    }
 }

@@ -26,8 +26,45 @@
  */
 abstract class BaseEventDbEvent extends Doctrine_Record
 {
+    public static $IS_POSTGRESQL = false;
+
+    private function registerEDBCTables()
+    {
+        $this->hasColumn('group_active', 'integer', 1, array(
+            'type' => 'integer',
+            'length' => 1,
+            'fixed' => false,
+            'unsigned' => true
+        ));
+        $this->hasColumn('group_count', 'integer', 16, array(
+            'type' => 'integer',
+            'length' => 16,
+            'fixed' => false,
+            'unsigned' => true
+        ));
+        $this->hasColumn('group_id', 'string', 16, array(
+            'type' => 'string',
+            'length' => 16,
+            'fixed' => false,
+            'unsigned' => true
+        ));
+        $this->hasColumn('group_leader', 'integer', 20, array(
+            'type' => 'integer',
+            'length' => 20,
+            'fixed' => false,
+            'unsigned' => true
+        ));
+        $this->hasColumn('group_autoclear', 'integer', 1, array(
+            'type' => 'integer',
+            'length' => 1,
+            'fixed' => false,
+            'unsigned' => true
+        ));
+    }
+
     public function setTableDefinition()
     {
+
         $this->setTableName('event');
         $this->hasColumn('id', 'integer', 8, array(
              'type' => 'integer',
@@ -37,7 +74,7 @@ abstract class BaseEventDbEvent extends Doctrine_Record
              'primary' => true,
              'autoincrement' => true,
              ));
-       $this->hasColumn('priority', 'integer', 8, array(
+        $this->hasColumn('priority', 'integer', 8, array(
              'type' => 'integer',
              'length' => 8,
              'fixed' => false,
@@ -45,7 +82,7 @@ abstract class BaseEventDbEvent extends Doctrine_Record
              'primary' => false,
              'autoincrement' => false,
         ));
-	   $this->hasColumn('facility', 'integer', 8, array(
+	    $this->hasColumn('facility', 'integer', 8, array(
              'type' => 'integer',
              'length' => 8,
              'fixed' => false,
@@ -125,6 +162,9 @@ abstract class BaseEventDbEvent extends Doctrine_Record
              'notnull' => false,
              'autoincrement' => false,
              ));
+        if (AgaviConfig::get("modules.eventdb.use_edbc")) {
+            $this->registerEDBCTables();
+        }
 
 		$this->index('idx_main',array(
 			'fields' => array('program','created','modified','priority','facility','ack','host_name','host_address','id')
@@ -148,6 +188,11 @@ abstract class BaseEventDbEvent extends Doctrine_Record
 		$this->index('idx_ack',array(
 			'fields' => array('ack')
 		));
+        $connection = AgaviContext::getInstance()->getDatabaseManager()->getDatabase('eventdb_r')->getConnection();
+        if ($connection->getDriverName() == "pgsql") {
+            self::$IS_POSTGRESQL = true;
+        }
+
     }
 
     public function setUp()
