@@ -65,7 +65,11 @@ DEBUG_SEVERITIES = {
     "WARNING" : True,
     "ERROR" : True
 }
-
+typemap = {
+    "syslog" : 0,
+    "snmptrap" : 1,
+    "mail" : 2
+}
 
 """
 ConnPoolDaemon
@@ -651,11 +655,7 @@ class CheckFilter(object):
         self.host = ""
 
     def setLogtype(self,type):
-        typemap = {
-            "syslog" : 0,
-            "snmptrap" : 1,
-            "mail" : 2
-        }
+       
         if not type in typemap :
             raise Exception("Invalid type provided for log-source")
         self.logtype = typemap[type]
@@ -797,7 +797,7 @@ class EventDBPlugin(object):
         self.__checkFilter.setFacility(options.facility)
         self.__checkFilter.setPriority(options.priority)
         self.__checkFilter.program = options.program
-        self.__checkFilter.message = options.message
+        self.__checkFilter.message = options.message.replace("%","%%")
         self.__checkFilter.host = options.host
         self.__checkFilter.ipaddress = options.ipaddress
         if(self.__options.facility):
@@ -828,7 +828,7 @@ class EventDBPlugin(object):
             msgFilter = "{type:'exact','message' : '%s', isRegexp: false}" % opts.message
         if opts.logtype != "":
             arr = ['0','1','2']
-            del arr[opts.logtype]
+            del arr[typemap[opts.logtype]]
 
             sourceExclusion = ",".join(arr)
         if isinstance(opts.priority,list):
