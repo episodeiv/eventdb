@@ -110,7 +110,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
                     }
 
                     if (!is_numeric($filter["value"])) {
-                        $dql .= " " . $chain . " " . $filter["target"] . " " . $filter["operator"];
+                        $dql .= " " . $chain . " " . $filter["target"] . " " . $filter["operator"]." ";
                         // Check if we need parenthesis around the filter expression
                         if ($filter['operator'] == 'IN' && !is_array($filter['value'])) {
                             $filter['value'] = array($filter['value']);
