@@ -51,6 +51,8 @@ CREATE INDEX order_prioNr_unique ON event USING btree (priority);
 CREATE INDEX order_facNr_unique ON event USING btree (facility);
 CREATE INDEX order_modified_unique ON event USING btree (modified);
 CREATE INDEX order_ack_unique ON event USING btree (ack);
+CREATE INDEX order_program ON event USING btree (program);
+CREATE INDEX order_type ON event USING btree ("type");
 
 
 --- table comment

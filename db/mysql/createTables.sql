@@ -17,7 +17,9 @@ CREATE TABLE `event` (
   KEY `order_prioNr` (`priority`),
   KEY `order_facNr` (`facility`),
   KEY `order_modified` (`modified`),
-  KEY `order_ack` (`ack`)
+  KEY `order_ack` (`ack`),
+  KEY `order_program` (`program`),
+  KEY `order_type` (`type`)
    
 ) ENGINE=InnoDB;
 
