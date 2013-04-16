@@ -935,7 +935,7 @@ Ext.ns("Cronk.EventDB.Helper").messageFormatter = function(v) {
             replace = "http://"+matches[i];
         v = v.replace(
             matches[i],
-            "<a cronk_href='"+replace+"'>"+Ext.util.Format.ellipsis(matches[i],20)+"</a>"
+            "<a href='"+replace+"' target='_blank' ext:qtip='"+matches[i]+"'>"+Ext.util.Format.ellipsis(matches[i],40)+"</a>"
             );
     }
 
