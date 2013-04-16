@@ -257,7 +257,6 @@ Cronk.EventDB.MainView = function(cfg) {
                 else statepostfix = ' x-grid3-check-col-autoclear-bg'; // note the space, we are adding
             }
 
-            p.css += ' x-grid3-check-col-td';
             return String.format(
                 '<div record="'+record.id+'" class="x-grid3-check-col{0} {1}" {2}>&#160;</div>',
                 statepostfix,
@@ -487,19 +486,19 @@ Cronk.EventDB.MainView = function(cfg) {
 		
         columns: [{
             showHeader:false,
-            width:18,
+            width:22,
             fixed:true,
             menuDisabled: true,
             dataIndex: 'type',
             xtype: 'templatecolumn',
             tpl: new Ext.XTemplate(
-                '<div class="eventdb-type {[Cronk.EventDB.Helper.resolveTypeNr(values.type).toLowerCase()]}" style="">',
-                '<div ext:qtip="<b> {type} - {priority} : </b><br/> {[Cronk.EventDB.Helper.messageFormatter(values.message)]}" class="icon-16">',
+                '<div class="eventdb-type {[Cronk.EventDB.Helper.resolveTypeNr(values.type).toLowerCase()]}">',
+                '<div ext:qtip="<b> ({type}) {[Cronk.EventDB.Helper.resolveTypeNr(values.type)]} - {priority} : </b><br/> {[Cronk.EventDB.Helper.messageFormatter(values.message)]}" class="icon-16">',
                 '</div>',
                 '</div>',{
                     eventGrid: eventGrid
                 }
-                )
+            )
         },ack,{
             dataIndex: 'id',
             id: 'id',
@@ -519,23 +518,23 @@ Cronk.EventDB.MainView = function(cfg) {
             dataIndex: 'type',
             header: _('Source'),
             sortable: true,
-            width: 100,
+            hidden: true,
+            width: 70,
             renderer: function(v) {
                 var typename = eventGrid.resolveType(v);
-					
                 return '<span class="eventdb-type '+typename.toLowerCase()+'">'+ 
-                '<div style="float:left" class="icon-16"></div>'+typename+'</span>';
+                '</div>'+typename+'</span>';
             }
         },{
             dataIndex: 'host_name',
             header: _('Host'),
             sortable: true,
-            width: 100,
+            width: 130,
             xtype:'templatecolumn',
             tpl: new Ext.XTemplate(
                 '<span isHostField="true"',
                 ' hostName="{real_host}" ',
-                ' style="color:blue;text-decoration:underline;cursor:pointer" ',
+                ' style="color:blue;text-decoration:underline;cursor:pointer;" ',
                 'class="eventdb-host {host_name}">',
                 '<div style="float:left" class="icon-16 icinga-icon-host"></div>',
                 '{host_name}',
@@ -550,14 +549,14 @@ Cronk.EventDB.MainView = function(cfg) {
             dataIndex: 'priority',
             header: _('Priority'),
             sortable: true,
-            width: 100,
+            width: 105,
             renderer: function(v) {
                 return '<div class="tag '+v.toLowerCase()+'">'+v+'</div>';
             }
         },{
             dataIndex: 'message',
             xtype: 'actioncolumn',
-            width: 25,
+            width: 35,
             hidden: !showCopyPaste,
             items: [{
                 getClass: function(v,meta,rec) {
@@ -586,14 +585,13 @@ Cronk.EventDB.MainView = function(cfg) {
             dataIndex: 'message',
             header: _('Message'),
             sortable: true,
-            width: 200,
+            width: 360,
             xtype:'templatecolumn',
-            css: 'cursor: pointer',
             tpl: new Ext.XTemplate(
                 '<div ext:qtip="{[fm.htmlEncode(values.message)]}">',
                 '{[Cronk.EventDB.Helper.messageFormatter(values.message)]}',
                 '</div>'
-                )
+            )
                
         },{
             dataIndex: 'program',
@@ -619,7 +617,7 @@ Cronk.EventDB.MainView = function(cfg) {
             dataIndex: 'created',
             header: _('Created'),
             sortable: true,
-            width: 200
+            width: 125
         }
         ],
         store: eventStore,
