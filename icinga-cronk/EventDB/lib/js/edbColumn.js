@@ -212,7 +212,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 					},
 					"display":{
 						"order":{
-							"field":"modified",
+							"field":"created",
 							"dir":"desc"
 						},
 						"group":{
