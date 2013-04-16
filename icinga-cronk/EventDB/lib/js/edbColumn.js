@@ -219,7 +219,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 							"field":null
 						},
 						"count":"id",
-						"limit":25
+						"limit":50
 					}
 				})
 			}

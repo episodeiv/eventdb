@@ -13,7 +13,7 @@ class EventDB_Events_Event_Comments_ListSuccessView extends EventDBBaseView {
 
 		$comments = $e->comments->count() ? $e->comments->toArray() : array();
 		
-		$l = $rd->getParameter('limit', 25);
+		$l = $rd->getParameter('limit', 50);
 		
 		if (count($comments) > $l) {
 			$o = $rd->getParameter('offset', 0);

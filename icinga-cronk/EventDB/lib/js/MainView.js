@@ -137,7 +137,7 @@ Cronk.EventDB.MainView = function(cfg) {
         baseParams: {
             offset:0,
             count: 'id',	
-            limit:25
+            limit:50
         },
         remoteSort: true,
         paramNames: {
@@ -289,7 +289,7 @@ Cronk.EventDB.MainView = function(cfg) {
         
         setPagingBar: function() {
             this.bbar = new Cronk.EventDB.Components.OptimisticPagingToolbar({
-                pageSize: 25,
+                limit: 50,
                 id: 'pager_'+this.id,
                 store: eventStore,
                 afterPageText: '',
@@ -710,7 +710,7 @@ Cronk.EventDB.MainView = function(cfg) {
                         fm.clearFilterFields();
                         eventStore.baseParams = {
                             offset:0, 
-                            limit:25
+                            limit:50
                         };
                         eventGrid.fireEvent("statechange");
 

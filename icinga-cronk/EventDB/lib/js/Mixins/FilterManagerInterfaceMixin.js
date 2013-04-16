@@ -40,7 +40,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
                     field: null
                 },
                 count: 'id',
-                limit: 25
+                limit: 50
             }
         }
     }

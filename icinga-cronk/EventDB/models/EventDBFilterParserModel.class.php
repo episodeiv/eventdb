@@ -73,7 +73,7 @@ class EventDB_EventDBFilterParserModel extends EventDBBaseModel {
         'display' => array(
             'group' => array("field" => false),
             'order' => array("dir" => 'desc', "field" => 'modified'),
-            'limit' => 25
+            'limit' => 50
         )
     );
 
