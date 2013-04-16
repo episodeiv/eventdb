@@ -6,7 +6,7 @@ Ext.ns("Cronk.EventDB.Components").OptimisticPagingToolbar = (Ext.extend(Ext.Pag
         }
         this.first.setDisabled(false);
         this.prev.setDisabled(false);
-        AppKit.log(result,store,options);
+        //AppKit.log(result,store,options);
         this.next.setDisabled(!Ext.isArray(result) || result.length < (options.limit || 25));
 
         this.last.setDisabled(true);
