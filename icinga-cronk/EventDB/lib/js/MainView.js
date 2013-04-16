@@ -223,12 +223,11 @@ Cronk.EventDB.MainView = function(cfg) {
                     this.grid.selectedRecords =[];
                 }
                 if(!el.hasClass('x-grid3-check-col-on')) {
-                    this.grid.selectedRecords.push(record);
+                    this.grid.selectedRecords.push(record.id);
                     el.replaceClass('x-grid3-check-col','x-grid3-check-col-on'); 
 					
                 } else {
-					
-                    this.grid.selectedRecords.remove(record);
+                    this.grid.selectedRecords.remove(record.id);
                     el.replaceClass('x-grid3-check-col-on','x-grid3-check-col'); 
                 }
                 this.grid.updateCommentButton();
@@ -242,7 +241,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 this.initialValues[record.id] = v;
             }
             p.css += ' x-grid3-check-col-td';
-            return String.format('<div record="'+record.id+'"class="x-grid3-check-col{0} {1}">&#160;</div>', (this.grid.selectedRecords || []).indexOf(record) > -1 ? '-on' : '', this.createId());
+            return String.format('<div record="'+record.id+'"class="x-grid3-check-col{0} {1}">&#160;</div>', (this.grid.selectedRecords || []).indexOf(record.id) > -1 ? '-on' : '', this.createId());
         },
 	
         createId: function(){
@@ -366,7 +365,7 @@ Cronk.EventDB.MainView = function(cfg) {
             Ext.iterate(elem,function(i) {	
                 Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',parentCmp.el.dom);	
                 var id = Ext.get(i).getAttribute("record");
-                this.selectedRecords.push(this.store.getById(id));
+                this.selectedRecords.push(id);
             },this);
 			
             this.updateCommentButton();
@@ -386,7 +385,7 @@ Cronk.EventDB.MainView = function(cfg) {
         updateSelected: function() {
             this.unselectAll(true);
             Ext.iterate(this.selectedRecords,function(r) {
-                var elem = Ext.DomQuery.select('div.x-grid3-check-col[record='+r.id+']',parentCmp.el.dom);
+                var elem = Ext.DomQuery.select('div.x-grid3-check-col[record='+r+']',parentCmp.el.dom);
                 Ext.iterate(elem, function(i) {	
                     Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',parentCmp.el.dom);	
                 },this)
@@ -760,11 +759,11 @@ Cronk.EventDB.MainView = function(cfg) {
                         if(!this.selectedRecords) 
                             this.selectedRecords =[];
                         if(!el.hasClass('x-grid3-check-col-on')) {
-                            this.selectedRecords.push(record);
+                            this.selectedRecords.push(record.id);
                             el.replaceClass('x-grid3-check-col','x-grid3-check-col-on'); 
-                            toAdd.push([el,record]);
+                            toAdd.push([el,record.id]);
                         } else {
-                            toDelete.push([el,record]);
+                            toDelete.push([el,record.id]);
                         }
 
                     },this);

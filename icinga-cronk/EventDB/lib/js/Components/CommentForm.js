@@ -72,6 +72,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                                     var params = {};
 
                                     Ext.iterate(eventGrid.selectedRecords, function(r) {
+                                        r = eventGrid.store.getById(r);
                                         var ignored = [];
                                         if (vals.type == 0 ||
                                             (vals.type == 1 && r.get('ack') != 1) ||
