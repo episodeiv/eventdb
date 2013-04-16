@@ -947,13 +947,17 @@ Ext.ns("Cronk.EventDB.Helper").clipboardHandler = function(text) {
     }
     else {
         new Ext.Window({
-            width:400,
-            height:300,
+            width:'80%',
+            height:350,
             title: _('Copy this to your clipboard'),
-            html: "<textarea style='width:90%;height:90%' >"+Ext.util.Format.htmlEncode(text)+"</textarea>",
             padding:5,
             closeAction: 'close',
-            autoDestroy:true
+            autoDestroy:true,
+            layout: 'fit',
+            items: [{
+                xtype: 'textarea',
+                value: text
+            }]
         }).show(Ext.getBody());
     }
 };
