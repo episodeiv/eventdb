@@ -759,8 +759,27 @@ Cronk.EventDB.MainView = function(cfg) {
                 },
                 scope: this
             }]
-            
-            
+        },{
+            text: 'Copy selected',
+            iconCls: 'icinga-icon-note',
+            hidden: !showCopyPaste,
+            handler: function(cmp) {
+                var cmpGrid = cmp.ownerCt.ownerCt;
+                if(!cmpGrid.selectedRecords || cmpGrid.selectedRecords.length <1) {
+                    AppKit.notifyMessage(_("No event selected"),_("You have to select an event"));
+                    return;
+                }
+                var messages = "";
+                for(var i=0;i<cmpGrid.selectedRecords.length;i++) {
+                    var record = cmpGrid.store.getById(cmpGrid.selectedRecords[i]);
+                    var created = record.get("created");
+                    var host = record.get("host_name");
+                    var message = record.get("message");
+                    var priority = record.get("priority");
+                    messages += created + " - " + host + " - " + priority + " - " + message + "\n\n";
+                }
+                if(messages) Cronk.EventDB.Helper.clipboardHandler(messages);
+            }
         }],
         sm: false,		
         plugins: ack,
