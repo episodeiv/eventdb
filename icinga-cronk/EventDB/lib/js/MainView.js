@@ -248,7 +248,7 @@ Cronk.EventDB.MainView = function(cfg) {
 
             var autoclear = false;
             var statepostfix = '';
-            if ((this.grid.selectedRecords || []).indexOf(record.id) > 0) {
+            if (this.grid.selectedRecords && this.grid.selectedRecords.indexOf(record.id.toString()) !== -1) {
                 statepostfix = '-on';
             }
 
