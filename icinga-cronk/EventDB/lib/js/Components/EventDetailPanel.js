@@ -121,27 +121,27 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
             tpl: new Ext.XTemplate(
                 "<table style='font-size:12px'>",
                 "<tr>",
-                "<td><b>Type</b></td><td>{[Cronk.EventDB.Helper.resolveTypeNr(values.type)]}</td>",
-                "</tr><tr>",
                 "<td><b>Host:</b></td><td>{host_name}</td>",
                 "</tr><tr colspan='2'>",
                 "<td><b>Message:</b></td>",
                 "</tr><tr colspan='2' rowspan='2'>",
                 "<td  colspan='2'>",
-                "<div style='word-wrap:break-word;width:100%;height:40px;overflow:auto'>",
+                "<div style='word-wrap:break-word;width:100%;'>",
                 "{[Cronk.EventDB.Helper.messageFormatter(values.message)]}",
-                "</div>",
+                "</div><br/>",
                 "</td>",
-                "</tr><tr>",
-                "<td><b>Address:</b></td><td>{address}</td>",
-                "</tr><tr>",
-                "<td><b>Facility:</b></td><td>{facility}</td>",
                 "</tr><tr>",
                 "<td><b>Priority:</b></td><td>{priority}</td>",
                 "</tr><tr>",
                 "<td><b>Program:</b></td><td>{program}</td>",
                 "</tr><tr>",
                 "<td><b>Created:</b></td><td>{created}</td>",
+                "</tr><tr>",
+                "<td><b>Type</b></td><td>{[Cronk.EventDB.Helper.resolveTypeNr(values.type)]}</td>",
+                "</tr><tr>",
+                "<td><b>Address:</b></td><td>{address}</td>",
+                "</tr><tr>",
+                "<td><b>Facility:</b></td><td>{facility}</td>",
                 "</tr>",
                 "</table>"
                 )
@@ -174,6 +174,7 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
             activeTab:0,
             region:'east',
             width:"50%",
+            tabPosition: 'bottom',
             defaults: {
                 padding: 4
             },
@@ -207,9 +208,9 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                     return;
                 Cronk.EventDB.Helper.clipboardHandler(
                     Ext.util.Format.htmlEncode(
-                        cmp.currentEvent.get("message")
-                        )
-                    );
+                        cmp.currentEvent.get("created")+" - "+cmp.currentEvent.get("host_name")+" - "+cmp.currentEvent.get("priority")+" - "+cmp.currentEvent.get("message")
+                    )
+                );
             },
             scope:this
         }

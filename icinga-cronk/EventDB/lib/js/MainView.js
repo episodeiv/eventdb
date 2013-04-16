@@ -875,8 +875,8 @@ Cronk.EventDB.MainView = function(cfg) {
         },{
             xtype: 'panel',
             region: 'south',
-            title: 'Comments',
-            height: 200,
+            title: 'Comments & Details',
+            height: 240,
             collapsible: true,
             split: true,
             collapsed: true,
