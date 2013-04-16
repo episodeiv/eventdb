@@ -222,6 +222,10 @@ Cronk.EventDB.MainView = function(cfg) {
                 if(!this.grid.selectedRecords) {
                     this.grid.selectedRecords =[];
                 }
+                if(el.hasClass('x-grid3-check-col-autoclear')) {
+                    el.replaceClass('x-grid3-check-col-autoclear','x-grid3-check-col x-grid3-check-col-autoclear-bg');
+                    return;
+                }
                 if(!el.hasClass('x-grid3-check-col-on')) {
                     this.grid.selectedRecords.push(record.id);
                     el.replaceClass('x-grid3-check-col','x-grid3-check-col-on'); 
@@ -240,8 +244,26 @@ Cronk.EventDB.MainView = function(cfg) {
             } else {
                 this.initialValues[record.id] = v;
             }
+
+            var autoclear = false;
+            var statepostfix = '';
+            if ((this.grid.selectedRecords || []).indexOf(record.id) > 0) {
+                statepostfix = '-on';
+            }
+
+            if (record.json.group_autoclear && record.json.group_autoclear > 0) {
+                autoclear = true;
+                if(!statepostfix) statepostfix = '-autoclear';
+                else statepostfix = ' x-grid3-check-col-autoclear-bg'; // note the space, we are adding
+            }
+
             p.css += ' x-grid3-check-col-td';
-            return String.format('<div record="'+record.id+'"class="x-grid3-check-col{0} {1}">&#160;</div>', (this.grid.selectedRecords || []).indexOf(record.id) > -1 ? '-on' : '', this.createId());
+            return String.format(
+                '<div record="'+record.id+'" class="x-grid3-check-col{0} {1}" {2}>&#160;</div>',
+                statepostfix,
+                this.createId(),
+                (autoclear ? 'ext:qtip="This event should only be acknowledged with a matching clear event"' : '')
+            );
         },
 	
         createId: function(){
@@ -551,8 +573,12 @@ Cronk.EventDB.MainView = function(cfg) {
                     return 'icon-16 icinga-icon-note';
                 },
                 handler: function(cmp,rowidx) {
-                    var msg = eventStore.getAt(rowidx).get("message");
-                    Cronk.EventDB.Helper.clipboardHandler(msg);
+                    var record = eventStore.getAt(rowidx);
+                    var created = record.get("created");
+                    var host = record.get("host_name");
+                    var message = record.get("message");
+                    var priority = record.get("priority");
+                    Cronk.EventDB.Helper.clipboardHandler(created+" - "+host+" - "+priority+" - "+message);
                 }
             }]
 
@@ -753,7 +779,11 @@ Cronk.EventDB.MainView = function(cfg) {
                     var toAdd = [];
                     Ext.iterate(Ext.DomQuery.select('.x-grid3-row-selected',this.el.dom),function(sRow) {			
                         ev.stopEvent();
-                        var el = Ext.get(Ext.DomQuery.select('.x-grid3-check-col, .x-grid3-check-col-on',sRow)[0]);
+                        var el = Ext.get(Ext.DomQuery.select('.x-grid3-check-col, .x-grid3-check-col-on, .x-grid3-check-col-autoclear',sRow)[0]);
+                        if(!el) return;
+                        if(el.hasClass('x-grid3-check-col-autoclear')) {
+                            el.replaceClass('x-grid3-check-col-autoclear','x-grid3-check-col x-grid3-check-col-autoclear-bg');
+                        }
                         var index = this.getView().findRowIndex(sRow);
                         var record =this.store.getAt(index);
                         if(!this.selectedRecords) 
