@@ -223,7 +223,8 @@ Cronk.EventDB.MainView = function(cfg) {
                     this.grid.selectedRecords =[];
                 }
                 if(el.hasClass('x-grid3-check-col-autoclear')) {
-                    el.replaceClass('x-grid3-check-col-autoclear','x-grid3-check-col x-grid3-check-col-autoclear-bg');
+                    el.replaceClass('x-grid3-check-col-autoclear','x-grid3-check-col');
+                    el.parent().addClass('x-grid3-check-col-autoclear-bg');
                     return;
                 }
                 if(!el.hasClass('x-grid3-check-col-on')) {
@@ -254,7 +255,7 @@ Cronk.EventDB.MainView = function(cfg) {
             if (record.json.group_autoclear && record.json.group_autoclear > 0) {
                 autoclear = true;
                 if(!statepostfix) statepostfix = '-autoclear';
-                else statepostfix = ' x-grid3-check-col-autoclear-bg'; // note the space, we are adding
+                else p.css += ' x-grid3-check-col-autoclear-bg';
             }
 
             return String.format(
@@ -799,7 +800,8 @@ Cronk.EventDB.MainView = function(cfg) {
                         var el = Ext.get(Ext.DomQuery.select('.x-grid3-check-col, .x-grid3-check-col-on, .x-grid3-check-col-autoclear',sRow)[0]);
                         if(!el) return;
                         if(el.hasClass('x-grid3-check-col-autoclear')) {
-                            el.replaceClass('x-grid3-check-col-autoclear','x-grid3-check-col x-grid3-check-col-autoclear-bg');
+                            el.replaceClass('x-grid3-check-col-autoclear','x-grid3-check-col');
+                            el.parent().addClass('x-grid3-check-col-autoclear-bg');
                         }
                         var index = this.getView().findRowIndex(sRow);
                         var record =this.store.getAt(index);
