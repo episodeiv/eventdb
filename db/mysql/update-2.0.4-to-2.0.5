@@ -1,0 +1,11 @@
+ALTER TABLE `event` ADD COLUMN `alternative_message` varchar(4096) default NULL;
+ALTER TABLE `event` ADD COLUMN `group_active` tinyint(1) default '0';
+ALTER TABLE `event` ADD COLUMN `group_id` binary(16) default NULL; 
+ALTER TABLE `event` ADD COLUMN `group_count` int(16) default NULL;
+ALTER TABLE `event` ADD COLUMN `group_leader` bigint(20) default NULL;
+ALTER TABLE `event` ADD COLUMN `group_autoclear` tinyint(1) default '0';
+ALTER TABLE `event` ADD COLUMN `flags` int(11) default '0';
+
+ALTER TABLE `event` ADD INDEX `group_id` (`group_id`);
+ALTER TABLE `event` ADD INDEX `group_active` (`group_active`);
+ALTER TABLE `event` ADD INDEX `idx_groups` (`group_id`,`group_active`,`group_leader`);
