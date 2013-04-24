@@ -41,11 +41,11 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                             items: [{
                                 boxLabel: '<span  style="padding-left:18px;height:18px;" qtip="'+_('Comment')+'" class="icon-16 icinga-icon-note">'+_('Comment only')+'</span>',
                                 name: 'type',
-                                checked: true,
                                 inputValue: 'type_0'
                             },{
                                 boxLabel: '<span  style="padding-left:18px;height:18px;" qtip="'+_('Acknowledge')+'" class="icon-16 icinga-icon-accept">'+_('Acknowledge')+'</span>',
                                 name: 'type',
+                                checked: true,
                                 inputValue: 'type_1'
                             },{
                                 boxLabel: '<span style="padding-left:18px;height:18px;" qtip="'+_('Revoke')+'" class="icon-16 icinga-icon-cancel">'+_('Revoke ack')+'</span>',
@@ -72,6 +72,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                                     var params = {};
 
                                     Ext.iterate(eventGrid.selectedRecords, function(r) {
+                                        r = eventGrid.store.getById(r);
                                         var ignored = [];
                                         if (vals.type == 0 ||
                                             (vals.type == 1 && r.get('ack') != 1) ||

@@ -8,7 +8,7 @@ Cronk.EventDB.MainView = function(cfg) {
     var showCopyPaste = cfg.showCopyPaste;
     var parentCmp = cfg.parentCmp;
     var url = cfg.eventUrl;
-
+    Cronk.EventDB.BaseURL = url;
     var eventDetailPanel = new Cronk.EventDB.Components.EventDetailPanel(cfg);
     var commentForm = new Cronk.EventDB.Components.CommentForm(cfg, eventDetailPanel);
 
@@ -137,7 +137,7 @@ Cronk.EventDB.MainView = function(cfg) {
         baseParams: {
             offset:0,
             count: 'id',	
-            limit:25
+            limit:50
         },
         remoteSort: true,
         paramNames: {
@@ -222,13 +222,17 @@ Cronk.EventDB.MainView = function(cfg) {
                 if(!this.grid.selectedRecords) {
                     this.grid.selectedRecords =[];
                 }
+                if(el.hasClass('x-grid3-check-col-autoclear')) {
+                    el.replaceClass('x-grid3-check-col-autoclear','x-grid3-check-col');
+                    el.parent().addClass('x-grid3-check-col-autoclear-bg');
+                    return;
+                }
                 if(!el.hasClass('x-grid3-check-col-on')) {
-                    this.grid.selectedRecords.push(record);
+                    this.grid.selectedRecords.push(record.id);
                     el.replaceClass('x-grid3-check-col','x-grid3-check-col-on'); 
 					
                 } else {
-					
-                    this.grid.selectedRecords.remove(record);
+                    this.grid.selectedRecords.remove(record.id);
                     el.replaceClass('x-grid3-check-col-on','x-grid3-check-col'); 
                 }
                 this.grid.updateCommentButton();
@@ -241,8 +245,25 @@ Cronk.EventDB.MainView = function(cfg) {
             } else {
                 this.initialValues[record.id] = v;
             }
-            p.css += ' x-grid3-check-col-td';
-            return String.format('<div record="'+record.id+'"class="x-grid3-check-col{0} {1}">&#160;</div>', (this.grid.selectedRecords || []).indexOf(record) > -1 ? '-on' : '', this.createId());
+
+            var autoclear = false;
+            var statepostfix = '';
+            if (this.grid.selectedRecords && this.grid.selectedRecords.indexOf(record.id.toString()) !== -1) {
+                statepostfix = '-on';
+            }
+
+            if (record.json.group_autoclear && record.json.group_autoclear > 0) {
+                autoclear = true;
+                if(!statepostfix) statepostfix = '-autoclear';
+                else p.css += ' x-grid3-check-col-autoclear-bg';
+            }
+
+            return String.format(
+                '<div record="'+record.id+'" class="x-grid3-check-col{0} {1}" {2}>&#160;</div>',
+                statepostfix,
+                this.createId(),
+                (autoclear ? 'ext:qtip="This event should only be acknowledged with a matching clear event"' : '')
+            );
         },
 	
         createId: function(){
@@ -268,7 +289,7 @@ Cronk.EventDB.MainView = function(cfg) {
         
         setPagingBar: function() {
             this.bbar = new Cronk.EventDB.Components.OptimisticPagingToolbar({
-                pageSize: 25,
+                limit: 50,
                 id: 'pager_'+this.id,
                 store: eventStore,
                 afterPageText: '',
@@ -366,7 +387,7 @@ Cronk.EventDB.MainView = function(cfg) {
             Ext.iterate(elem,function(i) {	
                 Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',parentCmp.el.dom);	
                 var id = Ext.get(i).getAttribute("record");
-                this.selectedRecords.push(this.store.getById(id));
+                this.selectedRecords.push(id);
             },this);
 			
             this.updateCommentButton();
@@ -386,7 +407,7 @@ Cronk.EventDB.MainView = function(cfg) {
         updateSelected: function() {
             this.unselectAll(true);
             Ext.iterate(this.selectedRecords,function(r) {
-                var elem = Ext.DomQuery.select('div.x-grid3-check-col[record='+r.id+']',parentCmp.el.dom);
+                var elem = Ext.DomQuery.select('div.x-grid3-check-col[record='+r+']',parentCmp.el.dom);
                 Ext.iterate(elem, function(i) {	
                     Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',parentCmp.el.dom);	
                 },this)
@@ -460,25 +481,25 @@ Cronk.EventDB.MainView = function(cfg) {
             }
         }
     });
-
+    Ext.ns("Cronk.EventDB").EventGrid = _eventGrid;
     var eventGrid = new _eventGrid({
         id: "evGrid_"+this.id,
 		
         columns: [{
             showHeader:false,
-            width:18,
+            width:22,
             fixed:true,
             menuDisabled: true,
             dataIndex: 'type',
             xtype: 'templatecolumn',
             tpl: new Ext.XTemplate(
-                '<div class="eventdb-type {[Cronk.EventDB.Helper.resolveTypeNr(values.type).toLowerCase()]}" style="">',
-                '<div ext:qtip="<b> {type} - {priority} : </b><br/> {[Cronk.EventDB.Helper.messageFormatter(values.message)]}" class="icon-16">',
+                '<div class="eventdb-type {[Cronk.EventDB.Helper.resolveTypeNr(values.type).toLowerCase()]}">',
+                '<div ext:qtip="<b> ({type}) {[Cronk.EventDB.Helper.resolveTypeNr(values.type)]} - {priority} : </b><br/> {[Cronk.EventDB.Helper.messageFormatter(values.message)]}" class="icon-16">',
                 '</div>',
                 '</div>',{
                     eventGrid: eventGrid
                 }
-                )
+            )
         },ack,{
             dataIndex: 'id',
             id: 'id',
@@ -498,23 +519,23 @@ Cronk.EventDB.MainView = function(cfg) {
             dataIndex: 'type',
             header: _('Source'),
             sortable: true,
-            width: 100,
+            hidden: true,
+            width: 70,
             renderer: function(v) {
                 var typename = eventGrid.resolveType(v);
-					
                 return '<span class="eventdb-type '+typename.toLowerCase()+'">'+ 
-                '<div style="float:left" class="icon-16"></div>'+typename+'</span>';
+                '</div>'+typename+'</span>';
             }
         },{
             dataIndex: 'host_name',
             header: _('Host'),
             sortable: true,
-            width: 100,
+            width: 130,
             xtype:'templatecolumn',
             tpl: new Ext.XTemplate(
                 '<span isHostField="true"',
                 ' hostName="{real_host}" ',
-                ' style="color:blue;text-decoration:underline;cursor:pointer" ',
+                ' style="color:blue;text-decoration:underline;cursor:pointer;" ',
                 'class="eventdb-host {host_name}">',
                 '<div style="float:left" class="icon-16 icinga-icon-host"></div>',
                 '{host_name}',
@@ -529,14 +550,14 @@ Cronk.EventDB.MainView = function(cfg) {
             dataIndex: 'priority',
             header: _('Priority'),
             sortable: true,
-            width: 100,
+            width: 105,
             renderer: function(v) {
                 return '<div class="tag '+v.toLowerCase()+'">'+v+'</div>';
             }
         },{
             dataIndex: 'message',
             xtype: 'actioncolumn',
-            width: 25,
+            width: 35,
             hidden: !showCopyPaste,
             items: [{
                 getClass: function(v,meta,rec) {
@@ -552,8 +573,12 @@ Cronk.EventDB.MainView = function(cfg) {
                     return 'icon-16 icinga-icon-note';
                 },
                 handler: function(cmp,rowidx) {
-                    var msg = eventStore.getAt(rowidx).get("message");
-                    Cronk.EventDB.Helper.clipboardHandler(msg);
+                    var record = eventStore.getAt(rowidx);
+                    var created = record.get("created");
+                    var host = record.get("host_name");
+                    var message = record.get("message");
+                    var priority = record.get("priority");
+                    Cronk.EventDB.Helper.clipboardHandler(created+" - "+host+" - "+priority+" - "+message);
                 }
             }]
 
@@ -561,14 +586,13 @@ Cronk.EventDB.MainView = function(cfg) {
             dataIndex: 'message',
             header: _('Message'),
             sortable: true,
-            width: 200,
+            width: 360,
             xtype:'templatecolumn',
-            css: 'cursor: pointer',
             tpl: new Ext.XTemplate(
                 '<div ext:qtip="{[fm.htmlEncode(values.message)]}">',
                 '{[Cronk.EventDB.Helper.messageFormatter(values.message)]}',
                 '</div>'
-                )
+            )
                
         },{
             dataIndex: 'program',
@@ -594,7 +618,7 @@ Cronk.EventDB.MainView = function(cfg) {
             dataIndex: 'created',
             header: _('Created'),
             sortable: true,
-            width: 200
+            width: 125
         }
         ],
         store: eventStore,
@@ -686,7 +710,7 @@ Cronk.EventDB.MainView = function(cfg) {
                         fm.clearFilterFields();
                         eventStore.baseParams = {
                             offset:0, 
-                            limit:25
+                            limit:50
                         };
                         eventGrid.fireEvent("statechange");
 
@@ -734,8 +758,27 @@ Cronk.EventDB.MainView = function(cfg) {
                 },
                 scope: this
             }]
-            
-            
+        },{
+            text: 'Copy selected',
+            iconCls: 'icinga-icon-note',
+            hidden: !showCopyPaste,
+            handler: function(cmp) {
+                var cmpGrid = cmp.ownerCt.ownerCt;
+                if(!cmpGrid.selectedRecords || cmpGrid.selectedRecords.length <1) {
+                    AppKit.notifyMessage(_("No event selected"),_("You have to select an event"));
+                    return;
+                }
+                var messages = "";
+                for(var i=0;i<cmpGrid.selectedRecords.length;i++) {
+                    var record = cmpGrid.store.getById(cmpGrid.selectedRecords[i]);
+                    var created = record.get("created");
+                    var host = record.get("host_name");
+                    var message = record.get("message");
+                    var priority = record.get("priority");
+                    messages += created + " - " + host + " - " + priority + " - " + message + "\n\n";
+                }
+                if(messages) Cronk.EventDB.Helper.clipboardHandler(messages);
+            }
         }],
         sm: false,		
         plugins: ack,
@@ -754,17 +797,22 @@ Cronk.EventDB.MainView = function(cfg) {
                     var toAdd = [];
                     Ext.iterate(Ext.DomQuery.select('.x-grid3-row-selected',this.el.dom),function(sRow) {			
                         ev.stopEvent();
-                        var el = Ext.get(Ext.DomQuery.select('.x-grid3-check-col, .x-grid3-check-col-on',sRow)[0]);
+                        var el = Ext.get(Ext.DomQuery.select('.x-grid3-check-col, .x-grid3-check-col-on, .x-grid3-check-col-autoclear',sRow)[0]);
+                        if(!el) return;
+                        if(el.hasClass('x-grid3-check-col-autoclear')) {
+                            el.replaceClass('x-grid3-check-col-autoclear','x-grid3-check-col');
+                            el.parent().addClass('x-grid3-check-col-autoclear-bg');
+                        }
                         var index = this.getView().findRowIndex(sRow);
                         var record =this.store.getAt(index);
                         if(!this.selectedRecords) 
                             this.selectedRecords =[];
                         if(!el.hasClass('x-grid3-check-col-on')) {
-                            this.selectedRecords.push(record);
+                            this.selectedRecords.push(record.id);
                             el.replaceClass('x-grid3-check-col','x-grid3-check-col-on'); 
-                            toAdd.push([el,record]);
+                            toAdd.push([el,record.id]);
                         } else {
-                            toDelete.push([el,record]);
+                            toDelete.push([el,record.id]);
                         }
 
                     },this);
@@ -827,8 +875,8 @@ Cronk.EventDB.MainView = function(cfg) {
         },{
             xtype: 'panel',
             region: 'south',
-            title: 'Comments',
-            height: 200,
+            title: 'Comments & Details',
+            height: 240,
             collapsible: true,
             split: true,
             collapsed: true,
@@ -887,7 +935,7 @@ Ext.ns("Cronk.EventDB.Helper").messageFormatter = function(v) {
             replace = "http://"+matches[i];
         v = v.replace(
             matches[i],
-            "<a cronk_href='"+replace+"'>"+Ext.util.Format.ellipsis(matches[i],20)+"</a>"
+            "<a href='"+replace+"' target='_blank' ext:qtip='"+matches[i]+"'>"+Ext.util.Format.ellipsis(matches[i],40)+"</a>"
             );
     }
 
@@ -918,13 +966,17 @@ Ext.ns("Cronk.EventDB.Helper").clipboardHandler = function(text) {
     }
     else {
         new Ext.Window({
-            width:400,
-            height:300,
+            width:'80%',
+            height:350,
             title: _('Copy this to your clipboard'),
-            html: "<textarea style='width:90%;height:90%' >"+Ext.util.Format.htmlEncode(text)+"</textarea>",
             padding:5,
             closeAction: 'close',
-            autoDestroy:true
+            autoDestroy:true,
+            layout: 'fit',
+            items: [{
+                xtype: 'textarea',
+                value: text
+            }]
         }).show(Ext.getBody());
     }
 };

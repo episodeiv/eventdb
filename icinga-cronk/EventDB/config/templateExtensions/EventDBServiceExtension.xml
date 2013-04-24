@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<template match-pattern="icinga-service-template">
+<template match-pattern="icinga-(service-template|unhandled-service-problems)">
 	 <fields>
 		<field name="edb_service_link">
-            <preferPosition>after:comments</preferPosition>
+            <preferPosition>after:service_check_attempt</preferPosition>
             <datasource>
             	<parameter name="field">SERVICE_ID</parameter>
             </datasource>
@@ -37,7 +37,8 @@
 							<!-- only show items that contain the following cv -->	
 							<!--
 							<parameter name="cv_filter">EDB</parameter>
-							-->						
+							-->
+
 							<parameter name="attr">
 								<parameter name="qtip">Click here for the host</parameter>
 							</parameter>

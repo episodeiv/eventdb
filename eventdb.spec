@@ -12,7 +12,7 @@
 
 Name:           eventdb
 Summary:        Manage and administrate recipient events for Icinga and Nagios
-Version:        2.0.4rc
+Version:        2.0.5beta
 Release:        1%{?dist}%{?custom}
 Url:            https://www.netways.org/projects/show/eventdb
 License:        GPL v2 or later
@@ -408,6 +408,9 @@ if [ -x %{clearcache} ]; then %{clearcache}; fi
 %attr(0755,%{apacheuser},%{apachegroup}) %{_datadir}/icinga-web/app/modules/EventDB/templates/
 
 %changelog
+* Wed Apr 24 2013 jannis.mosshammer@netways.de
+- updated for 2.0.5beta
+
 * Wed Feb 06 2013 christian.dengler@netways.de
 - add subpackage to support rsyslog-pgsql
 - add schema for pgsql

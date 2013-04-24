@@ -711,6 +711,15 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').General = function() {
                 },{
                     text: '200',
                     value: 200
+                },{
+                    text: '300',
+                    value: 300
+                },{
+                    text: '400',
+                    value: 400
+                },{
+                    text: '500',
+                    value: 500
                 }]
             },{
                 showText: true,

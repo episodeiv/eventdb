@@ -61,7 +61,11 @@
 			<validator class="string" required="false" name="group_by">
                 <argument>group_by</argument>
             </validator>
-            
+
+            <validator class="string" required="false" name="group_leader">
+                <argument>group_leader</argument>
+            </validator>
+
             <validator class="string" required="false" name="filter_target">
                 <arguments base="filter[]">
                     <argument>target</argument>

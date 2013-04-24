@@ -212,14 +212,14 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 					},
 					"display":{
 						"order":{
-							"field":"modified",
+							"field":"created",
 							"dir":"desc"
 						},
 						"group":{
 							"field":null
 						},
 						"count":"id",
-						"limit":25
+						"limit":50
 					}
 				})
 			}

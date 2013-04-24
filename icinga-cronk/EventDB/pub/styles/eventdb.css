@@ -69,6 +69,27 @@ Program icons and styles
 }
 
 /*
+check-col and autoclear
+*/
+
+.x-grid3-check-col, .x-grid3-check-col-on, .x-grid3-check-col-autoclear {
+    background-position: center 30%;
+    height: 16px;
+}
+
+.x-grid3-check-col-autoclear {
+    /* use a global image here */
+    background-image: url(../../../../images/icons/arrow-circle-double-135.png);
+    background-repeat: no-repeat;
+    background-color: transparent;
+    width: 100%;
+}
+
+.x-grid3-check-col-autoclear-bg {
+    background-color: #99caf1;
+}
+
+/*
 Cell color and style of priority field
 */
 

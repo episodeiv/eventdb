@@ -7,6 +7,7 @@
             <ae:parameter>%core.root_dir%/lib/ext3/examples/ux/CheckColumn.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/Components/EventDetailPanel.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/Components/CommentForm.js</ae:parameter>
+            <ae:parameter>%core.module_dir%/EventDB/lib/js/Components/SubGrid.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/Components/OptimisticPagingToolbar.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/Mixins/FilterManagerInterfaceMixin.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/FilterManagerViews/Advanced.js</ae:parameter>

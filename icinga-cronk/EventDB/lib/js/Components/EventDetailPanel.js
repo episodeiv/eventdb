@@ -2,7 +2,7 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
     currentId: null,
     layout: 'border',
     showCopyPaste: false,
-    
+
     constructor: function(cfg) {
         cfg = cfg || {}
         this.showCopyPaste = cfg.showCopyPaste || false;
@@ -24,8 +24,8 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
         }
 
         this.commentStore.baseParams = {
-            event:id, 
-            offset: 0, 
+            event:id,
+            offset: 0,
             limit: 25
         };
         this.commentStore.load();
@@ -121,59 +121,73 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
             tpl: new Ext.XTemplate(
                 "<table style='font-size:12px'>",
                 "<tr>",
-                "<td><b>Type</b></td><td>{[Cronk.EventDB.Helper.resolveTypeNr(values.type)]}</td>",
-                "</tr><tr>",
                 "<td><b>Host:</b></td><td>{host_name}</td>",
                 "</tr><tr colspan='2'>",
                 "<td><b>Message:</b></td>",
                 "</tr><tr colspan='2' rowspan='2'>",
                 "<td  colspan='2'>",
-                "<div style='word-wrap:break-word;width:100%;height:40px;overflow:auto'>",
+                "<div style='word-wrap:break-word;width:100%;'>",
                 "{[Cronk.EventDB.Helper.messageFormatter(values.message)]}",
-                "</div>",
+                "</div><br/>",
                 "</td>",
-                "</tr><tr>",
-                "<td><b>Address:</b></td><td>{address}</td>",
-                "</tr><tr>",
-                "<td><b>Facility:</b></td><td>{facility}</td>",
                 "</tr><tr>",
                 "<td><b>Priority:</b></td><td>{priority}</td>",
                 "</tr><tr>",
                 "<td><b>Program:</b></td><td>{program}</td>",
                 "</tr><tr>",
                 "<td><b>Created:</b></td><td>{created}</td>",
+                "</tr><tr>",
+                "<td><b>Type</b></td><td>{[Cronk.EventDB.Helper.resolveTypeNr(values.type)]}</td>",
+                "</tr><tr>",
+                "<td><b>Address:</b></td><td>{address}</td>",
+                "</tr><tr>",
+                "<td><b>Facility:</b></td><td>{facility}</td>",
                 "</tr>",
                 "</table>"
                 )
         });
 
         this.detailTable = cmp;
+        var subGrid = new Cronks.EventDB.Components.SubGridFactory();
         // wrap the update function to catch updates before DOM is rendererd
         this.detailTable.lazyUpdate = function(event) {
+
             cmp.currentEvent = event;
-            if(cmp.rendered) {    
+            if(cmp.rendered) {
                 cmp.update(event.data);
                 Cronk.EventDB.Helper.initCronkLinks(cmp.el.dom);
+                subGrid.grid.getStore().setBaseParam("group_leader",event.data.id);
             } else {
                 cmp.on("afterrender",function() {
                     cmp.update(event.data);
+                    subGrid.grid.getStore().setBaseParam("group_leader",event.data.id);
                     Cronk.EventDB.Helper.initCronkLinks(cmp.el.dom);
                 },this,{
                     single:true
                 });
             }
-            
+            subGrid.grid.getStore().load();
         }
 
 
-        return new Ext.Panel({
-            title: _('Details'),
-            layout: 'fit',
+        return new Ext.TabPanel({
+            activeTab:0,
             region:'east',
             width:"50%",
-            padding: 4,
-            tbar: this.showCopyPaste ?[this.getClipboardButton(cmp)] : null,
-            items: cmp
+            tabPosition: 'bottom',
+            defaults: {
+                padding: 4
+            },
+            items: [{
+                title: _('Details'),
+                layout: 'fit',
+                tbar: this.showCopyPaste ?[this.getClipboardButton(cmp)] : null,
+                items: cmp
+            },{
+                title: _('Event group'),
+                layout: 'fit',
+                items: subGrid.grid
+            }]
         });
     },
 
@@ -194,9 +208,9 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                     return;
                 Cronk.EventDB.Helper.clipboardHandler(
                     Ext.util.Format.htmlEncode(
-                        cmp.currentEvent.get("message")
-                        )
-                    );
+                        cmp.currentEvent.get("created")+" - "+cmp.currentEvent.get("host_name")+" - "+cmp.currentEvent.get("priority")+" - "+cmp.currentEvent.get("message")
+                    )
+                );
             },
             scope:this
         }
@@ -213,7 +227,7 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                     sortable: true
                 },
                 columns: [{
-                    header: _('Type'), 
+                    header: _('Type'),
                     dataIndex: 'type',
                     renderer: function(v) {
                         switch(v) {
@@ -228,19 +242,19 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                 },
 
                 {
-                header: _('Author'), 
+                header: _('Author'),
                 dataIndex: 'user'
             },
 
             {
-                header: _('Created'), 
-                dataIndex: 'created', 
+                header: _('Created'),
+                dataIndex: 'created',
                 width: 150
             },
 
             {
-                header: _('Message'), 
-                dataIndex: 'message', 
+                header: _('Message'),
+                dataIndex: 'message',
                 width: 200
             }
             ]
@@ -257,4 +271,3 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
     }
 }
 });
-	
