@@ -235,25 +235,19 @@ class EventDB_EventDBModel extends EventDBBaseModel {
             $event->host_address = null;
         }
 
-        $API = $this->getContext()->getModel('Icinga.ApiContainer', 'Web');
+        $query = IcingaDoctrine_Query::create();
+        $queryDQL = "SELECT h.display_name, h.address FROM IcingaHosts h WHERE ";
+        $params = array();
 
-        $search = @$API->createSearch()->setSearchTarget(IcingaApiConstants::TARGET_HOST);
-        $search->setResultColumns(array('HOST_NAME', 'HOST_ADDRESS'));
-        $search->setSearchGroup(array('HOST_NAME', 'HOST_OBJECT_ID', 'HOST_ADDRESS'));
-
-        $filterGroup = $search->createFilterGroup(IcingaApiConstants::SEARCH_OR);
         foreach ($eventHosts as $entry) {
-            $filterGroup->addFilter($search->createFilter('HOST_NAME', $entry["host"], IcingaApiConstants::MATCH_EXACT));
-            $filterGroup->addFilter($search->createFilter("HOST_ADDRESS", $entry["addr"], IcingaApiConstants::MATCH_EXACT));
+            $queryDQL .= (empty($params) ? "" : " OR ")." (h.display_name = ? OR h.address = ?)";
+            $params[] = $entry["host"];
+            $params[] = $entry["addr"];
         }
 
-        $search->setSearchFilter($filterGroup);
-
-        $search->setResultType(IcingaApiConstants::RESULT_ARRAY);
-        $res = $search->fetch()->getAll();
-
+        $query->parseDqlQuery($queryDQL);
+        $res = $query->execute($params,Doctrine::HYDRATE_ARRAY);
         $q = $r;
-
         $r = $q->toArray(true);
 
         $q->free(); 
@@ -261,8 +255,8 @@ class EventDB_EventDBModel extends EventDBBaseModel {
             $event['real_host'] = false;
             $event = array_merge($event, $eventAdditional[$event['id']]);
             foreach($res as $host) {
-                $hostname = $host['HOST_NAME'];
-                $ipAddress = $host['HOST_ADDRESS'];
+                $hostname = $host['display_name'];
+                $ipAddress = $host['address'];
                 if ($event['host_name'] == $hostname) {
                     $event['real_host'] = $hostname;
                     break;
