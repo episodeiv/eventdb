@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
       name="EventDB_check_plugin",
-      version="2.0.4",
+      version="2.0.5",
       author="Jannis Mosshammer",
       author_email="jannis.mosshammer@netways.de",
       description=("Icinga/Nagios check plugin for the eventdb "),
