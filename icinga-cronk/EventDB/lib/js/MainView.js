@@ -345,8 +345,10 @@ Cronk.EventDB.MainView = function(cfg) {
         buildInterGridLink: function() {
             var elems = Ext.DomQuery.select('span[isHostField=true]',parentCmp.el.dom);
             Ext.iterate(elems,function(elem) {
+                elem.removeAttribute("isHostField");
+
                 Ext.get(elem).on("click",function(ev,e) {
-                    var host_name = e.getAttribute('hostName');	
+                    var host_name = e.getAttribute('hostName');
                     if(!host_name || host_name == "false")
                         return true;
                     var cronk = {
@@ -362,7 +364,6 @@ Cronk.EventDB.MainView = function(cfg) {
 				
                     filter["f[host_name-value]"] = host_name; 	
                     filter["f[host_name-operator]"] = 50;
-
                     Cronk.util.InterGridUtil.gridFilterLink(cronk, filter);
                     return true;
                 });
@@ -494,7 +495,7 @@ Cronk.EventDB.MainView = function(cfg) {
             xtype: 'templatecolumn',
             tpl: new Ext.XTemplate(
                 '<div class="eventdb-type {[Cronk.EventDB.Helper.resolveTypeNr(values.type).toLowerCase()]}">',
-                '<div ext:qtip="<b> ({type}) {[Cronk.EventDB.Helper.resolveTypeNr(values.type)]} - {priority} : </b><br/> {[Cronk.EventDB.Helper.messageFormatter(values.message)]}" class="icon-16">',
+                '<div ext:qwidth="500" ext:qtip="<b> ({type}) {[Cronk.EventDB.Helper.resolveTypeNr(values.type)]} - {priority} : </b><br/> {[Cronk.EventDB.Helper.extendedmessageFormatter(values.message)]}" class="icon-16">',
                 '</div>',
                 '</div>',{
                     eventGrid: eventGrid
@@ -589,7 +590,7 @@ Cronk.EventDB.MainView = function(cfg) {
             width: 360,
             xtype:'templatecolumn',
             tpl: new Ext.XTemplate(
-                '<div ext:qtip="{[fm.htmlEncode(values.message)]}">',
+                '<div ext:qwidth="500" ext:qtip="{[Cronk.EventDB.Helper.extendedmessageFormatter(fm.htmlEncode(values.message))]}">',
                 '{[Cronk.EventDB.Helper.messageFormatter(values.message)]}',
                 '</div>'
             )
@@ -790,6 +791,7 @@ Cronk.EventDB.MainView = function(cfg) {
             },
             rowclick: function(grid, rowIndex, e) {
                 eventDetailPanel.displayComments(grid.getStore().getAt(rowIndex));
+                this.buildInterGridLink();
             },
             keydown: function(ev) {
                 if(ev.keyCode == 32) {
@@ -922,6 +924,7 @@ Ext.ns("Cronk.EventDB.Helper").resolveTypeNr = function(v) {
     }
 };
 // detects URLs in messages
+
 Ext.ns("Cronk.EventDB.Helper").messageFormatter = function(v) {
     v = Ext.util.Format.htmlEncode(v);
     var reg = /((?:http(?:s)?|www\.|[\w\.]+\.(?:de|com|net|org|fr|it|co.uk|ru|ro)\/)[^ ]*?)(?: .*)?[$;| ]/i;
@@ -941,6 +944,48 @@ Ext.ns("Cronk.EventDB.Helper").messageFormatter = function(v) {
 
     return v;
 };
+
+Ext.ns("Cronk.EventDB.Helper").extendedmessageFormatter = function(v) {
+    var reg = /((?:http(?:s)?|www\.|[\w\.]+\.(?:de|com|net|org|fr|it|co.uk|ru|ro)\/)[^ ]*?)(?: .*)?[$;| ]/i;
+    var mibvalreg = /((([\t]{1}[\w\.][^:]*[:]{2})(\w*)?(\.\d+)*):(?:(?:[^\t]*))\t)/gi;
+    var mibreg = /(([\t]{1}[\w\.][^:]*[:]{2})(\w*)?(\.\d+)*)/gi;
+    var valreg = /(:(?:(?:[^\t]*))\t)/gi;
+
+    v = Ext.util.Format.htmlEncode(v);
+    v = v.replace(/\n/gi, "<br />");
+
+    var mibvalmatches = v.match(mibvalreg);
+
+    if(Ext.isArray(mibvalmatches)) {
+        for(var i=0;i<mibvalmatches.length;i++) {	
+		var mibmatch = mibvalmatches[i].match(mibreg);
+		var valmatch = mibvalmatches[i].replace(mibmatch+":","");
+		var mibbold = "<b>"+mibmatch+"</b>";
+		var valitalic = "<i>"+valmatch+"</i>";
+		var formattedmibval = mibbold+":"+valitalic;
+		formattedmibval.replace("\t","");
+	        v = v.replace(mibvalmatches[i], formattedmibval);
+	};
+    };
+
+    var matches = v.match(reg);
+
+    if(Ext.isArray(matches)) {
+        for(var i=1;i<matches.length;i++) {
+                var replace = matches[i];
+                if(!matches[i].match(/^http/))
+                    replace = "http://"+matches[i];
+                v = v.replace(
+                    matches[i],
+                    "<a href='"+replace+"' target='_blank' ext:qtip='"+matches[i]+"'>"+Ext.util.Format.ellipsis(matches[i],40)+"</a>"
+                    );
+        }
+    }
+
+
+    return v;
+};
+
 
 Ext.ns("Cronk.EventDB.Helper").initCronkLinks = function(startDOM) {
     var elems = Ext.DomQuery.select('a[cronk_href]',startDOM);

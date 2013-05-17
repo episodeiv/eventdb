@@ -692,11 +692,13 @@ class CheckFilter(object):
     Sets the maxage by converting the relative maxage format like 4d, 2m, 20h to
     an absolute database timestamp (YYYY-MM-DD HH:MI:SS)
     '''
-    def setMaxage(self,maxage):
+    def setMaxage(self,maxage, use_utc=False):
         if maxage == "":
             return
         curTime = time.time()
         matches = re.match(r"(\d*?)(d|h|m)",maxage)
+        if matches == None:
+            raise Exception("Invalid maxage format")
         matchGroups = matches.groups()
         if(len(matchGroups) != 2):
             raise Exception("Invalid maxage format")
@@ -711,7 +713,11 @@ class CheckFilter(object):
             curTime = curTime-timeOffset*60
 
         self.startTimestamp = curTime
-        tmLocal = time.localtime(curTime)
+        if use_utc:
+            tmLocal = time.localtime(curTime)
+        else:
+            tmLocal = time.gmtime(curTime)    
+
         self.maxage = "%02d-%02d-%02d %02d:%02d:%02d" % tmLocal[0:6]
 
     def setPerfdata(self,perfdata):
@@ -792,7 +798,7 @@ class EventDBPlugin(object):
 
         self.__checkFilter = CheckFilter()
         self.__checkFilter.setLogtype(options.logtype)
-        self.__checkFilter.setMaxage(options.maxage)
+        self.__checkFilter.setMaxage(options.maxage, options.use_utc)
         self.__checkFilter.setPerfdata(options.perfdata)
         self.__checkFilter.setFacility(options.facility)
         self.__checkFilter.setPriority(options.priority)
@@ -1125,6 +1131,7 @@ class EventDBPlugin(object):
                         help="Defines how this daemon behaves when another daemon is started at (exactly) the same time."+
                         "(Aggressive[=Default]: Other daemons will be removed"+
                         ",Servile: Abort daemonization when another daemon is encountered)")
+        parser.add_option("--use-utc", dest="use_utc", default=False, action="store_true", help="Use UTC instead of localtime for time calculations")
         parser.add_option("--daemon_lifetime", dest="daemon_lifetime", default=5,type="int",
                         help="Defines how long daemonized connections life (in seconds) when there's no request")
         (options, args) = parser.parse_args()
