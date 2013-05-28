@@ -927,7 +927,7 @@ class EventDBPlugin(object):
             else:
                 return self.__pluginExit(
                     'CRITICAL',
-                    ("%d critical and %d warning matches found\n"+msg) % (criticals,warnings),
+                    (("%d critical and %d warning matches found\n") % (criticals,warnings))+msg,
                     'matches=%d count=%dc' % (count,last)
                 )
         elif(warnings >= self.__options.warning):
@@ -940,7 +940,7 @@ class EventDBPlugin(object):
             else:
                 return self.__pluginExit(
                     'WARNING',
-                    ('%d critical and %d warning matches found \n,'+msg) % (criticals,warnings),
+                    (('%d critical and %d warning matches found \n,') % (criticals,warnings))+msg,
                     'matches=%d count=%dc' % (count,last)
                 )
         else:
