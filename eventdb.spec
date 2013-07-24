@@ -12,7 +12,7 @@
 
 Name:           eventdb
 Summary:        Manage and administrate recipient events for Icinga and Nagios
-Version:        2.0.5
+Version:        2.0.6
 Release:        1%{?dist}%{?custom}
 Url:            https://www.netways.org/projects/show/eventdb
 License:        GPL v2 or later
@@ -345,6 +345,9 @@ if [ -x %{clearcache} ]; then %{clearcache}; fi
 %attr(0755,%{apacheuser},%{apachegroup}) %{_datadir}/icinga-web/app/modules/EventDB/templates/
 
 %changelog
+* Wed Jul 24 2013 michael.friedrich@netways.de
+- bump to 2.0.6
+
 * Mon May 20 2013 michael.friedrich@netways.de
 - updated for 2.0.5
 - fix rpmlint errors
