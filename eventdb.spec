@@ -30,7 +30,11 @@ BuildRequires:  fdupes
 %endif
 %if "%{_vendor}" == "redhat"
 BuildRequires:	httpd
+%if 0%{?el5} 
+BuildRequires:  php53
+%else
 BuildRequires: 	php >= 5.2
+%endif
 %endif
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -230,10 +234,6 @@ install -Dm644 etc/apache2/eventdb.conf %{buildroot}/%{apache2_sysconfdir}/%{nam
 %{__mkdir_p} %{buildroot}%{icingawebdir}/app/modules
 %{__cp} -r icinga-cronk/EventDB %{buildroot}%{icingawebdir}/app/modules/
 
-# cleanup python 
-%{__rm} -f %{libexecdir}/*.pyc
-%{__rm} -f %{libexecdir}/*.pyo
-
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -303,7 +303,7 @@ if [ -x %{clearcache} ]; then %{clearcache}; fi
 %dir /usr/lib/nagios
 %dir %{libexecdir}
 %doc %{_defaultdocdir}/%{name}/check_eventdb*.cfg
-%{libexecdir}/check_eventdb.py
+%{libexecdir}/check_eventdb.py*
 
 %files syslog-ng2mysql
 %defattr(-,root,root)
