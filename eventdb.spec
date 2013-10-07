@@ -345,6 +345,9 @@ if [ -x %{clearcache} ]; then %{clearcache}; fi
 %attr(0755,%{apacheuser},%{apachegroup}) %{_datadir}/icinga-web/app/modules/EventDB/templates/
 
 %changelog
+* Mon Oct 07 2013 dirk.goetz@netways.de
+- fix for buildrequires epel5
+
 * Wed Jul 24 2013 michael.friedrich@netways.de
 - bump to 2.0.6
 
