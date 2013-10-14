@@ -4,7 +4,7 @@
 # Initial revision from
 # https://build.opensuse.org/package/show?package=eventdb&project=server%3Amonitoring 
 #
-# Revised and updated by Michael Friedrich
+# Revised and updated by Michael Friedrich, Dirk Goetz
 # (c) 2012-2013 Netways GmbH
 #
 # This file and all modifications and additions to the pristine
@@ -143,9 +143,11 @@ Requires:       %{name} = %{version}
 Requires:       python >= 2.4
 %if "%{_vendor}" == "redhat"
 Requires:	MySQL-python
+Requires:	python-sqlalchemy
 %endif
 %if "%{_vendor}" == "suse"
 Requires:       python-mysql
+Requires:       python-SQLAlchemy
 %endif
 
 %description plugin
@@ -247,7 +249,7 @@ install -Dm644 etc/apache2/eventdb.conf %{buildroot}/%{apache2_sysconfdir}/%{nam
 %restart_on_update %{webserver}
 %endif
 %if "%{_vendor}" == "redhat"
-%{_sysconfdir}/init.d/%{webserver} restart
+%{_sysconfdir}/init.d/%{webserver} graceful
 %endif
 
 %postun www
@@ -255,7 +257,7 @@ install -Dm644 etc/apache2/eventdb.conf %{buildroot}/%{apache2_sysconfdir}/%{nam
 %restart_on_update %{webserver}
 %endif
 %if "%{_vendor}" == "redhat"
-%{_sysconfdir}/init.d/%{webserver} restart
+%{_sysconfdir}/init.d/%{webserver} graceful
 %endif
 
 %postun syslog-ng2mysql
@@ -345,6 +347,10 @@ if [ -x %{clearcache} ]; then %{clearcache}; fi
 %attr(0755,%{apacheuser},%{apachegroup}) %{_datadir}/icinga-web/app/modules/EventDB/templates/
 
 %changelog
+* Mon Oct 14 2013 dirk.goetz@netways.de
+- added sqlalchemy as requirement for plugin
+- changed apache restart to graceful
+
 * Wed Jul 24 2013 michael.friedrich@netways.de
 - bump to 2.0.6
 
