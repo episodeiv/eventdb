@@ -177,30 +177,9 @@ find -name "*.gitignore" | xargs rm -rf
 %{__rm} -rf %{buildroot}
 
 mkdir -p %{buildroot}%{webdir}
-mkdir -p %{buildroot}%{_defaultdocdir}/%{name}
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}
-# install documentation
-cp -r db %{buildroot}%{_defaultdocdir}/%{name}/
-cp -r doc/* %{buildroot}%{_defaultdocdir}/%{name}/
 # install plugin including config
 install -Dm755 plugin/check_eventdb.py %{buildroot}/%{libexecdir}/check_eventdb.py
-# command definition
-cat >>%{buildroot}/%{_defaultdocdir}/%{name}/check_eventdb_cmd.cfg<<EOF
-define command {
-  command_name         check_eventdb
-  command_line         $USER1$/check_eventdb.py --dbuser=eventdb --dbpass=eventdb -H $HOSTNAME$ $ARG1$
-}
-EOF
-# service definition
-cat >>%{buildroot}/%{_defaultdocdir}/%{name}/check_eventdb_service.cfg<<EOF
-define service {
-   use                  generic-service
-   host_name            host1
-   service_description  eventdb_error
-   check_command        check_eventdb!--facility 4 --priority 0,1,2 -m "%ssh%" -w 1 -c 2 --label=ssh_errors
-}
-EOF
-#
 # install syslog-ng2mysql.pl
 pushd agenten/syslog-ng
 %if "%{_vendor}" == "suse"
@@ -212,9 +191,6 @@ install -Dm755 mysql/init/syslog-ng2mysql.init-rhel %buildroot/%{_sysconfdir}/in
 # change user and location
 sed -i -e 's|USER=icinga|USER=eventdb|' -e 's|GROUP=icinga|GROUP=eventdb|' -e 's|DAEMON=/usr/local/icinga/contrib/|DAEMON=%{_bindir}/|' %{buildroot}%{_sysconfdir}/init.d/syslog-ng2*
 
-install -m644 syslog-ng.conf %{buildroot}/%{_defaultdocdir}/%{name}/
-mkdir -p %{buildroot}/%{_defaultdocdir}/%{name}/agent-examples/
-cp -r ../not_supported_yet/* %{buildroot}/%{_defaultdocdir}/%{name}/agent-examples/
 install -Dm755 mysql/syslog-ng2mysql.pl %{buildroot}/%{_bindir}/syslog-ng2mysql.pl
 sed -i -e 's|/usr/local/icinga/var/rw/syslog-ng.pipe|%{_var}/spool/%{name}/syslog-ng.pipe|' %{buildroot}%{_bindir}/syslog-ng2*.pl
 popd
@@ -289,30 +265,22 @@ if [ -x %{clearcache} ]; then %{clearcache}; fi
 %files
 %defattr(-,root,root,-)
 %if "%{_vendor}" == "redhat"
-%doc doc/gpl.txt doc/INSTALL doc/README.RHEL
+%doc db doc/gpl.txt doc/INSTALL doc/README.RHEL
 %endif
 %if "%{_vendor}" == "suse"
-%doc doc/gpl.txt doc/INSTALL doc/README.SUSE
+%doc db doc/gpl.txt doc/INSTALL doc/README.SUSE
 %endif
 %defattr(0644,root,root,0755)
-%doc %{_defaultdocdir}/%name/
-%exclude %{_defaultdocdir}/%{name}/agent-examples
-%exclude %{_defaultdocdir}/%{name}/check_eventdb*.cfg
-%exclude %{_defaultdocdir}/%{name}/syslog-ng.conf
 
 %files plugin
 %defattr(-,root,root)
-%dir /usr/lib/nagios
 %dir %{libexecdir}
-%doc %{_defaultdocdir}/%{name}/check_eventdb*.cfg
 %{libexecdir}/check_eventdb.py*
 
 %files syslog-ng2mysql
 %defattr(-,root,root)
-%doc %{_defaultdocdir}/%{name}/syslog-ng.conf
-%dir %{_defaultdocdir}/%{name}/agent-examples
+%doc agenten/syslog-ng/syslog-ng.conf agenten/syslog-ng/mysql
 %dir %{_var}/spool/%{name}
-%doc %{_defaultdocdir}/%{name}/agent-examples/*
 %config %{_sysconfdir}/init.d/syslog-ng2mysql
 %{_bindir}/syslog-ng2mysql.pl
 
