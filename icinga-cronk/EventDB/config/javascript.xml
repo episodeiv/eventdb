@@ -3,19 +3,20 @@
 
     <ae:configuration>
         <javascript>
-           
+
             <ae:parameter>%core.root_dir%/lib/ext3/examples/ux/CheckColumn.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/Components/EventDetailPanel.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/Components/CommentForm.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/Components/SubGrid.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/Components/OptimisticPagingToolbar.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/Mixins/FilterManagerInterfaceMixin.js</ae:parameter>
+            <ae:parameter>%core.module_dir%/EventDB/lib/js/FilterManagerViews/AdditionalFields.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/FilterManagerViews/Advanced.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/FilterManagerViews/General.js</ae:parameter>
             <ae:parameter>%core.module_dir%/EventDB/lib/js/FilterManager.js</ae:parameter>
 
             <ae:parameter>%core.module_dir%/EventDB/lib/js/edbColumn.js</ae:parameter>
-            <ae:parameter>%core.module_dir%/EventDB/lib/js/MainView.js</ae:parameter>        
+            <ae:parameter>%core.module_dir%/EventDB/lib/js/MainView.js</ae:parameter>
         </javascript>
     </ae:configuration>
 </ae:configurations>

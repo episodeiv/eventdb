@@ -41,7 +41,8 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
                 },
                 count: 'id',
                 limit: 50
-            }
+            },
+            additionalFields: {}
         }
     }
 
@@ -67,7 +68,6 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
             return true;
         if(this.getProgramExcludePatternMatchType() != 'disabled')
             return true;
-
         if(this.getMessageFilter().length > 0)
             return true;
         if(this.getExcludedEventSources().length > 0)
@@ -76,8 +76,12 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
             return true;
         if(this.getExcludedFacilities().length >0)
             return true;
+        if (JSON.stringify(this.currentFilterObject.additionalFields) !== '{}') {
+            return true;
+        }
         if(this.showsAcknowledged())
             return false;
+        // TODO(el): Why after showsAcknowledged?
         if(this.getFromTime() > -1 || this.getToTime() > 1)
             return true;
 
@@ -126,19 +130,19 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
             AppKit.log("Invalid filter descriptor provided", descriptor);
             return false
         }
-        
+
     }
 
-    
+
 
     this.genericToggle = function(target,value,state) {
         var exists = target.indexOf(value);
-        
+
         if(exists > -1 && (typeof state === "undefined" || state === true)) {
-            
+
             target.remove(value);
         } else if (exists === -1 && (typeof state === "undefined" || state === false)) {
-            
+
             target.push(value);
         }
     }
@@ -279,7 +283,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
     }
 
     this.setMessageFilter = function(messageFilterArray) {
-        
+
         this.currentFilterObject.messageFilter.items.push(messageFilterArray);
     }
 
@@ -309,7 +313,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
     this.setDisplayDir = function(ascOrDesc) {
         this.currentFilterObject.display.order.dir = ascOrDesc.toLowerCase();
     }
-    
+
     this.getDisplayDir = function() {
         return this.currentFilterObject.display.order.dir;
     }
@@ -329,4 +333,19 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
         this.resetFilterObject(true);
     }
 
+    this.setAFilterPattern = function (dataIndex, includeOrExclude, value, operator) {
+        if (this.currentFilterObject.additionalFields[dataIndex] === undefined) {
+            this.currentFilterObject.additionalFields[dataIndex] = {}
+        }
+        includeOrExclude = includeOrExclude.toLowerCase();
+        this.currentFilterObject.additionalFields[dataIndex][includeOrExclude + '_pattern'] = value;
+        this.currentFilterObject.additionalFields[dataIndex][includeOrExclude + '_pattern_type'] = operator;
+    };
+    this.setAFilterSet = function (dataIndex, includeOrExclude, value) {
+        if (this.currentFilterObject.additionalFields[dataIndex] === undefined) {
+            this.currentFilterObject.additionalFields[dataIndex] = {}
+        }
+        includeOrExclude = includeOrExclude.toLowerCase();
+        this.currentFilterObject.additionalFields[dataIndex][includeOrExclude + '_set'] = value;
+    };
 };

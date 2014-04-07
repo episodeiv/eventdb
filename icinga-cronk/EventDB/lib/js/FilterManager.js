@@ -16,10 +16,9 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
         }
         Ext.util.Observable.prototype.constructor.call(this,cfg);
     },
-    
+
     oWin: null,
     config: {},
-	
 
     clearFilterFields: function() {
         if(!this.oWin)
@@ -27,19 +26,19 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
         this.oWin.cascade(function (elem) {
             if(elem.reset)
                 elem.reset();
-				
+
         });
         var btns = this.oWin.findByType('button');
         //btns = btns.concat(this.oWin.findByType('cycle'));
         for(var i=0;i<btns.length;i++) {
             if(btns[i].initialConfig.reset)
-                btns[i].initialConfig.reset.call(btns[i]);	
+                btns[i].initialConfig.reset.call(btns[i]);
         }
         // reset filter
         this.resetFilterObject();
     },
 
-	
+
     updateFilterDescriptor: function(blank) {
         // window doesn't exist yet, don't update
         if(!this.oWin) {
@@ -47,11 +46,10 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
         }
         this.resetFilterObject();
         this.oWin.cascade(function(elem) {
-            if(elem.getValue)		
+            if(elem.getValue)
                 var val = elem.getValue();
             if(!val)
                 return true;
-				
             switch(elem.name) {
                 case 'misc':
                     for(var i=0;i<val.length;i++) {
@@ -87,7 +85,7 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
                 case 'Host_Exclude_set':
                     this.setHostExcludes(val);
                     break;
-                case 'Host_Include_pattern':	
+                case 'Host_Include_pattern':
                     this.setHostIncludePattern(val,elem.ownerCt.matchType);
                     break;
                 case 'Host_Exclude_pattern':
@@ -108,11 +106,37 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
                 case 'Message_filter':
                     this.setMessageFilter(val);
                     break;
+                default:
+                    var rsplit = function (str, sep, maxsplit) {
+                        var split = str.split(sep);
+                        return maxsplit
+                            ? (split.length - 1 <= maxsplit ? split : [split.splice(0, split.length - maxsplit).join('_')].concat(split.splice(-maxsplit)))
+                            : split;
+                    };
+                    var split = rsplit(elem.name, '_', 2);
+                    for (var i = 0; i < this.additionalFields.length; ++i) {
+                        if (this.additionalFields[i].dataIndex === split[0]) {
+                            switch (split[2].toLowerCase()) {
+                                case 'pattern':
+                                    this.setAFilterPattern(
+                                        this.additionalFields[i].dataIndex, split[1], val,
+                                        elem.ownerCt.ownerCt.patternStateButton.getValue()
+                                    );
+                                    break;
+                                case 'set':
+                                    this.setAFilterSet(
+                                        this.additionalFields[i].dataIndex, split[1], val
+                                    );
+                                    break;
+                            }
+                        }
+                    }
+                    break;
             }
             return true;
         },this);
         // Cycle buttons need special care
-        var cycleBtns = this.oWin.findByType('button'); 
+        var cycleBtns = this.oWin.findByType('button');
         for(var i=0;i<cycleBtns.length;i++) {
             var val = cycleBtns[i].getActiveItem().value;
             switch(cycleBtns[i].name) {
@@ -128,24 +152,31 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
                 case 'group_by':
                     this.setGroupBy(val);
                     break;
-            }	
+            }
         }
     },
     generalView: null,
     advancedView: null,
+    additionalFieldsView: null,
 
     show: function(renderOnly) {
         if(!this.generalView)
             this.generalView =Cronk.EventDB.FilterManagerViews.General();
-        if(!this.advancedView)	
+        if(!this.advancedView)
             this.advancedView = Cronk.EventDB.FilterManagerViews.Advanced(this.url);
-		
+        if (this.additionalFields.length && !this.additionalFieldsView) {
+            this.additionalFieldsView = Cronk.EventDB.FilterManagerViews.AdditionalFields(this.additionalFields)
+        }
+
         var ev_uid = Ext.id('eventdb_filterwin');
         renderOnly = renderOnly || false;
-		
+
         this.generalView.updateFields(this.getFilterObject());
         this.advancedView.updateFields(this.getFilterObject());
-		
+        if (this.additionalFieldsView) {
+            this.additionalFieldsView.updateFields(this.getFilterObject());
+        }
+
         if (!this.oWin) {
             this.oWin = new Ext.Window({
                 layout: 'fit',
@@ -154,14 +185,14 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
                 width: 820,
                 height: 550,
                 title: _('Filter'),
-                items: //new Ext.form.FormPanel({ 
-                //	items: 
+                items: //new Ext.form.FormPanel({
+                //	items:
                 new Ext.TabPanel({
                     activeTab: 0,
-                    items: [	
+                    items: [
                     this.generalView,
                     this.advancedView
-                    ]
+                    ].concat(this.additionalFieldsView ? [this.additionalFieldsView] : [])
                 }),
                 //	}),
                 bbar: {

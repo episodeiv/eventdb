@@ -18,13 +18,13 @@ Cronk.EventDB.MainView = function(cfg) {
         enableToggle: true,
         listeners :  {
             toggle: function(e,state) {
-                e.setIconClass('icinga-icon-'+(state ? 'cancel' : 'accept')); 
+                e.setIconClass('icinga-icon-'+(state ? 'cancel' : 'accept'));
                 fm.toggleAcknowledged(!state);
-                eventGrid.refreshTask.delay(1500);		
-            }	
+                eventGrid.refreshTask.delay(1500);
+            }
         }
-    });	
-	
+    });
+
     var quickFilterBar = new Ext.ButtonGroup({
         xtype: 'buttongroup',
         text: _('Priority'),
@@ -40,14 +40,14 @@ Cronk.EventDB.MainView = function(cfg) {
                 var elem = e.findParentByType('buttongroup');
                 var btns = elem.findByType('button');
                 fm.togglePriority(e.value.toString(), e.pressed)
-				
+
                 eventGrid.refreshTask.delay(1500,null,eventGrid);
             },
             scope:this
         },
 
         syncWithFilter: function(f) {
-            
+
             var filter = f || fm.getFilterObject();
             var filterBtn
             if(parentCmp.el)
@@ -56,24 +56,24 @@ Cronk.EventDB.MainView = function(cfg) {
                 Ext.get(filterBtn).addClass('activeFilter');
             } else if(filterBtn) {
                 Ext.get(filterBtn).removeClass('activeFilter');
-                
+
             }
             if(!fm.showsAcknowledged()) {
                 ackFilterBtn.toggle(true,true);
                 ackFilterBtn.setIconClass('icinga-icon-cancel');
             } else {
                 ackFilterBtn.toggle(false,true);
-                ackFilterBtn.setIconClass('icinga-icon-accept');	
+                ackFilterBtn.setIconClass('icinga-icon-accept');
             }
-            filter = filter.priorityExclusion;		
+            filter = filter.priorityExclusion;
             if(!filter) {
                 return true;
             }
             Ext.iterate(this.items.items,function(i) {
                 if(filter.indexOf(i.value.toString()) > -1 || filter.indexOf(i.value) > -1) {
-                    i.toggle(false,true);	
-                } else {	
-                    i.toggle(true,true);	
+                    i.toggle(false,true);
+                } else {
+                    i.toggle(true,true);
                 }
             });
             return true;
@@ -81,51 +81,51 @@ Cronk.EventDB.MainView = function(cfg) {
         items: [
         {
             text: 'E',
-            ctCls: 'tag emergency',	
+            ctCls: 'tag emergency',
             pressed: true,
-            tooltip: _('Show emergency'),	
+            tooltip: _('Show emergency'),
             value: 0
         },{
             text: 'A',
             ctCls: 'tag alert',
             pressed: true,
-            tooltip: _('Show alert'),	
-            value: 1	
+            tooltip: _('Show alert'),
+            value: 1
         },{
             text: 'C',
             ctCls: 'tag critical',
             tooltip: _('Show critical'),
-            pressed: true,	
+            pressed: true,
             value: 2
         },{
             text: 'Er',
             ctCls: 'tag error',
             tooltip: _('Show error'),
-            pressed: true,	
+            pressed: true,
             value: 3
         },{
             text: 'W',
             ctCls: 'tag warning',
             tooltip: _('Show warning'),
-            pressed: true,	
+            pressed: true,
             value: 4
         },{
             text: 'N',
             ctCls: 'tag notice',
             tooltip: _('Show notice'),
-            pressed: true,	
+            pressed: true,
             value: 5
         },{
             text: 'I',
             tooltip: _('Show info'),
-            ctCls: 'tag info',	
-            pressed: true,	
+            ctCls: 'tag info',
+            pressed: true,
             value: 6
         },{
             text: 'D',
             tooltip: _('Show debug'),
-            ctCls: 'tag debug',	
-            pressed: true,	
+            ctCls: 'tag debug',
+            pressed: true,
             value: 7
         }]
     });
@@ -136,7 +136,7 @@ Cronk.EventDB.MainView = function(cfg) {
         autoDestroy:true,
         baseParams: {
             offset:0,
-            count: 'id',	
+            count: 'id',
             limit:50
         },
         remoteSort: true,
@@ -147,54 +147,75 @@ Cronk.EventDB.MainView = function(cfg) {
         root: 'events',
         totalProperty: 'count',
         fields: [
-        {
-            name: 'id'
-        },{
-            name: 'host_name'
-        },{
-            name: 'address'
-        },{
-            name: 'facility'
-        },{
-            name: 'priority'
-        },{
-            name: 'program'
-        },{
-            name: 'created'
-        },{
-            name: 'modified'
-        },{
-            name: 'message'
-        },{
-            name: 'ack'
-        },{
-            name: 'type'
-        },{
-            name: 'real_host'
-        }]
+            {
+                name: 'id'
+            },
+            {
+                name: 'host_name'
+            },
+            {
+                name: 'address'
+            },
+            {
+                name: 'facility'
+            },
+            {
+                name: 'priority'
+            },
+            {
+                name: 'program'
+            },
+            {
+                name: 'created'
+            },
+            {
+                name: 'modified'
+            },
+            {
+                name: 'message'
+            },
+            {
+                name: 'ack'
+            },
+            {
+                name: 'type'
+            },
+            {
+                name: 'real_host'
+            }
+        ].concat((function (additionalFields) {
+            var fields = [];
+            for (var i = 0; i < additionalFields.length; ++i) {
+                fields.push({
+                    name: additionalFields[i].dataIndex
+                });
+            }
+            return fields;
+        })(cfg.additionalFields))
     });
 
 
     var fm = new Cronk.EventDB.FilterManager({
-        url: url, 
-        parentCmp: parentCmp
+        url: url,
+        parentCmp: parentCmp,
+        additionalFields: cfg.additionalFields
     });
-	
-    fm.addListener('applyFilter', function(filters) {		
-			
+
+    fm.addListener('applyFilter', function(filters) {
+
         eventGrid.fireEvent('statechange');
         eventGrid.setPageSize(filters.display.limit);
         eventStore.baseParams = {
             "jsonFilter": Ext.encode(filters)
             };
-        
+
         Cronk.Registry.get(CE.id).params.FilterJSON = Ext.encode(fm.getFilterObject());
         quickFilterBar.syncWithFilter();
         eventGrid.refresh();
     },this,{
         buffer:true
     });
-	
+
     var checkColumn = function(config){
         Ext.apply(this, config);
         if(!this.id){
@@ -203,7 +224,7 @@ Cronk.EventDB.MainView = function(cfg) {
         this.initialValues = {};
         this.renderer = this.renderer.createDelegate(this);
     };
-	
+
     checkColumn.prototype = {
         init: function(grid){
             this.grid = grid;
@@ -212,7 +233,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 view.mainBody.on('mousedown', this.onMouseDown, this);
             }, this);
         },
-	
+
         onMouseDown: function(e, t){
             if(Ext.fly(t).hasClass(this.createId())){
                 e.stopEvent();
@@ -229,16 +250,16 @@ Cronk.EventDB.MainView = function(cfg) {
                 }
                 if(!el.hasClass('x-grid3-check-col-on')) {
                     this.grid.selectedRecords.push(record.id);
-                    el.replaceClass('x-grid3-check-col','x-grid3-check-col-on'); 
-					
+                    el.replaceClass('x-grid3-check-col','x-grid3-check-col-on');
+
                 } else {
                     this.grid.selectedRecords.remove(record.id);
-                    el.replaceClass('x-grid3-check-col-on','x-grid3-check-col'); 
+                    el.replaceClass('x-grid3-check-col-on','x-grid3-check-col');
                 }
                 this.grid.updateCommentButton();
             }
         },
-	
+
         renderer: function(v, p, record) {
             if (this.initialValues[record.id]) {
                 this.grid.updateCommentButton();
@@ -265,12 +286,12 @@ Cronk.EventDB.MainView = function(cfg) {
                 (autoclear ? 'ext:qtip="This event should only be acknowledged with a matching clear event"' : '')
             );
         },
-	
+
         createId: function(){
             return 'x-grid3-cc-' + this.id;
         }
     };
-	
+
     var ack = new checkColumn({
         header: _(''),
         dataIndex: 'ack',
@@ -278,15 +299,15 @@ Cronk.EventDB.MainView = function(cfg) {
         fixed: true,
         menuDisabled: true
     });
-	
-	
+
+
 
     var _eventGrid = Ext.extend(Ext.grid.GridPanel, {
         setPageSize: function(size) {
             this.bottomToolbar.pageSize = size;
         },
         rendered: false,
-        
+
         setPagingBar: function() {
             this.bbar = new Cronk.EventDB.Components.OptimisticPagingToolbar({
                 limit: 50,
@@ -308,7 +329,7 @@ Cronk.EventDB.MainView = function(cfg) {
             });
             Ext.grid.GridPanel.prototype.constructor.call(this);
             this.store.on("beforeload",function() {
-                
+
                 var f = fm.getFilterObject();
                 var isEmpty = true;
                 for(var i in f) {
@@ -319,7 +340,7 @@ Cronk.EventDB.MainView = function(cfg) {
                     f = fm.getFilterObject(true);
                 }
                 var sortState = this.getSortState();
-                
+
                 if(Ext.isObject(sortState)) {
                     f.display.order =
                     {
@@ -361,18 +382,15 @@ Cronk.EventDB.MainView = function(cfg) {
                         }
                     };
                     var filter = {};
-				
-                    filter["f[host_name-value]"] = host_name; 	
+
+                    filter["f[host_name-value]"] = host_name;
                     filter["f[host_name-operator]"] = 50;
                     Cronk.util.InterGridUtil.gridFilterLink(cronk, filter);
                     return true;
                 });
             });
-
-   			
-
         },
-		
+
         unselectAll: function(viewOnly) {
             if(!viewOnly) {
                 this.selectedRecords = [];
@@ -385,21 +403,21 @@ Cronk.EventDB.MainView = function(cfg) {
         },
         selectAll: function() {
             var elem = Ext.DomQuery.select('.x-grid3-check-col',parentCmp.el.dom);
-            Ext.iterate(elem,function(i) {	
-                Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',parentCmp.el.dom);	
+            Ext.iterate(elem,function(i) {
+                Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',parentCmp.el.dom);
                 var id = Ext.get(i).getAttribute("record");
                 this.selectedRecords.push(id);
             },this);
-			
+
             this.updateCommentButton();
         },
         selectPage: function() {
-            
+
         },
         updateCommentButton: function() {
             if(this.selectedRecords.length) {
                 this.commentButton.menu.items.get(0).enable();
-                this.commentButton.menu.items.get(0).setText(this.selectedRecords.length+_(" selected items"));	  		
+                this.commentButton.menu.items.get(0).setText(this.selectedRecords.length+_(" selected items"));
             } else {
                 this.commentButton.menu.items.get(0).setText(_('Current selection (nothing selected)'));
                 this.commentButton.menu.items.get(0).disable();
@@ -409,12 +427,12 @@ Cronk.EventDB.MainView = function(cfg) {
             this.unselectAll(true);
             Ext.iterate(this.selectedRecords,function(r) {
                 var elem = Ext.DomQuery.select('div.x-grid3-check-col[record='+r+']',parentCmp.el.dom);
-                Ext.iterate(elem, function(i) {	
-                    Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',parentCmp.el.dom);	
+                Ext.iterate(elem, function(i) {
+                    Ext.get(i).replaceClass('x-grid3-check-col','x-grid3-check-col-on',parentCmp.el.dom);
                 },this)
             },this);
-            this.updateCommentButton();	
-		
+            this.updateCommentButton();
+
         },
         /**
 		* http://extjs.com/forum/showthread.php?t=22218
@@ -433,25 +451,25 @@ Cronk.EventDB.MainView = function(cfg) {
                 });
             }
         },
-		
+
         // buffer store reload
         refreshTask : new Ext.util.DelayedTask(function() {
             if(this.store)
                 this.store.load();
-            else 
+            else
                 eventStore.load();
             quickFilterBar.active = true;
-			
+
         }),
         refresh: function() {
             this.refreshTask.delay(1000,null,this);
         },
-        resolveType: function(v) {	
+        resolveType: function(v) {
             return Cronk.EventDB.Helper.resolveTypeNr(v);
         },
-		
+
         getState: function() {
-		
+
             var state = {
                 height: this.getHeight(),
                 width: this.getWidth(),
@@ -460,32 +478,32 @@ Cronk.EventDB.MainView = function(cfg) {
             };
             return state;
         },
-        applyState: function(state) {	
-			
+        applyState: function(state) {
+
             if(state.colModel)
                 this.getColumnModel().setConfig(Ext.decode(state.colModel))
             this.setHeight(state.height);
             this.setWidth(state.width);
             //this.store.baseParams = state.storeParams;
-			
+
             if(state.filters) {
                 fm.setFilterObject(state.filters);
             }
-		
+
             this.setPageSize(fm.getDisplayLimit());
             quickFilterBar.syncWithFilter();
         },
         viewConfig: {
-			
+
             getRowClass: function(record,index) {
-                return 'tag '+record.get('priority').toLowerCase();	
+                return 'tag '+record.get('priority').toLowerCase();
             }
         }
     });
     Ext.ns("Cronk.EventDB").EventGrid = _eventGrid;
     var eventGrid = new _eventGrid({
         id: "evGrid_"+this.id,
-		
+
         columns: [{
             showHeader:false,
             width:22,
@@ -509,11 +527,11 @@ Cronk.EventDB.MainView = function(cfg) {
             sortable: true,
             width: 75
         },{
-            dataIndex: 'ack',	
+            dataIndex: 'ack',
             header: _('Ack'),
             menuDisabled: true,
             renderer: function(v,meta,record,rowIdx,colIdx) {
-                return '<div class="icon-16 icinga-icon-'+(v == 1 ? 'accept' : 'none' )+'"></div>';	
+                return '<div class="icon-16 icinga-icon-'+(v == 1 ? 'accept' : 'none' )+'"></div>';
             },
             width:25
         },{
@@ -524,7 +542,7 @@ Cronk.EventDB.MainView = function(cfg) {
             width: 70,
             renderer: function(v) {
                 var typename = eventGrid.resolveType(v);
-                return '<span class="eventdb-type '+typename.toLowerCase()+'">'+ 
+                return '<span class="eventdb-type '+typename.toLowerCase()+'">'+
                 '</div>'+typename+'</span>';
             }
         },{
@@ -566,7 +584,7 @@ Cronk.EventDB.MainView = function(cfg) {
                     if(typeof window.clipboardData !== "undefined") {
                         useNativeCopy = true;
                     }
-                        
+
                     this.items[0].tooltip = useNativeCopy ?
                     _("Copy message to clipboard") :
                     _("Open popup for copying");
@@ -594,13 +612,13 @@ Cronk.EventDB.MainView = function(cfg) {
                 '{[Cronk.EventDB.Helper.messageFormatter(values.message)]}',
                 '</div>'
             )
-               
+
         },{
             dataIndex: 'program',
             header: _('Program'),
             sortable: true,
             renderer: function(v) {
-                return '<span class="eventdb-program '+v.toLowerCase()+'">'+ 
+                return '<span class="eventdb-program '+v.toLowerCase()+'">'+
                 '<div style="float:left" class="icon-16"></div>'+v+'</span>';
             },
             width: 100
@@ -611,7 +629,7 @@ Cronk.EventDB.MainView = function(cfg) {
             renderer: function(v) {
                 if(!v)
                     return "INVALID FACILITY!";
-                return '<span class="eventdb-facility '+v.toLowerCase()+'">'+ 
+                return '<span class="eventdb-facility '+v.toLowerCase()+'">'+
                 '<div style="float:left" class="icon-16"></div>'+v+'</span>';
             },
             width: 100
@@ -621,7 +639,61 @@ Cronk.EventDB.MainView = function(cfg) {
             sortable: true,
             width: 125
         }
-        ],
+        ].concat((function (additionalFields) {
+            var columns = [];
+            for (var i = 0; i < additionalFields.length; ++i) {
+                var columnConfig = {
+                    header: additionalFields[i].header,
+                    dataIndex: additionalFields[i].dataIndex
+                };
+                if (additionalFields[i].type === 'url') {
+                    columnConfig.listeners = {
+                        click: function(column, grid, rowIndex) {
+                            var url = grid.store.getAt(rowIndex).get(column.dataIndex);
+                            if (url) {
+                                window.open(url, '_blank');
+                            }
+                            return true;
+                        }
+                    };
+                    columnConfig.xtype = 'templatecolumn';
+                    columnConfig.tpl = new Ext.XTemplate(
+                        '<span style="color: blue; text-decoration: underline; cursor: pointer;">{' + columnConfig.dataIndex + '}</span>'
+                    );
+                } else if (additionalFields[i].type === 'service') {
+                    columnConfig.listeners = {
+                        click: function(column, grid, rowIndex) {
+                            var service = grid.store.getAt(rowIndex).get(column.dataIndex);
+                            if (service) {
+                                var cronk = {
+                                    parentid: Ext.id(),
+                                    title: service,
+                                    crname: 'gridProc',
+                                    closable: true,
+                                    params: {
+                                        template: 'icinga-service-template'
+                                    }
+                                };
+                                var filter = {
+                                    'f[host_name-value]': grid.store.getAt(rowIndex).get('host_name'),
+                                    'f[host_name-operator]': 50,
+                                    'f[service_name-value]': service,
+                                    'f[service_name-operator]': 50
+                                };
+                                Cronk.util.InterGridUtil.gridFilterLink(cronk, filter);
+                            }
+                            return true;
+                        }
+                    };
+                    columnConfig.xtype = 'templatecolumn';
+                    columnConfig.tpl = new Ext.XTemplate(
+                        '<span style="color: blue; text-decoration: underline; cursor: pointer;">{' + columnConfig.dataIndex + '}</span>'
+                    );
+                }
+                columns.push(columnConfig)
+            }
+            return columns;
+        })(cfg.additionalFields)),
         store: eventStore,
         stateId: 'db-eventGrid-' + this.id,
         stateful: true,
@@ -647,7 +719,7 @@ Cronk.EventDB.MainView = function(cfg) {
                             if(this.trefresh)
                                 this.trefresh.stop();
                             this.trefresh = AppKit.getTr().start({
-                                run: function() { 
+                                run: function() {
                                     if(!eventGrid.getStore())
                                         return false;
                                     if(eventGrid.getStore().proxy)
@@ -710,7 +782,7 @@ Cronk.EventDB.MainView = function(cfg) {
                         fm.show(true);
                         fm.clearFilterFields();
                         eventStore.baseParams = {
-                            offset:0, 
+                            offset:0,
                             limit:50
                         };
                         eventGrid.fireEvent("statechange");
@@ -724,12 +796,12 @@ Cronk.EventDB.MainView = function(cfg) {
             xtype: 'textfield',
             emptyText: _('Host name'),
             enableKeyEvents: true,
-            value: (CE.params || {}).hostQuickFilter, 
-            listeners:{ 
+            value: (CE.params || {}).hostQuickFilter,
+            listeners:{
                 blur: function(el) {
                     var value = el.getValue();
                     eventStore.setBaseParam('hostQuickFilter',value || null);
-                    eventGrid.refresh();				
+                    eventGrid.refresh();
                 },
                 keydown: function(el) {
                     var value = el.getValue();
@@ -738,7 +810,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 },
                 scope: this
             }
-		
+
         }),'-',{
             text:'Acknowledge/Comment...',
             iconCls: 'icinga-icon-add',
@@ -749,7 +821,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 handler: function() {
                     commentForm.show(eventGrid);
                 },
-                
+
                 disabled: true
             },{
                 text: _('All results'),
@@ -781,9 +853,9 @@ Cronk.EventDB.MainView = function(cfg) {
                 if(messages) Cronk.EventDB.Helper.clipboardHandler(messages);
             }
         }],
-        sm: false,		
+        sm: false,
         plugins: ack,
-		
+
         autoScroll: true,
         listeners: {
             defaults: {
@@ -797,7 +869,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 if(ev.keyCode == 32) {
                     var toDelete = [];
                     var toAdd = [];
-                    Ext.iterate(Ext.DomQuery.select('.x-grid3-row-selected',this.el.dom),function(sRow) {			
+                    Ext.iterate(Ext.DomQuery.select('.x-grid3-row-selected',this.el.dom),function(sRow) {
                         ev.stopEvent();
                         var el = Ext.get(Ext.DomQuery.select('.x-grid3-check-col, .x-grid3-check-col-on, .x-grid3-check-col-autoclear',sRow)[0]);
                         if(!el) return;
@@ -807,11 +879,11 @@ Cronk.EventDB.MainView = function(cfg) {
                         }
                         var index = this.getView().findRowIndex(sRow);
                         var record =this.store.getAt(index);
-                        if(!this.selectedRecords) 
+                        if(!this.selectedRecords)
                             this.selectedRecords =[];
                         if(!el.hasClass('x-grid3-check-col-on')) {
                             this.selectedRecords.push(record.id);
-                            el.replaceClass('x-grid3-check-col','x-grid3-check-col-on'); 
+                            el.replaceClass('x-grid3-check-col','x-grid3-check-col-on');
                             toAdd.push([el,record.id]);
                         } else {
                             toDelete.push([el,record.id]);
@@ -821,7 +893,7 @@ Cronk.EventDB.MainView = function(cfg) {
                     if(!toAdd.length) {
                         Ext.iterate(toDelete,function(e) {
                             this.selectedRecords.remove(e[1]);
-                            e[0].replaceClass('x-grid3-check-col-on','x-grid3-check-col'); 
+                            e[0].replaceClass('x-grid3-check-col-on','x-grid3-check-col');
                         },this);
                     }
 
@@ -831,20 +903,20 @@ Cronk.EventDB.MainView = function(cfg) {
                 } else {
                     return false;
                 }
-            },	
+            },
             beforerender: function(_this) {
                 _this.fireEvent('hostFilterChanged', _this, true);
             },
             show: function(_this) {
                 _this.store.load();
-                _this.updateSelected();	
+                _this.updateSelected();
                 _this.renderer = true;
             },
-            hostFilterChanged: function(_this, fromrender) {	
-		
+            hostFilterChanged: function(_this, fromrender) {
+
                 fromrender = fromrender || false;
                 this.unselectAll();
-                if (parentCmp.hostFilter) {					
+                if (parentCmp.hostFilter) {
                     if (!fromrender) {
                         eventGrid.store.load();
                     }
@@ -854,17 +926,17 @@ Cronk.EventDB.MainView = function(cfg) {
         },
         border: false
     });
-	
+
     var _IcingaEventDBCronk = Ext.extend(Ext.Container, {
         constructor: function(config) {
             Ext.Container.prototype.constructor.call(this, config);
         },
-		
+
         applyHostFilter: function() {
             eventGrid.fireEvent('hostFilterChanged', eventGrid);
         }
     });
-	
+
     var IcingaEventDBCronk = new _IcingaEventDBCronk({
         layout: 'border',
         width: parentCmp.getInnerWidth()*0.98,
@@ -888,23 +960,23 @@ Cronk.EventDB.MainView = function(cfg) {
             items: eventDetailPanel
         }]
     });
-	
+
     CE.add(IcingaEventDBCronk);
     CE.doLayout()
-	
-	
+
+
     if(CE.params.hostQuickFilter) {
         eventStore.baseParams = Ext.apply(eventStore.baseParams || {},{
             hostQuickFilter: CE.params.hostQuickFilter
             });
     }
-    if(CE.params.FilterJSON) {	
+    if(CE.params.FilterJSON) {
         var params = Ext.decode(CE.params.FilterJSON);
         fm.overwriteDefaults(params);
     }
     if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
         Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
-    eventGrid.refreshTask.delay(1000);  
+    eventGrid.refreshTask.delay(1000);
 };
 
 // must be available from xtemplate
@@ -957,7 +1029,7 @@ Ext.ns("Cronk.EventDB.Helper").extendedmessageFormatter = function(v) {
     var mibvalmatches = v.match(mibvalreg);
 
     if(Ext.isArray(mibvalmatches)) {
-        for(var i=0;i<mibvalmatches.length;i++) {	
+        for(var i=0;i<mibvalmatches.length;i++) {
 		var mibmatch = mibvalmatches[i].match(mibreg);
 		var valmatch = mibvalmatches[i].replace(mibmatch+":","");
 		var mibbold = "<b>"+mibmatch+"</b>";

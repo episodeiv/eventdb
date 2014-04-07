@@ -32,6 +32,18 @@ class EventDB_EventDBFilterParserModel extends EventDBBaseModel {
         $this->parseMisc($def, $filter["misc"]);
         $this->parseSourceExc($def, $filter["sourceExclusion"]);
 
+        foreach($filter['additionalFields'] as $dataIndex => $filters) {
+            $dataIndexFilter = array(
+                'operator' => 'AND',
+                'isGroup' => true,
+                'filter' => array()
+            );
+            $this->parsePatterns($dataIndex, $filters, $dataIndexFilter['filter']);
+            if (count($dataIndexFilter['filter'])) {
+                $def[] = $dataIndexFilter;
+            }
+        }
+
         $fields = array(
             //		'offset' => $filter["display"]["offset"],
             'limit' => $filter['display']['limit'],
@@ -74,7 +86,8 @@ class EventDB_EventDBFilterParserModel extends EventDBBaseModel {
             'group' => array("field" => false),
             'order' => array("dir" => 'desc', "field" => 'modified'),
             'limit' => 50
-        )
+        ),
+        'additionalFields' => array()
     );
 
     protected function prepareFilter(array &$filter) {
