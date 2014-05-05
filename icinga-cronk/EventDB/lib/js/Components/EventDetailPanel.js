@@ -262,7 +262,6 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                             }
                         }
                     },
-
                     {
                         header: _('Author'),
                         dataIndex: 'user'
@@ -289,6 +288,17 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                 emptyMsg: _('No comments to display')
             }),
             frame: true,
+            tbar: {
+                items: [
+                    {
+                        text: _('Add comment'),
+                        iconCls: 'icinga-icon-add',
+                        handler: function (btn) {
+                            btn.ownerCt.ownerCt.ownerCt.ownerCt.ownerCt.items.get(0).items.get(0).showCommentForm();
+                        }
+                    }
+                ]
+            },
             border: false
         }
     }
