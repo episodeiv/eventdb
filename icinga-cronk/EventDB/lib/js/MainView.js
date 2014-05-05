@@ -182,6 +182,9 @@ Cronk.EventDB.MainView = function(cfg) {
             },
             {
                 name: 'real_host'
+            },
+            {
+                name: 'has_comment'
             }
         ].concat((function (additionalFields) {
             var fields = [];
@@ -299,8 +302,6 @@ Cronk.EventDB.MainView = function(cfg) {
         fixed: true,
         menuDisabled: true
     });
-
-
 
     var _eventGrid = Ext.extend(Ext.grid.GridPanel, {
         setPageSize: function(size) {
@@ -504,6 +505,10 @@ Cronk.EventDB.MainView = function(cfg) {
     var eventGrid = new _eventGrid({
         id: "evGrid_"+this.id,
 
+        showCommentForm: function (all) {
+            commentForm.show(eventGrid, all);
+        },
+
         columns: [{
             showHeader:false,
             width:22,
@@ -519,7 +524,7 @@ Cronk.EventDB.MainView = function(cfg) {
                     eventGrid: eventGrid
                 }
             )
-        },ack,{
+        },ack, {
             dataIndex: 'id',
             id: 'id',
             hidden:true,
@@ -534,7 +539,17 @@ Cronk.EventDB.MainView = function(cfg) {
                 return '<div class="icon-16 icinga-icon-'+(v == 1 ? 'accept' : 'none' )+'"></div>';
             },
             width:25
-        },{
+        },
+        {
+            dataIndex: 'has_comment',
+            header: '',
+            menuDisabled: true,
+            renderer: function(v) {
+                return '<div class="icon-16 icinga-icon-'+(v == 1 ? 'comment' : 'none' )+'"></div>';
+            },
+            width:25
+        },
+        {
             dataIndex: 'type',
             header: _('Source'),
             sortable: true,
@@ -819,7 +834,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 text: _('Current selection'),
                 iconCls: 'icinga-icon-application-form',
                 handler: function() {
-                    commentForm.show(eventGrid);
+                    eventGrid.showCommentForm();
                 },
 
                 disabled: true
@@ -827,7 +842,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 text: _('All results'),
                 iconCls: 'icinga-icon-application-cascade',
                 handler: function(btn) {
-                    commentForm.show(eventGrid,true);
+                    eventGrid.showCommentForm(true);
                 },
                 scope: this
             }]

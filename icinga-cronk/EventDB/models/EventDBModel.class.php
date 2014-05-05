@@ -250,8 +250,10 @@ class EventDB_EventDBModel extends EventDBBaseModel {
         $q = $r;
         $r = $q->toArray(true);
 
-        $q->free(); 
-        foreach ($r as &$event) { 
+        $eventsWithComments = $this->getEventsWithComment($r);
+
+        $q->free();
+        foreach ($r as &$event) {
             $event['real_host'] = false;
             $event = array_merge($event, $eventAdditional[$event['id']]);
             foreach($res as $host) {
@@ -262,10 +264,13 @@ class EventDB_EventDBModel extends EventDBBaseModel {
                     break;
                 } else if (isset($event['ip_address']) && $event['ip_address'] == $ipAddress) {
                     $event['real_host'] = $hostname;
-                
+
                 }
-            }   
-        } 
+            }
+            if (array_key_exists($event['id'], $eventsWithComments)) {
+                $event['has_comment'] = true;
+            }
+        }
 
 
         /*
@@ -275,6 +280,21 @@ class EventDB_EventDBModel extends EventDBBaseModel {
           $count = $count->getFirst()->__count;
          */
         return array("values" => $r/* , "count" => $count */);
+    }
+
+    private function getEventsWithComment(array $events)
+    {
+        $sql = 'SELECT e.id FROM event e INNER JOIN comment c on c.event_id = e.id WHERE e.id IN (?)';
+        $ids = array();
+        foreach ($events as $event) {
+            $ids[] = (int) $event['id'];
+        }
+        $res = $this->getReadConnection()->execute($sql, array(implode(', ', $ids)));
+        $eventIds = array();
+        foreach ($res->fetchAll() as $row) {
+            $eventIds[$row['id']] = true;
+        }
+        return $eventIds;
     }
 
     public function getCount($field) {
