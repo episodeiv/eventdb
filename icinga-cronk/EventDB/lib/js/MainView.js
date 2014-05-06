@@ -562,6 +562,7 @@ Cronk.EventDB.MainView = function(cfg) {
             }
         },{
             dataIndex: 'host_name',
+            id: 'hostName',
             header: _('Host'),
             sortable: true,
             width: 130,
@@ -704,6 +705,9 @@ Cronk.EventDB.MainView = function(cfg) {
                     columnConfig.tpl = new Ext.XTemplate(
                         '<span style="color: blue; text-decoration: underline; cursor: pointer;">{' + columnConfig.dataIndex + '}</span>'
                     );
+                }
+                if (additionalFields[i].after !== 'undefined') {
+                    columnConfig.after = additionalFields[i].after;
                 }
                 columns.push(columnConfig)
             }
@@ -920,6 +924,13 @@ Cronk.EventDB.MainView = function(cfg) {
                 }
             },
             beforerender: function(_this) {
+                var cm = _this.getColumnModel(),
+                    columns = cm.getColumnsBy(function (column) {
+                        return column.after !== undefined;
+                    });
+                Ext.each(columns, function (column) {
+                    cm.moveColumn(cm.getIndexById(column.id), cm.getIndexById(column.after) + 1)
+                });
                 _this.fireEvent('hostFilterChanged', _this, true);
             },
             show: function(_this) {
