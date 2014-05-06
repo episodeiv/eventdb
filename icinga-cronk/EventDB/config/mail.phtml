@@ -1,0 +1,47 @@
+<html>
+<head>
+    <title>New event from <?php echo $event['host_name']; ?> created at <?php echo $event['created']; ?></title>
+</head>
+<body>
+    <h1>New event from <?php echo $event['host_name']; ?> created at <?php echo $event['created']; ?></h1>
+    <blockquote><?php echo $event['message']; ?></blockquote>
+    <dl>
+        <dt>Host name</dt>
+        <dd><?php echo $event['host_name']; ?></dd>
+        <dt>Host address</dt>
+        <dd><?php echo $event['host_address']; ?></dd>
+        <dt>Program</dt>
+        <dd><?php echo $event['program']; ?></dd>
+        <dt>Facility</dt>
+        <dd><?php echo $event['facility']; ?></dd>
+        <dt>Priority</dt>
+        <dd><?php echo $event['priority']; ?></dd>
+
+        <dt>Ack</dt>
+        <dd><?php echo $event['ack']; ?></dd>
+        <dt>Created</dt>
+        <dd><?php echo $event['created']; ?></dd>
+    </dl>
+    <?php if (array_key_exists('comments', $event) && is_array($event['comments'])): ?>
+    <h2>Comments</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Created</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($event['comments'] as $comment): ?>
+            <tr>
+                <td><?php echo $comment['user']; ?></td>
+                <td><?php echo $comment['created']; ?></td>
+                <td><?php echo $comment['message']; ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
+</body>
+</html>

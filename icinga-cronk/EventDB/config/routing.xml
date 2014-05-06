@@ -7,10 +7,11 @@
             <route name=".eventdb" pattern="^/eventdb" module="EventDB" action="Index">
                 <route name=".events" pattern="^/events" action="Events">
                     <route name=".comments" pattern="^/comments" action=".Comments">
-                        <route name=".add" pattern="^$" action=".Add" output_type="json" />    
+                        <route name=".add" pattern="^$" action=".Add" output_type="json" />
                     </route>
                     <route name=".list" pattern="^$" action=".List" output_type="json" />
                     <route name=".event" pattern="^/event" action=".Event">
+                        <route name=".mailme" pattern="^/mailme$" action=".MailMe" output_type="json" />
                         <route name=".comments" pattern="^/comments" action=".Comments">
                             <route name=".list" pattern="^$" action=".List" output_type="json" />
                         </route>

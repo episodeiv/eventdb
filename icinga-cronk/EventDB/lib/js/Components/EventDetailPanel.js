@@ -200,7 +200,29 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                     title: _('Details'),
                     layout: 'fit',
                     width: "100%",
-                    tbar: this.showCopyPaste ? [this.getClipboardButton(cmp)] : null,
+                    tbar: {
+                        items: [
+                            {
+                                text: 'Mail me',
+                                handler: function (btn) {
+                                    btn.disable();
+                                    Ext.Ajax.request({
+                                        url: this.mailMeUrl,
+                                        success: function () {
+                                            btn.enable();
+                                            AppKit.notifyMessage(_('Mail sent'), _('Mail sent'));
+                                        },
+                                        failure: function (response) {
+                                            btn.enable();
+                                        },
+                                        method: 'GET',
+                                        params: { event: this.currentId }
+                                    });
+                                },
+                                scope: this
+                            }
+                        ].concat(this.showCopyPaste ? [this.getClipboardButton(cmp)] : [])
+                    },
                     items: cmp
                 },
                 {
