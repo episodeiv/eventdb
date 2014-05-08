@@ -203,7 +203,8 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                     tbar: {
                         items: [
                             {
-                                text: 'Mail me',
+                                text: _('Mail me'),
+                                iconCls: 'icinga-icon-bell',
                                 handler: function (btn) {
                                     btn.disable();
                                     Ext.Ajax.request({
