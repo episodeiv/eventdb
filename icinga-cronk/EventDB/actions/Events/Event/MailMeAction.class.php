@@ -23,7 +23,6 @@ class EventDB_Events_Event_MailMeAction extends EventDBBaseAction
         $event->loadReference('comments');
         $event = $event->toArray(true);
         $mail = $this->renderMail($event);
-        echo $mail;die;
         $this->sendmail(
             'New event from ' . $event['host_name'] . ' created at ' . $event['created'],
             $mail,

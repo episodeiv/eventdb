@@ -22,7 +22,7 @@
         <dt>Created</dt>
         <dd><?php echo $event['created']; ?></dd>
     </dl>
-    <?php if (array_key_exists('comments', $event) && is_array($event['comments'])): ?>
+    <?php if (array_key_exists('comments', $event) && is_array($event['comments']) && !empty($event['comments'])): ?>
     <h2>Comments</h2>
     <table>
         <thead>
