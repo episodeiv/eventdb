@@ -284,12 +284,14 @@ class EventDB_EventDBModel extends EventDBBaseModel {
 
     private function getEventsWithComment(array $events)
     {
-        $sql = 'SELECT e.id FROM event e INNER JOIN comment c on c.event_id = e.id WHERE e.id IN (?)';
+        $sql = 'SELECT DISTINCT e.id FROM event e INNER JOIN comment c on c.event_id = e.id WHERE e.id IN (';
         $ids = array();
         foreach ($events as $event) {
             $ids[] = (int) $event['id'];
         }
-        $res = $this->getReadConnection()->execute($sql, array(implode(', ', $ids)));
+        $sql .= implode(', ', $ids);
+        $sql .= ')';
+        $res = $this->getReadConnection()->execute($sql);
         $eventIds = array();
         foreach ($res->fetchAll() as $row) {
             $eventIds[$row['id']] = true;
