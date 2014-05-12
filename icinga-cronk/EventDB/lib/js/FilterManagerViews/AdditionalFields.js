@@ -183,7 +183,6 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').AdditionalFields = function (addition
                 }
                 this.cascade(function (cmp) {
                     if (cmp.name) {
-                        console.log(cmp.name, cmpValues, cmpValues.hasOwnProperty(cmp.name));
                         if (cmpValues.hasOwnProperty(cmp.name)) {
                             cmp.setValue(cmpValues[cmp.name]);
                         }

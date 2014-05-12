@@ -3,9 +3,12 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
     var commentAddUrl = cfg.commentAddUrl;
     var userName = cfg.userName;
     var parentCmp = cfg.parentCmp;
-    
+
     return {
-        show : function(eventGrid,forall) {
+        show : function(eventGrid, selectedRecords, forall) {
+            if (oWin) {
+                oWin.selectedRecords = selectedRecords;
+            }
             if(!oWin){ // only create the window once
                 oWin = new Ext.Window({
                     title: _('Acknwoledge/Add comment'),
@@ -16,6 +19,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                     closeAction: 'hide',
                     plain: false,
                     modal: true,
+                    selectedRecords: selectedRecords,
                     items: new Ext.FormPanel({
                         labelAlign: 'top',
                         layout: 'form',
@@ -71,7 +75,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                                     var events = [];
                                     var params = {};
 
-                                    Ext.iterate(eventGrid.selectedRecords, function(r) {
+                                    Ext.iterate(oWin.selectedRecords, function(r) {
                                         r = eventGrid.store.getById(r);
                                         var ignored = [];
                                         if (vals.type == 0 ||
@@ -87,7 +91,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                                             });
                                         }
                                     });
-                                    if(!this.ownerCt.ownerCt.ownerCt.forall) {
+                                    if(!forall) {
                                         var eventsJson = Ext.encode([Ext.apply(vals, {ids: events})]);
                                         eventGrid.unselectAll();
                                         oForm.getForm().submit({

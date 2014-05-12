@@ -317,8 +317,9 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                         text: _('Add comment'),
                         iconCls: 'icinga-icon-add',
                         handler: function (btn) {
-                            btn.ownerCt.ownerCt.ownerCt.ownerCt.ownerCt.items.get(0).items.get(0).showCommentForm();
-                        }
+                            btn.ownerCt.ownerCt.ownerCt.ownerCt.ownerCt.items.get(0).items.get(0).showCommentForm([this.currentId]);
+                        },
+                        scope: this
                     }
                 ]
             },

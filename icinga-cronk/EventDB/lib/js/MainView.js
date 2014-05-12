@@ -505,8 +505,8 @@ Cronk.EventDB.MainView = function(cfg) {
     var eventGrid = new _eventGrid({
         id: "evGrid_"+this.id,
 
-        showCommentForm: function (all) {
-            commentForm.show(eventGrid, all);
+        showCommentForm: function (selectedRecords, all) {
+            commentForm.show(eventGrid, selectedRecords, all);
         },
 
         columns: [{
@@ -838,7 +838,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 text: _('Current selection'),
                 iconCls: 'icinga-icon-application-form',
                 handler: function() {
-                    eventGrid.showCommentForm();
+                    eventGrid.showCommentForm(eventGrid.selectedRecords);
                 },
 
                 disabled: true
@@ -846,7 +846,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 text: _('All results'),
                 iconCls: 'icinga-icon-application-cascade',
                 handler: function(btn) {
-                    eventGrid.showCommentForm(true);
+                    eventGrid.showCommentForm(eventGrid.selectedRecords, true);
                 },
                 scope: this
             }]
