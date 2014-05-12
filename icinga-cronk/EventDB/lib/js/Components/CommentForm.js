@@ -8,6 +8,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
         show : function(eventGrid, selectedRecords, forall) {
             if (oWin) {
                 oWin.selectedRecords = selectedRecords;
+                oWin.forall = forall;
             }
             if(!oWin){ // only create the window once
                 oWin = new Ext.Window({
@@ -20,6 +21,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                     plain: false,
                     modal: true,
                     selectedRecords: selectedRecords,
+                    forall: forall,
                     items: new Ext.FormPanel({
                         labelAlign: 'top',
                         layout: 'form',
@@ -91,7 +93,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                                             });
                                         }
                                     });
-                                    if(!forall) {
+                                    if(!oWin.forall) {
                                         var eventsJson = Ext.encode([Ext.apply(vals, {ids: events})]);
                                         eventGrid.unselectAll();
                                         oForm.getForm().submit({
@@ -130,7 +132,6 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                 parentCmp.add(Ext.clean(oWin));
                 parentCmp.doLayout();
             }
-            oWin.forall = forall || false;
             oWin.show(this);
         }
     }
