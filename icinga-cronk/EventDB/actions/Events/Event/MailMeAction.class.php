@@ -52,13 +52,18 @@ class EventDB_Events_Event_MailMeAction extends EventDBBaseAction
 
     private function sendmail($subject, $mail, $to)
     {
+        if (isset($_SERVER['SERVER_ADMIN'])) {
+            $from = $_SERVER['SERVER_ADMIN'];
+        } else {
+            $from = 'dontreply@' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME']);
+        }
         $headers = array(
             'MIME-Version: 1.0',
             'Content-type: text/html; charset=utf-8',
-            'From: dontreply@localhost.localdomain',
+            'From: ' . $from,
             'X-Mailer: PHP/' . phpversion(),
             'Date: ' . date('r')
         );
-        mail($to, $subject, $mail, implode("\r\n", $headers));
+        mail($to, $subject, $mail, implode("\r\n", $headers), escapeshellarg('-f' . $from));
     }
 }
