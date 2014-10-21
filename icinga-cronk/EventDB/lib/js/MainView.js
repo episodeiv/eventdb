@@ -416,7 +416,7 @@ Cronk.EventDB.MainView = function(cfg) {
 
         },
         updateCommentButton: function() {
-            if(this.selectedRecords.length) {
+            if (this.selectedRecords && this.selectedRecords.length) {
                 this.commentButton.menu.items.get(0).enable();
                 this.commentButton.menu.items.get(0).setText(this.selectedRecords.length+_(" selected items"));
             } else {
@@ -469,20 +469,96 @@ Cronk.EventDB.MainView = function(cfg) {
             return Cronk.EventDB.Helper.resolveTypeNr(v);
         },
 
-        getState: function() {
+        /**
+         * Returns parsable object structure to persist column informations
+         * @return {Object}
+         */
+        getPersistentColumnModel: function () {
+            var o = {
+                groupField: null,
+                columns: []
+            };
 
+            if (Ext.isDefined(this.store.groupField)) {
+                o.groupField = this.store.getGroupState();
+                o.groupDir = this.store.groupDir;
+                o.groupOnSort = this.store.groupOnSort;
+            }
+
+            Ext.iterate(this.colModel.lookup, function (colId, col) {
+                if (Ext.isEmpty(col.dataIndex) === false) {
+                    var colData = {};
+                    Ext.copyTo(colData, col, ['hidden', 'width', 'dataIndex', 'id', 'sortable']);
+                    o.columns.push(colData);
+                }
+            }, this);
+
+            return o;
+        },
+
+        /**
+         * Takes structure to reapply column states
+         * @param {Object} data
+         */
+        applyPersistentColumnModel: function (data) {
+            var cm = this.colModel;
+
+            if (Ext.isArray(data.columns)) {
+                Ext.each(data.columns, function (item, index) {
+                    if (Ext.isDefined(item.dataIndex)) {
+                        var ci = cm.findColumnIndex(item.dataIndex);
+                        if (ci > 0) {
+                            var org = cm.getColumnById(ci);
+                            if (Ext.isDefined(org)) {
+
+                                if (Ext.isDefined(data.groupField) && data.groupField === org.dataIndex) {
+                                    cm.setHidden(org.id, false);
+                                } else {
+                                    cm.setHidden(org.id, item.hidden);
+                                }
+
+                                cm.setColumnWidth(org.id, item.width);
+                            }
+                        }
+                    }
+                }, this);
+            }
+
+            if (Ext.isDefined(data.groupField) && Ext.isDefined(this.store.groupBy)) {
+                this.store.on('beforeload', function () {
+                    (function () {
+
+                        var dir = Ext.isEmpty(data.groupDir) ? 'ASC' : data.groupDir;
+
+                        if (Ext.isDefined(data.groupOnSort)) {
+                            this.store.groupOnSort = data.groupOnSort;
+                        }
+
+                        this.store.groupBy(data.groupField, true, dir);
+                        this.store.reload();
+                    }).defer(50, this);
+                    return false;
+                }, this, {
+                    single: true
+                });
+            }
+        },
+
+        getState: function() {
             var state = {
                 height: this.getHeight(),
                 width: this.getWidth(),
                 //storeParams: this.store.baseParams,
-                filters: fm.getFilterObject()
+                filters: fm.getFilterObject(),
+                colModel: this.getPersistentColumnModel()
             };
             return state;
         },
         applyState: function(state) {
 
-            if(state.colModel)
-                this.getColumnModel().setConfig(Ext.decode(state.colModel))
+            if (Ext.isObject(state.colModel)) {
+                this.applyPersistentColumnModel(state.colModel);
+            }
             this.setHeight(state.height);
             this.setWidth(state.width);
             //this.store.baseParams = state.storeParams;
