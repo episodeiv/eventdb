@@ -795,6 +795,32 @@ Cronk.EventDB.MainView = function(cfg) {
         stateId: 'db-eventGrid-' + this.id,
         stateful: true,
         stateEvents: ['statechange','sortchange','columnresize','columnmove'],
+	enableAutorefresh: function() {
+		if (Ext.isEmpty(this.autoRefreshTask) === false) {
+			return;
+		}
+
+		var f = function() {
+                       this.refresh();
+                       console.log('EventDB/AutoRefresh: Task', CE.id);
+                };
+
+		this.autoRefreshTask = AppKit.getTr().start({
+	                run: f,
+                        scope: this,
+                        interval: 20000
+                });
+                console.log('EventDB/AutoRefresh: On', CE.id);
+	},
+	disableAutorefresh: function() {
+		if (Ext.isEmpty(this.autoRefreshTask)) {
+			return;
+		}
+
+		AppKit.getTr().stop(this.autoRefreshTask);
+                delete this.autoRefreshTask;
+                console.log('EventDB/AutoRefresh: Off', CE.id);
+	},
         tbar: [{
             iconCls: 'icinga-icon-arrow-refresh',
             text: _('Refresh'),
@@ -811,29 +837,14 @@ Cronk.EventDB.MainView = function(cfg) {
                     text: _('Auto refresh'),
                     checked: false,
                     id: 'refreshBtn_'+this.id,
+                    itemId: 'autorefreshBtn',
                     checkHandler: function(checkItem, checked) {
-                        if (checked == true) {
-                            if(this.trefresh)
-                                this.trefresh.stop();
-                            this.trefresh = AppKit.getTr().start({
-                                run: function() {
-                                    if(!eventGrid.getStore())
-                                        return false;
-                                    if(eventGrid.getStore().proxy)
-                                        if(eventGrid.getStore().proxy.getConnection())
-                                            if(eventGrid.getStore().proxy.getConnection().isLoading())
-                                                return true;
-                                    eventGrid.getStore().load();
-                                    return true;
-                                },
-                                interval:  20000,
-                                scope: this
-                            });
-                        }
-                        else {
-                            AppKit.getTr().stop(this.trefresh);
-                            delete this.trefresh;
-                        }
+			eventGrid.autorefreshEnabled = checked;
+			if (checked === true) {
+				eventGrid.enableAutorefresh();
+			} else {
+				eventGrid.disableAutorefresh();
+			}
                     }
                 }]
             },
@@ -1066,6 +1077,26 @@ Cronk.EventDB.MainView = function(cfg) {
     });
 
     CE.add(IcingaEventDBCronk);
+
+    var cronkFrame = CE.getParent();
+    cronkFrame.on('activate', function() {
+        if (eventGrid.autorefreshEnabled) {
+            console.log('EventDB: Show tab', CE.id);
+	    eventGrid.enableAutorefresh();
+	} else {
+            eventGrid.refresh();
+        } 
+    });
+
+    cronkFrame.on('deactivate', function() {
+        if (eventGrid.autorefreshEnabled) {
+            console.log('EventDB: Hide tab', CE.id);
+	    eventGrid.disableAutorefresh();
+	} else {
+           eventGrid.refresh();
+        }
+    });
+
     CE.doLayout()
 
 
