@@ -214,10 +214,6 @@ Cronk.EventDB.MainView = function(cfg) {
             };
             quickFilterBar.syncWithFilter();
             eventGrid.refresh();
-        },
-        this,
-        {
-            buffer: true
         }
     );
 
@@ -541,7 +537,7 @@ Cronk.EventDB.MainView = function(cfg) {
             this.setWidth(state.width);
             //this.store.baseParams = state.storeParams;
 
-            if(state.filters) {
+            if (state.filters) {
                 fm.setFilterObject(state.filters);
             }
 
@@ -873,7 +869,6 @@ Cronk.EventDB.MainView = function(cfg) {
             xtype: 'textfield',
             emptyText: _('Host name'),
             enableKeyEvents: true,
-            value: (CE.params || {}).hostQuickFilter,
             listeners:{
                 blur: function(el) {
                     var value = el.getValue();
@@ -1057,16 +1052,6 @@ Cronk.EventDB.MainView = function(cfg) {
 
     CE.doLayout()
 
-
-    if(CE.params.hostQuickFilter) {
-        eventStore.baseParams = Ext.apply(eventStore.baseParams || {},{
-            hostQuickFilter: CE.params.hostQuickFilter
-            });
-    }
-    if(CE.params.FilterJSON) {
-        var params = Ext.decode(CE.params.FilterJSON);
-        fm.overwriteDefaults(params);
-    }
     if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
         Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
     eventGrid.refreshTask.delay(1000);
