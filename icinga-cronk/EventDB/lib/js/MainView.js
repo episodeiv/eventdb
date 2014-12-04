@@ -569,8 +569,6 @@ Cronk.EventDB.MainView = function(cfg) {
 
             this.setPageSize(fm.getDisplayLimit());
             quickFilterBar.syncWithFilter();
-
-            Cronk.Registry.get(CE.id).params.FilterJSON = Ext.encode(fm.getFilterObject());
         },
         viewConfig: {
 
@@ -1100,9 +1098,6 @@ Cronk.EventDB.MainView = function(cfg) {
         var params = Ext.decode(CE.params.FilterJSON);
         fm.overwriteDefaults(params);
     }
-
-
-
     if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
         Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
     eventGrid.refreshTask.delay(1000);
