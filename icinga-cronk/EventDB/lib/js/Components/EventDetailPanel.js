@@ -108,7 +108,11 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
 
 
     getDetailTable: function () {
-
+        var additionalFields = '';
+        for (var i = 0; i < this.additionalFields.length; ++i) {
+            additionalFields += '<tr><td><b>' + this.additionalFields[i].header +' :</b></td><td>'
+                + this.additionalFields.dataIndex + '</td></tr>';
+        }
         var cmp = new Ext.Container({
             data: {
                 type: '0',
@@ -157,6 +161,7 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                 "</tr><tr>",
                 "<td><b>Facility:</b></td><td>{facility}</td>",
                 "</tr>",
+                additionalFields,
                 "</table>"
             )
         });
