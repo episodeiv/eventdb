@@ -92,23 +92,73 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                 title: _('Select'),
                 width: 400,
                 height: 400,
-                layout: 'fit',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch',
+                    pack: 'start'
+                },
                 autoDestroy: true,
-                items: new Ext.grid.GridPanel({
-                    store: store,
-                    columns: [{
-                        header: field,
-                        dataIndex: field
-                    }],
+                items: [
+                    {
+                        xtype: 'panel',
+                        border: false,
+                        hideBorder: true,
+                        tbar: [
+                            _('Define'),
+                            {
+                                xtype: 'textfield',
+                                fieldLabel: _('Define'),
+                                enableKeyEvents: true,
+                                listeners: {
+                                    keyup: function (self) {
+                                        var tbar = self.ownerCt,
+                                            addButton = tbar.addButton;
+                                        if (self.getValue()) {
+                                            addButton.enable();
+                                        } else {
+                                            addButton.disable();
+                                        }
+                                    }
+                                },
+                                ref: 'defineText'
+                            },
+                            {
+                                xtype: 'button',
+                                text: _('Add'),
+                                disabled: true,
+                                iconCls: 'icinga-icon-add',
+                                handler: function (self) {
+                                    var tbar = self.ownerCt,
+                                        defineText = tbar.defineText.getValue();
+                                    if (defineText) {
+                                        var host = targetStore.recordType({
+                                            host_name: defineText
+                                        });
+                                        targetStore.add(host);
+                                    }
+                                },
+                                ref: 'addButon'
+                            }
+                        ]
+                    },
+                    new Ext.grid.GridPanel({
+                        border: false,
+                        hideBorder: true,
+                        flex: 1,
+                        store: store,
+                        columns: [{
+                            header: field,
+                            dataIndex: field
+                        }],
 
-                    bbar: pBar,
-                    tbar: tBar,
+                        bbar: pBar,
+                        tbar: tBar,
 
-                    viewConfig: {
-                        forceFit: true
-                    }
-                })
-
+                        viewConfig: {
+                            forceFit: true
+                        }
+                    })
+                ]
             });
 
             popup.show();
