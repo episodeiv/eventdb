@@ -182,16 +182,19 @@ Cronk.EventDB.FilterManager = Ext.extend(Ext.util.Observable, {
                 layout: 'fit',
                 closeAction: 'hide',
                 region: 'center',
-                width: 820,
+                width: 850,
                 height: 550,
                 title: _('Filter'),
                 items: //new Ext.form.FormPanel({
                 //	items:
                 new Ext.TabPanel({
+                    defaults: {
+                        autoScroll: true
+                    },
                     activeTab: 0,
                     items: [
-                    this.generalView,
-                    this.advancedView
+                        this.generalView,
+                        this.advancedView
                     ].concat(this.additionalFieldsView ? [this.additionalFieldsView] : [])
                 }),
                 //	}),
