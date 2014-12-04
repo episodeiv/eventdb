@@ -204,20 +204,22 @@ Cronk.EventDB.MainView = function(cfg) {
         additionalFields: cfg.additionalFields
     });
 
-    fm.addListener('applyFilter', function(filters) {
-
-        eventGrid.fireEvent('statechange');
-        eventGrid.setPageSize(filters.display.limit);
-        eventStore.baseParams = {
-            "jsonFilter": Ext.encode(filters)
+    fm.addListener(
+        'applyFilter',
+        function (filters) {
+            eventGrid.fireEvent('statechange');
+            eventGrid.setPageSize(filters.display.limit);
+            eventStore.baseParams = {
+                jsonFilter: Ext.encode(filters)
             };
-
-        Cronk.Registry.get(CE.id).params.FilterJSON = Ext.encode(fm.getFilterObject());
-        quickFilterBar.syncWithFilter();
-        eventGrid.refresh();
-    },this,{
-        buffer:true
-    });
+            quickFilterBar.syncWithFilter();
+            eventGrid.refresh();
+        },
+        this,
+        {
+            buffer: true
+        }
+    );
 
     var checkColumn = function(config){
         Ext.apply(this, config);
