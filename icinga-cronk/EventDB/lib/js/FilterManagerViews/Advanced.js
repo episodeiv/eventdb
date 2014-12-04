@@ -76,9 +76,9 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                     fieldLabel: _('Search'),
                     listeners: {
                         change: function(btn) {
-                            store.setBaseParam('filter[0][target]',field),
-                            store.setBaseParam('filter[0][operator]',60),
-                            store.setBaseParam('filter[0][value]',"%"+btn.getValue()+"%")
+                            store.setBaseParam('filter[0][target]', field),
+                            store.setBaseParam('filter[0][operator]', 60),
+                            store.setBaseParam('filter[0][value]', "%"+btn.getValue()+"%")
                             pBar.doRefresh();
                         },
                         scope: this
@@ -90,9 +90,9 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                 resizeable: false,
                 minimizible: false,
                 title: _('Select'),
-                width:400,
-                height:400,
-                layout:'fit',
+                width: 400,
+                height: 400,
+                layout: 'fit',
                 autoDestroy: true,
                 items: new Ext.grid.GridPanel({
                     store: store,
