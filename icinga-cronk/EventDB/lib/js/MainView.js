@@ -497,49 +497,25 @@ Cronk.EventDB.MainView = function(cfg) {
         },
 
         /**
-         * Takes structure to reapply column states
+         * Apply column state
+         *
          * @param {Object} data
          */
         applyPersistentColumnModel: function (data) {
             var cm = this.colModel;
 
             if (Ext.isArray(data.columns)) {
-                Ext.each(data.columns, function (item, index) {
-                    if (Ext.isDefined(item.dataIndex)) {
-                        var ci = cm.findColumnIndex(item.dataIndex);
-                        if (ci > 0) {
-                            var org = cm.getColumnById(ci);
-                            if (Ext.isDefined(org)) {
-
-                                if (Ext.isDefined(data.groupField) && data.groupField === org.dataIndex) {
-                                    cm.setHidden(org.id, false);
-                                } else {
-                                    cm.setHidden(org.id, item.hidden);
-                                }
-
-                                cm.setColumnWidth(org.id, item.width);
-                            }
+                Ext.each(data.columns, function (state) {
+                    var column = cm.getColumnById(state.id);
+                    if (! Ext.isDefined(column)) {
+                        var index = cm.findColumnIndex(state.dataIndex);
+                        if (index === -1) {
+                            return true;
                         }
+                        column = cm.getColumnAt(index);
                     }
-                }, this);
-            }
-
-            if (Ext.isDefined(data.groupField) && Ext.isDefined(this.store.groupBy)) {
-                this.store.on('beforeload', function () {
-                    (function () {
-
-                        var dir = Ext.isEmpty(data.groupDir) ? 'ASC' : data.groupDir;
-
-                        if (Ext.isDefined(data.groupOnSort)) {
-                            this.store.groupOnSort = data.groupOnSort;
-                        }
-
-                        this.store.groupBy(data.groupField, true, dir);
-                        this.store.reload();
-                    }).defer(50, this);
-                    return false;
-                }, this, {
-                    single: true
+                    column.width = state.width;
+                    column.hidden = state.hidden;
                 });
             }
         },
@@ -554,6 +530,7 @@ Cronk.EventDB.MainView = function(cfg) {
             };
             return state;
         },
+
         applyState: function(state) {
             if (Ext.isObject(state.colModel)) {
                 this.applyPersistentColumnModel(state.colModel);
@@ -1029,7 +1006,8 @@ Cronk.EventDB.MainView = function(cfg) {
                 }
             }
         },
-        border: false
+        border: false,
+        ref: '../eventGrid'
     });
 
     var IcingaEventDBCronk = new Ext.Container({
@@ -1090,6 +1068,8 @@ Cronk.EventDB.MainView = function(cfg) {
     if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
         Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
     eventGrid.refreshTask.delay(1000);
+
+    return IcingaEventDBCronk;
 };
 
 // must be available from xtemplate
