@@ -800,17 +800,11 @@ Cronk.EventDB.MainView = function(cfg) {
                 return;
             }
 
-            var f = function() {
-                   this.refresh();
-                   console.log('EventDB/AutoRefresh: Task', CE.id);
-            };
-
             this.autoRefreshTask = AppKit.getTr().start({
-                    run: f,
+                    run: this.refresh,
                     scope: this,
                     interval: 20000
             });
-            console.log('EventDB/AutoRefresh: On', CE.id);
         },
         disableAutorefresh: function() {
             if (Ext.isEmpty(this.autoRefreshTask)) {
@@ -819,7 +813,6 @@ Cronk.EventDB.MainView = function(cfg) {
 
             AppKit.getTr().stop(this.autoRefreshTask);
             delete this.autoRefreshTask;
-            console.log('EventDB/AutoRefresh: Off', CE.id);
         },
         tbar: [{
             iconCls: 'icinga-icon-arrow-refresh',
@@ -1081,7 +1074,6 @@ Cronk.EventDB.MainView = function(cfg) {
     var cronkFrame = CE.getParent();
     cronkFrame.on('activate', function() {
         if (eventGrid.autorefreshEnabled) {
-            console.log('EventDB: Show tab', CE.id);
             eventGrid.enableAutorefresh();
         } else {
             eventGrid.refresh();
@@ -1090,7 +1082,6 @@ Cronk.EventDB.MainView = function(cfg) {
 
     cronkFrame.on('deactivate', function() {
         if (eventGrid.autorefreshEnabled) {
-            console.log('EventDB: Hide tab', CE.id);
             eventGrid.disableAutorefresh();
         } else {
            eventGrid.refresh();
