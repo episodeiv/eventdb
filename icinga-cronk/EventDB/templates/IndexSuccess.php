@@ -9,7 +9,9 @@ Cronk.util.initEnvironment("<?php echo $rd->getParameter('parentid'); ?>", funct
         userName: '<?php echo $us->getNsmUser()->user_name; ?>',
         showCopyPaste: '<?php echo AgaviConfig::get("modules.eventdb.showCopyPaste",false); ?>',
         additionalFields:  <?php echo json_encode($rd->getParameter('additionalFields', array())); ?>,
-        mailMeUrl: '<?php echo $ro->gen('modules.eventdb.events.event.mailme'); ?>'
+        mailMeUrl: '<?php echo $ro->gen('modules.eventdb.events.event.mailme'); ?>',
+        stateful: true,
+        stateId: this.stateuid
     };
     Cronk.EventDB.MainView(cfg);
 });

@@ -790,8 +790,6 @@ Cronk.EventDB.MainView = function(cfg) {
             return columns;
         })(cfg.additionalFields)),
         store: eventStore,
-        stateId: 'db-eventGrid-' + this.id,
-        stateful: true,
         stateEvents: ['statechange','sortchange','columnresize','columnmove'],
         enableAutorefresh: function() {
             if (Ext.isEmpty(this.autoRefreshTask) === false) {
@@ -1075,7 +1073,7 @@ Cronk.EventDB.MainView = function(cfg) {
             eventGrid.enableAutorefresh();
         } else {
             eventGrid.refresh();
-        } 
+        }
     });
 
     cronkFrame.on('deactivate', function() {
