@@ -436,9 +436,9 @@ Cronk.EventDB.MainView = function(cfg) {
 
         },
         /**
-		* http://extjs.com/forum/showthread.php?t=22218
-		* For non-IE browsers, this is fixed with a CSS addition.
-		*/
+                * http://extjs.com/forum/showthread.php?t=22218
+                * For non-IE browsers, this is fixed with a CSS addition.
+                */
         reenableTextSelection : function(){
             var grid = this;
 
@@ -795,32 +795,32 @@ Cronk.EventDB.MainView = function(cfg) {
         stateId: 'db-eventGrid-' + this.id,
         stateful: true,
         stateEvents: ['statechange','sortchange','columnresize','columnmove'],
-	enableAutorefresh: function() {
-		if (Ext.isEmpty(this.autoRefreshTask) === false) {
-			return;
-		}
+        enableAutorefresh: function() {
+            if (Ext.isEmpty(this.autoRefreshTask) === false) {
+                return;
+            }
 
-		var f = function() {
-                       this.refresh();
-                       console.log('EventDB/AutoRefresh: Task', CE.id);
-                };
+            var f = function() {
+                   this.refresh();
+                   console.log('EventDB/AutoRefresh: Task', CE.id);
+            };
 
-		this.autoRefreshTask = AppKit.getTr().start({
-	                run: f,
-                        scope: this,
-                        interval: 20000
-                });
-                console.log('EventDB/AutoRefresh: On', CE.id);
-	},
-	disableAutorefresh: function() {
-		if (Ext.isEmpty(this.autoRefreshTask)) {
-			return;
-		}
+            this.autoRefreshTask = AppKit.getTr().start({
+                    run: f,
+                    scope: this,
+                    interval: 20000
+            });
+            console.log('EventDB/AutoRefresh: On', CE.id);
+        },
+        disableAutorefresh: function() {
+            if (Ext.isEmpty(this.autoRefreshTask)) {
+                    return;
+            }
 
-		AppKit.getTr().stop(this.autoRefreshTask);
-                delete this.autoRefreshTask;
-                console.log('EventDB/AutoRefresh: Off', CE.id);
-	},
+            AppKit.getTr().stop(this.autoRefreshTask);
+            delete this.autoRefreshTask;
+            console.log('EventDB/AutoRefresh: Off', CE.id);
+        },
         tbar: [{
             iconCls: 'icinga-icon-arrow-refresh',
             text: _('Refresh'),
@@ -839,12 +839,12 @@ Cronk.EventDB.MainView = function(cfg) {
                     id: 'refreshBtn_'+this.id,
                     itemId: 'autorefreshBtn',
                     checkHandler: function(checkItem, checked) {
-			eventGrid.autorefreshEnabled = checked;
-			if (checked === true) {
-				eventGrid.enableAutorefresh();
-			} else {
-				eventGrid.disableAutorefresh();
-			}
+                        eventGrid.autorefreshEnabled = checked;
+                        if (checked === true) {
+                                eventGrid.enableAutorefresh();
+                        } else {
+                                eventGrid.disableAutorefresh();
+                        }
                     }
                 }]
             },
@@ -1082,8 +1082,8 @@ Cronk.EventDB.MainView = function(cfg) {
     cronkFrame.on('activate', function() {
         if (eventGrid.autorefreshEnabled) {
             console.log('EventDB: Show tab', CE.id);
-	    eventGrid.enableAutorefresh();
-	} else {
+            eventGrid.enableAutorefresh();
+        } else {
             eventGrid.refresh();
         } 
     });
@@ -1091,8 +1091,8 @@ Cronk.EventDB.MainView = function(cfg) {
     cronkFrame.on('deactivate', function() {
         if (eventGrid.autorefreshEnabled) {
             console.log('EventDB: Hide tab', CE.id);
-	    eventGrid.disableAutorefresh();
-	} else {
+            eventGrid.disableAutorefresh();
+        } else {
            eventGrid.refresh();
         }
     });
@@ -1168,14 +1168,14 @@ Ext.ns("Cronk.EventDB.Helper").extendedmessageFormatter = function(v) {
 
     if(Ext.isArray(mibvalmatches)) {
         for(var i=0;i<mibvalmatches.length;i++) {
-		var mibmatch = mibvalmatches[i].match(mibreg);
-		var valmatch = mibvalmatches[i].replace(mibmatch+":","");
-		var mibbold = "<b>"+mibmatch+"</b>";
-		var valitalic = "<i>"+valmatch+"</i>";
-		var formattedmibval = mibbold+":"+valitalic;
-		formattedmibval.replace("\t","");
-	        v = v.replace(mibvalmatches[i], formattedmibval);
-	};
+                var mibmatch = mibvalmatches[i].match(mibreg);
+                var valmatch = mibvalmatches[i].replace(mibmatch+":","");
+                var mibbold = "<b>"+mibmatch+"</b>";
+                var valitalic = "<i>"+valmatch+"</i>";
+                var formattedmibval = mibbold+":"+valitalic;
+                formattedmibval.replace("\t","");
+                v = v.replace(mibvalmatches[i], formattedmibval);
+        };
     };
 
     var matches = v.match(reg);
