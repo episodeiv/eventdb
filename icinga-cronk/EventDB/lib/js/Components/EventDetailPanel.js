@@ -273,7 +273,9 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
             colModel: new Ext.grid.ColumnModel({
                 defaults: {
                     width: 80,
-                    sortable: true
+                    sortable: true,
+                    resizeable: true,
+                    fixed: true
                 },
                 columns: [
                     {
@@ -282,13 +284,14 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                         renderer: function (v) {
                             switch (v) {
                                 case '0':
-                                    return '<div class="icon-16 icinga-icon-note" qwidth="200px" qtip="' + _('Comment') + '"></div>';
+                                    return '<div class="icon-16 icinga-icon-note" qtip="' + _('Comment') + '"></div>';
                                 case '1':
-                                    return '<div class="icon-16 icinga-icon-accept" qwidth="200px" qtip="' + _('Acknowledge') + '"></div>';
+                                    return '<div class="icon-16 icinga-icon-accept" qtip="' + _('Acknowledge') + '"></div>';
                                 case '2':
-                                    return '<div class="icon-16 icinga-icon-cancel" qwidth="200px" qtip="' + _('Revoke') + '"></div>';
+                                    return '<div class="icon-16 icinga-icon-cancel" qtip="' + _('Revoke') + '"></div>';
                             }
-                        }
+                        },
+                        width: 40,
                     },
                     {
                         header: _('Author'),
@@ -304,7 +307,8 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                     {
                         header: _('Message'),
                         dataIndex: 'message',
-                        width: 200
+                        xtype: 'templatecolumn',
+                        tpl: '<div style="white-space: pre-line;">{message}</div>'
                     }
                 ]
             }),
