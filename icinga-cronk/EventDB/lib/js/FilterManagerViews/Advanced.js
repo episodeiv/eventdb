@@ -131,13 +131,13 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                                     var tbar = self.ownerCt,
                                         defineText = tbar.defineText.getValue();
                                     if (defineText) {
-                                        var host = targetStore.recordType({
+                                        var host = new targetStore.recordType({
                                             host_name: defineText
                                         });
                                         targetStore.add(host);
                                     }
                                 },
-                                ref: 'addButon'
+                                ref: 'addButton'
                             }
                         ]
                     },

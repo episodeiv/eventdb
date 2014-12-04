@@ -110,8 +110,8 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
     getDetailTable: function () {
         var additionalFields = '';
         for (var i = 0; i < this.additionalFields.length; ++i) {
-            additionalFields += '<tr><td><b>' + this.additionalFields[i].header +' :</b></td><td>'
-                + this.additionalFields.dataIndex + '</td></tr>';
+            additionalFields += '<tr><td><b>' + this.additionalFields[i].header +' :</b></td><td>{values.'
+                + this.additionalFields[i].dataIndex + '}</td></tr>';
         }
         var cmp = new Ext.Container({
             data: {
@@ -171,7 +171,6 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
         // wrap the update function to catch updates before DOM is rendererd
         that = this;
         this.detailTable.lazyUpdate = function (event) {
-
             cmp.currentEvent = event;
             if (cmp.rendered) {
                 cmp.update(event.data);
@@ -270,6 +269,9 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
             store: this.commentStore,
             layout: 'fit',
             region: 'center',
+            viewConfig: {
+                forceFit: true
+            },
             colModel: new Ext.grid.ColumnModel({
                 defaults: {
                     width: 80,
@@ -291,7 +293,7 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                                     return '<div class="icon-16 icinga-icon-cancel" qtip="' + _('Revoke') + '"></div>';
                             }
                         },
-                        width: 40,
+                        width: 40
                     },
                     {
                         header: _('Author'),
@@ -308,7 +310,8 @@ Ext.ns("Cronk.EventDB.Components").EventDetailPanel = Ext.extend(Ext.Panel, {
                         header: _('Message'),
                         dataIndex: 'message',
                         xtype: 'templatecolumn',
-                        tpl: '<div style="white-space: pre-line;">{message}</div>'
+                        tpl: '<div style="white-space: pre-line;">{message}</div>',
+                        fixed: false
                     }
                 ]
             }),

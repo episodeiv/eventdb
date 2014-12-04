@@ -555,7 +555,6 @@ Cronk.EventDB.MainView = function(cfg) {
             return state;
         },
         applyState: function(state) {
-
             if (Ext.isObject(state.colModel)) {
                 this.applyPersistentColumnModel(state.colModel);
             }
@@ -790,6 +789,8 @@ Cronk.EventDB.MainView = function(cfg) {
             return columns;
         })(cfg.additionalFields)),
         store: eventStore,
+        stateful: cfg.stateful,
+        stateId: cfg.stateId,
         stateEvents: ['statechange','sortchange','columnresize','columnmove'],
         enableAutorefresh: function() {
             if (Ext.isEmpty(this.autoRefreshTask) === false) {
