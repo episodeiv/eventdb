@@ -2,7 +2,7 @@
 Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
     var handler = {
         addPopup: function(field,targetStore,excludeStore) {
-            
+
             var store = new Ext.data.JsonStore({
                 url: url,
                 root: 'events',
@@ -43,7 +43,7 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                     }
                 }
             });
-            
+
             var pBar = new Cronk.EventDB.Components.OptimisticPagingToolbar({
                 store: store,
                 displayInfo: true,
@@ -67,24 +67,25 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                     scope: this
                 }
                 ]
-            })
-            
+            });
+
             var tBar = [
-            'Contains'
-            ,{
-                xtype: 'textfield',
-                fieldLabel: _('Contains'),
-                listeners: {
-                    change: function(btn) {
-                        store.setBaseParam('filter[0][target]',field),
-                        store.setBaseParam('filter[0][operator]',60),
-                        store.setBaseParam('filter[0][value]',"%"+btn.getValue()+"%")
-                        pBar.doRefresh();
-                    },
-                    scope: this
+                _('Search'),
+                {
+                    xtype: 'textfield',
+                    fieldLabel: _('Search'),
+                    listeners: {
+                        change: function(btn) {
+                            store.setBaseParam('filter[0][target]',field),
+                            store.setBaseParam('filter[0][operator]',60),
+                            store.setBaseParam('filter[0][value]',"%"+btn.getValue()+"%")
+                            pBar.doRefresh();
+                        },
+                        scope: this
+                    }
                 }
-            }];
-            
+            ];
+
             var popup = new Ext.Window({
                 resizeable: false,
                 minimizible: false,
@@ -96,10 +97,10 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                 items: new Ext.grid.GridPanel({
                     store: store,
                     columns: [{
-                        header: field, 
+                        header: field,
                         dataIndex: field
                     }],
-                    
+
                     bbar: pBar,
                     tbar: tBar,
 
@@ -109,7 +110,7 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                 })
 
             });
-            
+
             popup.show();
             pBar.doRefresh();
         },
@@ -443,12 +444,12 @@ Ext.ns('Cronk.EventDB.FilterManagerViews').Advanced = function(url) {
                         var target;
                         if(i == "hostFilter")
                             target = {
-                                p: hostPatternField, 
+                                p: hostPatternField,
                                 i:hostIncludeExcludeField
                             }
                         else
                             target = {
-                                p: programPatternField, 
+                                p: programPatternField,
                                 i:programIncludeExcludeField
                             }
                         tmp = vals[i];
