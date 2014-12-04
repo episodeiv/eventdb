@@ -1050,8 +1050,6 @@ Cronk.EventDB.MainView = function(cfg) {
         }
     });
 
-    CE.doLayout()
-
     if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
         Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
     eventGrid.refreshTask.delay(1000);
