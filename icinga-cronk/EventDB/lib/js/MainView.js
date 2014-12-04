@@ -1031,26 +1031,16 @@ Cronk.EventDB.MainView = function(cfg) {
         border: false
     });
 
-    var _IcingaEventDBCronk = Ext.extend(Ext.Container, {
-        constructor: function(config) {
-            Ext.Container.prototype.constructor.call(this, config);
-        },
-
-        applyHostFilter: function() {
-            eventGrid.fireEvent('hostFilterChanged', eventGrid);
-        }
-    });
-
-    var IcingaEventDBCronk = new _IcingaEventDBCronk({
+    var IcingaEventDBCronk = new Ext.Container({
         layout: 'border',
-        width: parentCmp.getInnerWidth()*0.98,
+        width: parentCmp.getInnerWidth() * 0.98,
         items: [{
             region:'center',
             xtype:'panel',
             layout:'fit',
             border:false,
             items: eventGrid
-        },{
+        }, {
             xtype: 'panel',
             region: 'south',
             title: 'Comments & Details',
