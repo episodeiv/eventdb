@@ -44,20 +44,20 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
             },
             additionalFields: {}
         }
-    }
+    };
 
     this.currentFilterObject = getDefaultFilter(); // statically set to default filter at first time
 
     this.getFilterObject = function() {
         return this.currentFilterObject;
-    }
+    };
 
     this.resetFilterObject = function(keepDefaults) {
         this.currentFilterObject = this.getDefaultFilter();
         if(keepDefaults !== true)
             this.defaultOverwrites = {};
 
-    }
+    };
 
     this.hasActiveFilter = function() {
         if(this.getHostIncludePatternMatchType() != 'disabled')
@@ -86,7 +86,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
             return true;
 
         return false;
-    }
+    };
     this.defaultOverwrites = {};
 
     this.getDefaultFilter = function() {
@@ -94,7 +94,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
         if(typeof this.defaultOverwrites === "object")
             Ext.apply(defaults,this.defaultOverwrites);
         return defaults;
-    }
+    };
 
     this.isValidDescriptor = function(descriptor) {
         var template = this.getDefaultFilter();
@@ -112,7 +112,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
             return true;
         }
         return checkTpl(descriptor,template,checkTpl);
-    }
+    };
 
     /**
      * Function to set raw filter descriptor
@@ -131,7 +131,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
             return false
         }
 
-    }
+    };
 
 
 
@@ -145,7 +145,7 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
 
             target.push(value);
         }
-    }
+    };
 
     this.toggleFacility = function(facility, state) {
         this.genericToggle(this.currentFilterObject.facilityExclusion,facility,state);
@@ -157,181 +157,181 @@ Ext.ns("Cronk.EventDB.Mixins").FilterManagerInterfaceMixin = function() {
 
     this.togglePriority = function(priority, state) {
         this.genericToggle(this.currentFilterObject.priorityExclusion,priority,state);
-    }
+    };
 
     this.getExcludedPriorities = function() {
         return this.currentFilterObject.priorityExclusion;
-    }
+    };
 
     this.toggleEventSource = function(source, state) {
         this.genericToggle(this.currentFilterObject.sourceExclusion,source,state);
-    }
+    };
 
     this.getExcludedEventSources = function() {
         return this.currentFilterObject.sourceExclusion;
-    }
+    };
 
     this.toggleAcknowledged = function(show) {
         if(typeof show === "undefined")
             this.currentFilterObject.misc.hideAck = !this.currentFilterObject.misc.hideAck;
         else
             this.currentFilterObject.misc.hideAck = !show;
-    }
+    };
 
     this.showsAcknowledged = function() {
         return !this.currentFilterObject.misc.hideAck;
-    }
+    };
 
     this.setFromTime = function(time) {
         this.currentFilterObject.timespan.from = time;
-    }
+    };
 
     this.getFromTime = function() {
         return this.currentFilterObject.timespan.from;
-    }
+    };
 
     this.setToTime = function(time) {
         this.currentFilterObject.timespan.to = time;
-    }
+    };
 
     this.getToTime = function() {
         return this.currentFilterObject.timespan.to;
-    }
+    };
 
     this.setHostIncludes = function(includeArray) {
         this.currentFilterObject.hostFilter.include_set = includeArray;
-    }
+    };
 
     this.getHostIncludes = function() {
         return this.currentFilterObject.hostFilter.include_set;
-    }
+    };
 
     this.setHostExcludes = function(excludeArray) {
         this.currentFilterObject.hostFilter.exclude_set = excludeArray;
-    }
+    };
 
     this.getHostExcludes = function() {
         return this.currentFilterObject.hostFilter.exclude_set;
-    }
+    };
 
     this.setHostIncludePattern = function(pattern,matchType) {
         this.currentFilterObject.hostFilter.include_pattern = pattern;
         this.currentFilterObject.hostFilter.include_pattern_type = matchType;
-    }
+    };
 
     this.getHostIncludePattern = function() {
         return this.currentFilterObject.hostFilter.include_pattern;
-    }
+    };
 
     this.getHostIncludePatternMatchType = function() {
         return this.currentFilterObject.hostFilter.include_pattern_type;
-    }
+    };
 
     this.setHostExcludePattern = function(pattern,matchType) {
         this.currentFilterObject.hostFilter.exclude_pattern = pattern;
         this.currentFilterObject.hostFilter.exclude_pattern_type = matchType;
-    }
+    };
 
     this.getHostExcludePattern = function() {
         return this.currentFilterObject.hostFilter.exclude_pattern;
-    }
+    };
 
     this.getHostExcludePatternMatchType = function() {
         return this.currentFilterObject.hostFilter.exclude_pattern_type;
-    }
+    };
 
     this.setProgramIncludes = function(includeArray) {
         this.currentFilterObject.programFilter.include_set = includeArray;
-    }
+    };
 
     this.getProgramIncludes = function() {
         return this.currentFilterObject.programFilter.include_set;
-    }
+    };
 
     this.setProgramExcludes = function(excludeArray) {
         this.currentFilterObject.programFilter.exclude_set = excludeArray;
-    }
+    };
 
     this.getProgramExcludes = function() {
         return this.currentFilterObject.programFilter.exclude_set;
-    }
+    };
 
     this.setProgramIncludePattern = function(pattern,matchType) {
         this.currentFilterObject.programFilter.include_pattern = pattern;
         this.currentFilterObject.programFilter.include_pattern_type = matchType;
-    }
+    };
 
     this.getProgramIncludePattern = function() {
         return this.currentFilterObject.programFilter.include_pattern;
-    }
+    };
 
     this.getProgramIncludePatternMatchType = function() {
         return this.currentFilterObject.programFilter.include_pattern_type;
-    }
+    };
 
     this.setProgramExcludePattern = function(pattern,matchType) {
         this.currentFilterObject.programFilter.exclude_pattern = pattern;
         this.currentFilterObject.programFilter.exclude_pattern_type = matchType;
-    }
+    };
 
     this.getProgramExcludePattern = function() {
         return this.currentFilterObject.programFilter.exclude_pattern;
-    }
+    };
 
     this.getProgramExcludePatternMatchType = function() {
         return this.currentFilterObject.programFilter.exclude_pattern_type;
-    }
+    };
 
     this.setMessageFilter = function(messageFilterArray) {
 
         this.currentFilterObject.messageFilter.items.push(messageFilterArray);
-    }
+    };
 
     this.getMessageFilter = function() {
         return this.currentFilterObject.messageFilter.items;
-    }
+    };
 
     this.setDisplayLimit = function(limit) {
         if(!isNaN(limit))
             this.currentFilterObject.display.limit = limit;
         else
             AppKit.log("Limit is NaN in Eventdb");
-    }
+    };
 
     this.getDisplayLimit = function() {
         return this.currentFilterObject.display.limit;
-    }
+    };
 
     this.setDisplayOrderColumn = function(orderColumn) {
         this.currentFilterObject.display.order.field = orderColumn;
-    }
+    };
 
     this.getDisplayOrderColumn = function() {
         return this.currentFilterObject.display.order.field;
-    }
+    };
 
     this.setDisplayDir = function(ascOrDesc) {
         this.currentFilterObject.display.order.dir = ascOrDesc.toLowerCase();
-    }
+    };
 
     this.getDisplayDir = function() {
         return this.currentFilterObject.display.order.dir;
-    }
+    };
 
     this.setGroupBy = function(groupColumn) {
         this.currentFilterObject.display.group.field = groupColumn;
-    }
+    };
 
     this.getGroupBy = function() {
         return this.currentFilterObject.display.group.field;
-    }
+    };
 
     this.overwriteDefaults = function(params) {
         if(typeof params !== "object")
             return;
         this.defaultOverwrites = params;
         this.resetFilterObject(true);
-    }
+    };
 
     this.setAFilterPattern = function (dataIndex, includeOrExclude, value, operator) {
         if (this.currentFilterObject.additionalFields[dataIndex] === undefined) {
