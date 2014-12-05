@@ -539,7 +539,7 @@ Cronk.EventDB.MainView = function(cfg) {
             this.setWidth(state.width);
             //this.store.baseParams = state.storeParams;
 
-            if (state.filters) {
+            if (Ext.isObject(state.filters)) {
                 fm.setFilterObject(state.filters);
             }
 

@@ -14,6 +14,13 @@
     };
     var eventdb = Cronk.EventDB.MainView(cfg);
     this.setStatefulObject(eventdb.eventGrid);
+    if (Ext.isObject(this.params) && this.params.FilterJSON) {
+        if (! Ext.isObject(this.state)) {
+            this.state = {};
+        }
+        this.state.filters = Ext.decode(this.params.FilterJSON);
+        delete this.params.FilterJSON;
+    }
     if (this.state) {
         eventdb.eventGrid.on({
             beforerender: function(self) {
