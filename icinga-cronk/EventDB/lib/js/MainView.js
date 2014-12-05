@@ -2,9 +2,7 @@ Ext.ns("Cronk.EventDB");
 
 
 Cronk.EventDB.MainView = function(cfg) {
-
-    var CE = cfg.CE;
-    this.id = CE.id;
+    this.id = cfg.id;
     var showCopyPaste = cfg.showCopyPaste;
     var parentCmp = cfg.parentCmp;
     var url = cfg.eventUrl;
@@ -20,7 +18,7 @@ Cronk.EventDB.MainView = function(cfg) {
             toggle: function(e,state) {
                 e.setIconClass('icinga-icon-'+(state ? 'cancel' : 'accept'));
                 fm.toggleAcknowledged(!state);
-                eventGrid.refreshTask.delay(1500);
+                eventGrid.refreshTask.delay(1000);
             }
         }
     });
@@ -41,7 +39,7 @@ Cronk.EventDB.MainView = function(cfg) {
                 var btns = elem.findByType('button');
                 fm.togglePriority(e.value.toString(), e.pressed)
 
-                eventGrid.refreshTask.delay(1500,null,eventGrid);
+                eventGrid.refreshTask.delay(1000);
             },
             scope:this
         },
@@ -328,7 +326,6 @@ Cronk.EventDB.MainView = function(cfg) {
             });
             Ext.grid.GridPanel.prototype.constructor.call(this);
             this.store.on("beforeload",function() {
-
                 var f = fm.getFilterObject();
                 var isEmpty = true;
                 for(var i in f) {
@@ -358,8 +355,21 @@ Cronk.EventDB.MainView = function(cfg) {
                 this.buildInterGridLink();
                 Cronk.EventDB.Helper.initCronkLinks(parentCmp.el.dom);
                 this.updateSelected();
-            },this)
+            },this);
             this.reenableTextSelection();
+
+            // buffer store reload
+            this.refreshTask = new Ext.util.DelayedTask(
+                function() {
+                    if (this.store) {
+                        this.store.load();
+                        quickFilterBar.active = true;
+                    } else {
+                        AppKit.log('Store already destroyed but a request is pending. This should not happen.')
+                    }
+                },
+                this
+            );
         },
 
         buildInterGridLink: function() {
@@ -451,18 +461,10 @@ Cronk.EventDB.MainView = function(cfg) {
             }
         },
 
-        // buffer store reload
-        refreshTask : new Ext.util.DelayedTask(function() {
-            if(this.store)
-                this.store.load();
-            else
-                eventStore.load();
-            quickFilterBar.active = true;
-
-        }),
         refresh: function() {
-            this.refreshTask.delay(1000,null,this);
+            this.refreshTask.delay(1000);
         },
+
         resolveType: function(v) {
             return Cronk.EventDB.Helper.resolveTypeNr(v);
         },
@@ -767,25 +769,24 @@ Cronk.EventDB.MainView = function(cfg) {
         stateful: cfg.stateful,
         stateId: cfg.stateId,
         stateEvents: ['statechange','sortchange','columnresize','columnmove'],
-        enableAutorefresh: function() {
-            if (Ext.isEmpty(this.autoRefreshTask) === false) {
-                return;
-            }
 
-            this.autoRefreshTask = AppKit.getTr().start({
+        enableAutorefresh: function() {
+            if (Ext.isEmpty(this.autoRefreshTask)) {
+                this.autoRefreshTask = AppKit.getTr().start({
                     run: this.refresh,
                     scope: this,
                     interval: 20000
-            });
-        },
-        disableAutorefresh: function() {
-            if (Ext.isEmpty(this.autoRefreshTask)) {
-                    return;
+                });
             }
-
-            AppKit.getTr().stop(this.autoRefreshTask);
-            delete this.autoRefreshTask;
         },
+
+        disableAutorefresh: function() {
+            if (! Ext.isEmpty(this.autoRefreshTask)) {
+                AppKit.getTr().stop(this.autoRefreshTask);
+                delete this.autoRefreshTask;
+            }
+        },
+
         tbar: [{
             iconCls: 'icinga-icon-arrow-refresh',
             text: _('Refresh'),
@@ -1031,27 +1032,11 @@ Cronk.EventDB.MainView = function(cfg) {
         }]
     });
 
-    CE.add(IcingaEventDBCronk);
-
-    var cronkFrame = CE.getParent();
-    cronkFrame.on('activate', function() {
-        if (eventGrid.autorefreshEnabled) {
-            eventGrid.enableAutorefresh();
-        } else {
-            eventGrid.refresh();
-        }
-    });
-
-    cronkFrame.on('deactivate', function() {
-        if (eventGrid.autorefreshEnabled) {
-            eventGrid.disableAutorefresh();
-        } else {
-           eventGrid.refresh();
-        }
-    });
-
-    if((AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false'))
-        Ext.getCmp('refreshBtn_'+this.id).setChecked(true);
+    if (AppKit.getPrefVal('org.icinga.autoRefresh') && AppKit.getPrefVal('org.icinga.autoRefresh') != 'false') {
+        // Enable auto-refresh
+        Ext.getCmp('refreshBtn_' + this.id).setChecked(true);
+    }
+    // Delay first store load. This loads the store even if auto-refresh is disabled
     eventGrid.refreshTask.delay(1000);
 
     return IcingaEventDBCronk;
@@ -1115,8 +1100,8 @@ Ext.ns("Cronk.EventDB.Helper").extendedmessageFormatter = function(v) {
                 var formattedmibval = mibbold+":"+valitalic;
                 formattedmibval.replace("\t","");
                 v = v.replace(mibvalmatches[i], formattedmibval);
-        };
-    };
+        }
+    }
 
     var matches = v.match(reg);
 
