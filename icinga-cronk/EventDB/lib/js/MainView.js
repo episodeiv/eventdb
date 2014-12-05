@@ -2,7 +2,7 @@ Ext.ns("Cronk.EventDB");
 
 
 Cronk.EventDB.MainView = function(cfg) {
-    this.id = cfg.id;
+    this.id = Ext.id();
     var showCopyPaste = cfg.showCopyPaste;
     var parentCmp = cfg.parentCmp;
     var url = cfg.eventUrl;
@@ -1019,10 +1019,10 @@ Cronk.EventDB.MainView = function(cfg) {
         layout: 'border',
         width: parentCmp.getInnerWidth() * 0.98,
         items: [{
-            region:'center',
-            xtype:'panel',
-            layout:'fit',
-            border:false,
+            region: 'center',
+            xtype: 'panel',
+            layout: 'fit',
+            border: false,
             items: eventGrid
         }, {
             xtype: 'panel',

@@ -1,7 +1,6 @@
 <script type="text/javascript">
     Cronk.util.initEnvironment(<?php CronksRequestUtil::echoJsonString($rd); ?>, function() {
     var cfg = {
-        id: this.id,
         parentCmp: this.getParent(),
         eventUrl: '<?php echo $ro->gen("modules.eventdb.events.list"); ?>',
         commentUrl: '<?php echo $ro->gen("modules.eventdb.events.event.comments.list"); ?>',
