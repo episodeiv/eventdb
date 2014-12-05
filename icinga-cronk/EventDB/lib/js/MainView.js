@@ -469,81 +469,30 @@ Cronk.EventDB.MainView = function(cfg) {
             return Cronk.EventDB.Helper.resolveTypeNr(v);
         },
 
-        /**
-         * Returns parsable object structure to persist column informations
-         * @return {Object}
-         */
-        getPersistentColumnModel: function () {
-            var o = {
-                groupField: null,
-                columns: []
-            };
-
-            if (Ext.isDefined(this.store.groupField)) {
-                o.groupField = this.store.getGroupState();
-                o.groupDir = this.store.groupDir;
-                o.groupOnSort = this.store.groupOnSort;
-            }
-
-            Ext.iterate(this.colModel.lookup, function (colId, col) {
-                if (Ext.isEmpty(col.dataIndex) === false) {
-                    var colData = {};
-                    Ext.copyTo(colData, col, ['hidden', 'width', 'dataIndex', 'id', 'sortable']);
-                    o.columns.push(colData);
-                }
-            }, this);
-
-            return o;
-        },
-
-        /**
-         * Apply column state
-         *
-         * @param {Object} data
-         */
-        applyPersistentColumnModel: function (data) {
-            var cm = this.colModel;
-
-            if (Ext.isArray(data.columns)) {
-                Ext.each(data.columns, function (state) {
-                    var column = cm.getColumnById(state.id);
-                    if (! Ext.isDefined(column)) {
-                        var index = cm.findColumnIndex(state.dataIndex);
-                        if (index === -1) {
-                            return true;
-                        }
-                        column = cm.getColumnAt(index);
-                    }
-                    column.width = state.width;
-                    column.hidden = state.hidden;
-                });
-            }
-        },
-
         getState: function() {
             var state = {
+                grid: Ext.grid.GridPanel.prototype.getState.call(this),
                 height: this.getHeight(),
                 width: this.getWidth(),
-                //storeParams: this.store.baseParams,
-                filters: fm.getFilterObject(),
-                colModel: this.getPersistentColumnModel()
+                filters: fm.getFilterObject()
             };
             return state;
         },
 
         applyState: function(state) {
-            if (Ext.isObject(state.colModel)) {
-                this.applyPersistentColumnModel(state.colModel);
+            if (state.grid) {
+                Ext.grid.GridPanel.prototype.applyState.call(this, state.grid);
             }
+
             this.setHeight(state.height);
             this.setWidth(state.width);
-            //this.store.baseParams = state.storeParams;
 
             if (Ext.isObject(state.filters)) {
                 fm.setFilterObject(state.filters);
             }
 
             this.setPageSize(fm.getDisplayLimit());
+
             quickFilterBar.syncWithFilter();
         },
         viewConfig: {
