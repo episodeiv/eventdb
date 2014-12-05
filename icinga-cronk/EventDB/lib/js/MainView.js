@@ -1002,6 +1002,13 @@ Cronk.EventDB.MainView = function(cfg) {
                     }
                     _this.fireEvent('statechanged');
                 }
+            },
+            destroy: function()  {
+                if (this.autorefreshEnabled) {
+                    this.disableAutorefresh();
+                }
+                this.refreshTask.cancel();
+                delete this.refreshTask;
             }
         },
         border: false,
