@@ -1,7 +1,7 @@
 <script type="text/javascript">
-Cronk.util.initEnvironment("<?php echo $rd->getParameter('parentid'); ?>", function() {
+    Cronk.util.initEnvironment(<?php CronksRequestUtil::echoJsonString($rd); ?>, function() {
     var cfg = {
-        CE: this,
+        id: this.id,
         parentCmp: this.getParent(),
         eventUrl: '<?php echo $ro->gen("modules.eventdb.events.list"); ?>',
         commentUrl: '<?php echo $ro->gen("modules.eventdb.events.event.comments.list"); ?>',
@@ -13,6 +13,32 @@ Cronk.util.initEnvironment("<?php echo $rd->getParameter('parentid'); ?>", funct
         stateful: true,
         stateId: this.stateuid
     };
-    Cronk.EventDB.MainView(cfg);
+    var eventdb = Cronk.EventDB.MainView(cfg);
+    this.setStatefulObject(eventdb.eventGrid);
+    if (this.state) {
+        eventdb.eventGrid.on({
+            beforerender: function(self) {
+                self.applyState(this.state);
+            },
+            scope: this
+        });
+    }
+    this.getParent().on({
+        activate: function () {
+            if (this.autorefreshEnabled) {
+                this.enableAutorefresh();
+            } else {
+                this.refresh();
+            }
+        },
+        deactivate: function () {
+            if (this.autorefreshEnabled) {
+                this.disableAutorefresh();
+            }
+        },
+        scope: eventdb.eventGrid
+    });
+    this.add(eventdb);
+    this.doLayout();
 });
 </script>
