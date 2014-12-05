@@ -20,6 +20,11 @@
         }
         this.state.filters = Ext.decode(this.params.FilterJSON);
         delete this.params.FilterJSON;
+        eventdb.eventGrid.on({
+            afterrender: function(self) {
+                self.fireEvent('statechange');
+            }
+        });
     }
     if (this.state) {
         eventdb.eventGrid.on({
