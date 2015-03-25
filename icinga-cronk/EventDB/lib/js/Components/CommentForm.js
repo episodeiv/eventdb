@@ -93,7 +93,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                                             });
                                         }
                                     });
-                                    if(!oWin.forall) {
+                                    if(!oWin.forall && events.length) {
                                         var eventsJson = Ext.encode([Ext.apply(vals, {ids: events})]);
                                         eventGrid.unselectAll();
                                         oForm.getForm().submit({
