@@ -93,7 +93,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
                                             });
                                         }
                                     });
-                                    if(!oWin.forall && events.length) {
+                                    if (! oWin.forall && events.length) {
                                         var eventsJson = Ext.encode([Ext.apply(vals, {ids: events})]);
                                         eventGrid.unselectAll();
                                         oForm.getForm().submit({
@@ -105,7 +105,7 @@ Ext.ns("Cronk.EventDB.Components").CommentForm = function(cfg,detailPanel) {
 
                                             }
                                         });
-                                    } else {
+                                    } else if (oWin.forall) {
                                         var eventsJson = Ext.encode([Ext.apply(vals, {filter: eventGrid.getStore().baseParams.jsonFilter})]);
                                         eventGrid.unselectAll();
                                         oForm.getForm().submit({
