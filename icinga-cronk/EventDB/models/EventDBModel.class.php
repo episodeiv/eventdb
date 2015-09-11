@@ -253,6 +253,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
         $eventsWithComments = $this->getEventsWithComment($r);
 
         $q->free();
+        $encodeUtf8 = $this->getReadConnection()->getCharset() === 'latin1';
         foreach ($r as &$event) {
             $event['real_host'] = false;
             $event = array_merge($event, $eventAdditional[$event['id']]);
@@ -269,6 +270,13 @@ class EventDB_EventDBModel extends EventDBBaseModel {
             }
             if (array_key_exists($event['id'], $eventsWithComments)) {
                 $event['has_comment'] = true;
+            }
+            if ($encodeUtf8) {
+                foreach ($event as &$value) {
+                    if ($value !== null && ! ctype_digit($value)) {
+                        $value = utf8_encode($value);
+                    }
+                }
             }
         }
 
