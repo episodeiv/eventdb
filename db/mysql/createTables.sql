@@ -13,12 +13,12 @@ CREATE TABLE event (
   `modified`            datetime default NULL,
   `active`              tinyint(1) default '1',
   `group_active`        tinyint(1) default '0',
-  `group_id`            binary(16) default NULL, 
-  `group_count`         int(16) default NULL, 
+  `group_id`            binary(16) default NULL,
+  `group_count`         int(16) default NULL,
   `group_leader`        bigint(20) default NULL,
   `group_autoclear`     tinyint(1) default '0',
   `flags`               int(11) default '0',
-  
+
   PRIMARY KEY (`id`),
   KEY `host_address` (`host_address`),
   KEY `host_name` (`host_name`),
@@ -29,7 +29,7 @@ CREATE TABLE event (
   KEY `group_active` (`group_active`),
   KEY `idx_groups` (`group_id`,`group_active`,`group_leader`),
   KEY `flags` (`flags`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE comment (
@@ -42,6 +42,6 @@ CREATE TABLE comment (
   `user`        varchar(64) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `fk_event_id` (`event_id`),
-  KEY `idx_all` (`id`,`event_id`,`user`),	
+  KEY `idx_all` (`id`,`event_id`,`user`),
   CONSTRAINT `db_comments_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `event` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
