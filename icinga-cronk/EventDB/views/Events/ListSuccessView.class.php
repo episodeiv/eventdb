@@ -1,24 +1,24 @@
 <?php
 
 class EventDB_Events_ListSuccessView extends EventDBBaseView {
-	
+
 	public function executeHtml(AgaviRequestDataHolder $rd) {
 		$this->setupHtml($rd);
-	
+
 		$this->setAttribute('_title', 'EventDB.Events.List');
 	}
-	
+
 	public function executeJson(AgaviRequestDataHolder $rd) {
-		$edb = $this->getContext()->getModel('EventDB', 'EventDB');	
+		$edb = $this->getContext()->getModel('EventDB', 'EventDB');
 		$qfilter = $rd->getParameter("hostQuickFilter",array());
-		
+
 		$filter =  $rd->getParameter('filter', array());
 		$filter[] = $qfilter;
-			
+
 		if(empty($filter))
 			$filter = false;
 
-		
+
 		$db = $edb->getEvents(array(),
 				$rd->getParameter('offset', 0),
 				$rd->getParameter('limit', false),
@@ -35,21 +35,9 @@ class EventDB_Events_ListSuccessView extends EventDBBaseView {
 				)
 			);
 
-		return json_encode($this->recursiveUTF8Encode(array(
+		return json_encode(array(
 			'events' => $db["values"]
 //			'count' => $db["count"]
-		)));
+		));
 	}
-
-    public function recursiveUTF8Encode($val)
-    {
-        foreach ($val as &$value) {
-            if (is_array($value)) {
-                $value = $this->recursiveUTF8Encode($value);
-            } else {
-                $value = utf8_encode($value);
-            }
-        }
-        return $val;
-    }
 }
