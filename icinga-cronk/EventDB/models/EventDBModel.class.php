@@ -253,7 +253,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
         $eventsWithComments = $this->getEventsWithComment($r);
 
         $q->free();
-        $encodeUtf8 = $this->getReadConnection()->getCharset() === 'latin1';
+        $encodeUtf8 = $this->getReadConnection()->getCharset() === 'latin1' && function_exists('mb_detect_encoding');
         foreach ($r as &$event) {
             $event['real_host'] = false;
             $event = array_merge($event, $eventAdditional[$event['id']]);
@@ -274,7 +274,10 @@ class EventDB_EventDBModel extends EventDBBaseModel {
             if ($encodeUtf8) {
                 foreach ($event as &$value) {
                     if ($value !== null && ! ctype_digit($value)) {
-                        $value = utf8_encode($value);
+                        $encoding = mb_detect_encoding($value);
+                        if ($encoding !== 'UTF-8') {
+                            $value = mb_convert_encoding($value, 'UTF-8', $encoding);
+                        }
                     }
                 }
             }
