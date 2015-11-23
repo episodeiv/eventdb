@@ -275,7 +275,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
                 foreach ($event as &$value) {
                     if ($value !== null && ! ctype_digit($value)) {
                         $encoding = mb_detect_encoding($value);
-                        if ($encoding !== 'UTF-8') {
+                        if ($encoding !== false && $encoding !== 'UTF-8') {
                             $value = mb_convert_encoding($value, 'UTF-8', $encoding);
                         }
                     }
