@@ -1017,6 +1017,10 @@ Ext.ns("Cronk.EventDB.Helper").resolveTypeNr = function(v) {
 // detects URLs in messages
 
 Ext.ns("Cronk.EventDB.Helper").messageFormatter = function(v) {
+    if (! v) {
+        return '';
+    }
+
     v = Ext.util.Format.htmlEncode(v);
     var reg = /((?:http(?:s)?|www\.|[\w\.]+\.(?:de|com|net|org|fr|it|co.uk|ru|ro)\/)[^ ]*?)(?: .*)?[$;| ]/i;
 
@@ -1037,13 +1041,16 @@ Ext.ns("Cronk.EventDB.Helper").messageFormatter = function(v) {
 };
 
 Ext.ns("Cronk.EventDB.Helper").extendedmessageFormatter = function(v) {
+    if (! v) {
+        return '';
+    }
+
     var reg = /((?:http(?:s)?|www\.|[\w\.]+\.(?:de|com|net|org|fr|it|co.uk|ru|ro)\/)[^ ]*?)(?: .*)?[$;| ]/i;
     var mibvalreg = /((([\t]{1}[\w\.][^:]*[:]{2})(\w*)?(\.\d+)*):(?:(?:[^\t]*))\t)/gi;
     var mibreg = /(([\t]{1}[\w\.][^:]*[:]{2})(\w*)?(\.\d+)*)/gi;
-    var valreg = /(:(?:(?:[^\t]*))\t)/gi;
 
     v = Ext.util.Format.htmlEncode(v);
-    v = v.replace(/\n/gi, "<br />");
+    v = Ext.util.Format.nl2br(v);
 
     var mibvalmatches = v.match(mibvalreg);
 
