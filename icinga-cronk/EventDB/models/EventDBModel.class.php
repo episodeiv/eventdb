@@ -253,7 +253,7 @@ class EventDB_EventDBModel extends EventDBBaseModel {
         $eventsWithComments = $this->getEventsWithComment($r);
 
         $q->free();
-        $encodeUtf8 = $this->getReadConnection()->getCharset() === 'latin1' && function_exists('mb_detect_encoding');
+        $encodeUtf8 = $this->getReadConnection()->getCharset() === 'latin1';
         foreach ($r as &$event) {
             $event['real_host'] = false;
             $event = array_merge($event, $eventAdditional[$event['id']]);
@@ -272,12 +272,21 @@ class EventDB_EventDBModel extends EventDBBaseModel {
                 $event['has_comment'] = true;
             }
             if ($encodeUtf8) {
+                $utf8 = <<<'RE'
+/
+  (
+    (?: [\x00-\x7F]                 # single-byte sequences   0xxxxxxx
+    |   [\xC0-\xDF][\x80-\xBF]      # double-byte sequences   110xxxxx 10xxxxxx
+    |   [\xE0-\xEF][\x80-\xBF]{2}   # triple-byte sequences   1110xxxx 10xxxxxx * 2
+    |   [\xF0-\xF7][\x80-\xBF]{3}   # quadruple-byte sequence 11110xxx 10xxxxxx * 3
+    ){1,100}
+  )
+|.
+/x
+RE;
                 foreach ($event as &$value) {
                     if ($value !== null && ! ctype_digit($value)) {
-                        $encoding = mb_detect_encoding($value);
-                        if ($encoding !== false && $encoding !== 'UTF-8') {
-                            $value = mb_convert_encoding($value, 'UTF-8', $encoding);
-                        }
+                        $value = preg_replace($utf8, '$1', $value);
                     }
                 }
             }
