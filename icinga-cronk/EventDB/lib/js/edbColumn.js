@@ -124,7 +124,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 		Ext.iterate(data.edb.result || [], function(elem) {
                 if(typeof map[elem[cfg.type+'_ID']] !== 'object')
                     map[elem[cfg.type+'_ID']] = {};
-                if(elem[cfg.type+'_CUSTOMVARIABLE_NAME'].toLowerCase() != 'edb_filter') {
+                if(elem[cfg.type+'_CUSTOMVARIABLE_NAME'].toLowerCase() == 'edb_filter') {
                     var baseFilter = Ext.decode(elem[cfg.type+'_CUSTOMVARIABLE_VALUE']);
                     if(Ext.isObject(baseFilter))
                         map[elem[cfg.type+'_ID']] = baseFilter;
