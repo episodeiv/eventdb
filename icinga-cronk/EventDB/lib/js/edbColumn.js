@@ -43,11 +43,11 @@ Ext.ns('Cronk.grid.ColumnRenderer');
                         "value" : [cfg.cv_filter]
                     }
                 ]
-            }
+            };
         }
         return cv;
 
-    }
+    };
 
 	/**
 	 * Requests EventDB customvariables for the shown hosts/services in order to draw the links
@@ -103,7 +103,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 					callback.call(scope,Ext.apply(cfg,{edb:data}),cfg);
 			}
 		});
-	}
+	};
 	
 	/**
 	 * Update node css and link to eventDB, if possible
@@ -114,27 +114,32 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	 */
 	var drawLinks = function(data,cfg) {
 		var objects = Ext.DomQuery.select('.edb_cronk_sel.unfinished');
-		var map = {}
+		var map = {};
 		if(!data.edb) {
 			data.edb = {
 				result: []
-			}
+			};
 		}
 		// create a service->filter map for easier access
-		Ext.iterate(data.edb.result || [], function(elem) {
+		Ext.iterate(data.edb.result || [], function(elem) {
                 if(typeof map[elem[cfg.type+'_ID']] !== 'object')
                     map[elem[cfg.type+'_ID']] = {};
-                if(elem[cfg.type+'_CUSTOMVARIABLE_NAME'].toLowerCase() != 'edb_filter') 
-                    return true;
-                var baseFilter = Ext.decode(elem[cfg.type+'_CUSTOMVARIABLE_VALUE']); 
-                if(Ext.isObject(baseFilter))
-                    map[elem[cfg.type+'_ID']] = baseFilter;
-				map[elem[cfg.type+'_ID']].host = elem.HOST_NAME;
-                map[elem[cfg.type+'_ID']].address = elem.HOST_ADDRESS;
-				map[elem[cfg.type+'_ID']].service = elem[cfg.type+'_NAME'];
+                if(elem[cfg.type+'_CUSTOMVARIABLE_NAME'].toLowerCase() != 'edb_filter') {
+                    var baseFilter = Ext.decode(elem[cfg.type+'_CUSTOMVARIABLE_VALUE']);
+                    if(Ext.isObject(baseFilter))
+                        map[elem[cfg.type+'_ID']] = baseFilter;
+                }
 
+                // set fields to default values, except they are already
+                // coming from the edb_filter customvar
+                if(!map[elem[cfg.type+'_ID']].host)
+                    map[elem[cfg.type+'_ID']].host = elem.HOST_NAME;
+                if(!map[elem[cfg.type+'_ID']].address)
+                    map[elem[cfg.type+'_ID']].address = elem.HOST_ADDRESS;
+                if(!map[elem[cfg.type+'_ID']].service && cfg.type !== 'SERVICE')
+                    map[elem[cfg.type+'_ID']].service = elem[cfg.type+'_NAME'];
 		});
-        AppKit.log(cfg);
+
 		// Add host/service as a filter per default
 		Ext.iterate(objects,function(DOMNode) {
 			var id = DOMNode.getAttribute('edb_val');
@@ -142,7 +147,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 			if(map[id])
 				return true;
             else if(!cfg.cv_filter)
-    			map[id] = {host: DOMNode.getAttribute('host'), service: DOMNode.getAttribute('service')}
+                map[id] = {host: DOMNode.getAttribute('host'), service: DOMNode.getAttribute('service')};
 		});
 		
 		Ext.iterate(objects,function(DOMNode) {
@@ -151,7 +156,7 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 			if(!map[id]) {
 				elem.replaceClass("unfinished","notAvailable");
 			} else {
-				elem.removeClass("unfinished")
+				elem.removeClass("unfinished");
 				Ext.get(elem.findParentNode('td')).addClass(["edb_cronk_sel","x-icinga-grid-link","available"]);
 				new Ext.ToolTip({
 					target: Ext.get(elem.findParentNode('td')),
@@ -161,8 +166,8 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 				buildLink(elem,map[id]);
 			}
 			return true;
-		})
-	}
+		});
+	};
 	/**
 	 * Create link with jsonFilter from customvar in a specific cell 
 	 * @param {DOMNode} elem	The DOM Node of the cell's div
@@ -170,7 +175,6 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 	 * @author jmosshammer<jannis.mosshammer@netways.de>
 	 */
 	var buildLink = function(elem,data) {
-		AppKit.log(data);
 		var cronk = {
 			parentid: Ext.id(),
 			title: 'EventDB: '+(data.service != "undefined" ? (data.host+" : "+data.service) : data.host),
@@ -223,18 +227,19 @@ Ext.ns('Cronk.grid.ColumnRenderer');
 					}
 				})
 			}
-		}
+		};
 		
 		elem.on("click",Cronk.util.InterGridUtil.gridFilterLink.createDelegate(this,[cronk, {}]));
-	}
+	};
 	
 	
 	Cronk.grid.ColumnRenderer.edbColumn = function(cfg) {
 		return function(value, garbage, record, rowIndex, colIndex, store) {
 			edbColumnSelector.delay(500,null,null,[cfg,record]);
-			return '<div class="edb_cronk_sel unfinished" edb_val="'+value+'" host="'+record.data.host_name+'" service="'+record.data.service_name+'" style="width:25px;height:24px;display:block"></div>'
-		}
-	}
+			return '<div class="edb_cronk_sel unfinished" edb_val="'+value+'" host="'+record.data.host_name+'" service="'+record.data.service_name+'" style="width:25px;height:24px;display:block"></div>';
+		};
+	};
 		
 
 })();
+
