@@ -26,17 +26,17 @@
  */
 
  /* Changes:
-  * 
+  *
   * 2009-08-26: William Preston, NETWAYS GmbH
   *             - added a start date field to hide older events
   *             - additional style definitions
   * 2009-06-11: Martin Fuerstenau <mf_at_maerber.de>
   *             - Added the ability to list program from the frontend. It can be
   *               be delivered by all agents but was not accessable using the frontend
-  *             - Added td.critical and td.down in style definitions. Due to the fact 
+  *             - Added td.critical and td.down in style definitions. Due to the fact
   *               that not all agents are using syslog-ng there is no need to use
   *               the error levels from syslog (err,emerg,crit,info etc.) The agent can
-  *               deliver directly the Nagios ones (critical,down). 
+  *               deliver directly the Nagios ones (critical,down).
   */
 
 /**
@@ -735,8 +735,8 @@ function check_add_comment($a) {
 
 function check_event_id($id) {
   if(!is_numeric($id)) {
-    $id = split('-',$id);
-    $id = $id[count($id)-1];  
+    $id = preg_split('/-/',$id);
+    $id = $id[count($id)-1];
   }
   if (is_numeric($id) && intval($id) > 0) {
     $parts = Array(Array(
@@ -871,7 +871,7 @@ function get_facility_class($value) {
 		21 => 'local use 5',
 		22 => 'local use 6',
 		23 => 'local use 7'
-	);	
+	);
 //    return $FACILITIES[$value];
 	return $FACILITIES[$value];
 }
@@ -994,7 +994,7 @@ function html_data_table($arr, $count) {
         }
 
 		EncodeString($value);
-		
+
         printf('<td%2$s>%1$s</td>', $value ? $value : '&nbsp;', $class ? sprintf(' class="%s"', $class) : false);
       }
       printf('</tr>');
@@ -1199,7 +1199,7 @@ function html_box_stop() {
 
 function html_comments_box($id) {
   if(!is_numeric($id)) {
-    $id = split('-',$id);
+    $id = preg_split('/-/',$id);
     $id = $id[count($id)-1];
   }
 
@@ -1220,7 +1220,7 @@ function html_comments_box($id) {
     $host = $arr[0]['host'];
 
     $content = array ();
-   
+
     foreach ($arr as $row) {
       $tmp = <<<END
       <table border="0" cellpadding="0" cellspacing="0" class="comment">
@@ -1600,7 +1600,7 @@ function cget($key, $default=false) {
   global $config;
   $eval = sprintf(
     'return $config[\'%1$s\'];',
-    implode('\'][\'', split('\.', $key))
+    implode('\'][\'', preg_split('/\./', $key))
   );
 
   if (strlen(strval($re = eval ($eval)))>0) {
@@ -1615,12 +1615,12 @@ function cset($key, $val) {
   global $config;
   if (is_array($val)) {
     $eval = sprintf('$config[\'%1$s\'] = $val;',
-    implode('\'][\'', split('\.', $key))
+    implode('\'][\'', preg_split('/\./', $key))
     );
   }
   else {
     $eval = sprintf('$config[\'%1$s\'] = \'%2$s\';',
-    implode('\'][\'', split('\.', $key)),
+    implode('\'][\'', preg_split('/\./', $key)),
     $val
     );
   }
