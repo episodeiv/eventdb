@@ -647,18 +647,18 @@ function sql_query_parts($array) {
 
 function db_init() {
   global $db;
-  $db = @mysql_pconnect(
+  $db = @mysqli_connect(
     cget('db.host'),
     cget('db.user'),
     cget('db.pass')
   );
 
-  if (!$db) {
-    mkerror(mysql_error(), mysql_errno(), 'DB');
+  if (mysqli_connect_errno()) {
+    mkerror(mysqli_connect_error(), mysqli_connect_errno(), 'DB');
   }
 
-  if (!mysql_select_db(cget('db.name'), $db)) {
-    mkerror(mysql_error(), mysql_errno(), 'DB');
+  if (!$db->select_db(cget('db.name'))) {
+    mkerror($db->error(), $db->errno(), 'DB');
   }
 
   return $db;
@@ -675,25 +675,25 @@ function db_conn() {
 }
 
 function db_query($sql) {
-  $res = @mysql_query($sql, db_conn());
+  $res = @db_conn()->query($sql);
   if (!$res) {
-    mkerror(mysql_error(), mysql_errno(), 'DB');
+    mkerror(db_conn()->error, db_conn()->errno, 'DB');
   }
 
-  elseif (($num = @mysql_num_rows($res)) > 0) {
+  elseif (($num = $res->num_rows) > 0) {
     return db_res2array($res);
   }
 
-  elseif (($num = @mysql_insert_id(db_conn())) > 0) {
+  elseif (($num = db_conn()->insert_id) > 0) {
     return $num;
   }
 
-  elseif (($num = @mysql_affected_rows(db_conn())) > 0) {
+  elseif (($num = db_conn()->affected_rows()) > 0) {
     return $num;
   }
 
-  $res = @mysql_query('select count(id) as zeilen from event', db_conn());
-  $zeilen = mysql_fetch_assoc($res);
+  $res = @db_conn()->query('select count(id) as zeilen from event');
+  $zeilen = $res->fetch_assoc();
   if ( $zeilen["zeilen"] == 1) {
     mkerror('Database is empty (please feed it via printf "$HOSTNAME\tuser\terr\tlevel\ttag\t%s\t%s\tPROGRAM\ttest message $$\n" `date "+%Y-%m-%d"` `date "+%H:%M:%S"` >> /usr/local/nagios/var/rw/syslog-ng.pipe)' . "  \n\n$sql", 0, 'DB');
     return false;
@@ -703,11 +703,11 @@ function db_query($sql) {
 function db_res2array($res) {
   if ($res) {
     $tmp = array ();
-    while ($row = mysql_fetch_assoc($res)) {
+    while ($row = $res->fetch_assoc()) {
       $tmp[] = $row;
     }
 
-    mysql_free_result ($res);
+    $res->free_result ();
 
     return $tmp;
   }
