@@ -688,7 +688,7 @@ function db_query($sql) {
     return $num;
   }
 
-  elseif (($num = db_conn()->affected_rows()) > 0) {
+  elseif (($num = $res->affected_rows) > 0) {
     return $num;
   }
 
